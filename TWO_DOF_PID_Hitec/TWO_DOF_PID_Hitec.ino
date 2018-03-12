@@ -215,3 +215,4 @@ float normalize(float component, float g_mag)
  return component/g_mag; 
 }
 
+//What happens if I add this comment line here?
