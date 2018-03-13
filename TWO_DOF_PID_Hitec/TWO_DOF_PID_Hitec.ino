@@ -11,21 +11,20 @@
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
 //Define PID Parameters
-int dt = 15;             //timestep size
-float Kp_ph = 0.01;       
-float Ki_ph = 0.0;       
-float Kd_ph = 0.0;         
-float Kp_th = 0.01;       
+float Kp_ph = 0.03;       
+float Ki_ph = 0.00;       
+float Kd_ph = 0.08;         
+float Kp_th = 0.03;       
 float Ki_th = 0.0;       
-float Kd_th = 0.0;         
-float previous_error = 0;
+float Kd_th = 0.05;         
+float lastErr = 0;
 float error = 0;
 float setpoint_ph = 0;
 float setpoint_th = 0;
-float integral = 0;
-float derivative = 0;
 float output_ph = 0;
 float output_th = 0;
+int lastTime = 0;
+float errSum = 0;
 
 //declare counter for IMU initialization
 int counter = 0;
@@ -191,12 +190,23 @@ float Get_th(float num, float den, float current_angle)
 //PID Controller Function
 float PID_Controller(float measured_value, float setpoint, float Kp, float Ki, float Kd)
 {
+  //how long since we last calculated?
+  int now = millis();
+  float timeChange = (float)(now - lastTime);
+  
+  //compute working variables:
   error = setpoint - measured_value;
-  integral = integral + error * dt/1000;
-  derivative = (error - previous_error) / dt/1000;
-  return Kp * error + Ki * integral + Kd * derivative;
-  previous_error = error;
-  delay(dt);
+  errSum /= timeChange;
+  errSum += (error * timeChange);
+  float dErr = (error - lastErr) / timeChange;
+  
+  
+  //Compute PID Output
+  return Kp * error + Ki * errSum + Kd * dErr;
+    
+  //remember some variables for next time
+  lastErr = error;
+  lastTime = now;
 }
 
 //%%%MAGNITUDE%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%//
@@ -215,4 +225,3 @@ float normalize(float component, float g_mag)
  return component/g_mag; 
 }
 
-//What happens if I add this comment line here?
