@@ -230,6 +230,37 @@ namespace brachIOplexus
 
         #endregion
 
+        #region "Auto-Levelling Initialization"
+        //Variable initialization for auto-levelling functionality - db
+
+        // add stopwatch for tracking PID loop time
+        Stopwatch stopWatch3 = new Stopwatch();
+        long milliSec3;     // the timestep of the PID loop in milliseconds
+
+        //PID variables
+        double errSum = 0;              //sum of error accumulated for integral component of PID
+        double lastErr = 0;             //error on last timestep of PID
+        int x_component = 0;            //x component of IMU reading of gravity acceleration (0-1023)
+        int y_component = 0;            //y component of IMU reading of gravity acceleration (0-1023)
+        int z_component = 0;            //x component of IMU reading of gravity acceleration (0-1023)
+        double phi = 180;               //roll angle of wrist
+        double theta = 180;             //flexion angle of wrist
+        double setpoint_phi = 180;      //target roll angle of wrist
+        double setpoint_theta = 180;    //target flexion angle of wrist
+        double Kp_phi = 0;              //PID proportional constant for phi
+        double Ki_phi = 0;              //PID integral constant for phi
+        double Kd_phi = 0;              //PID derivative constant for phi
+        double Kp_theta = 0;            //PID proportional constant for theta
+        double Ki_theta = 0;            //PID integral constant for theta
+        double Kd_theta = 0;            //PID derivative constant for theta
+        double output_phi = 0;          //output from PID controller for phi
+        double output_theta = 0;        //output from PID controller for phi
+        int RotAdjustment = 2050;        //initial goal position for rotation
+        int FlxAdjustment = 2050;        //initial goal position for flexion
+
+
+        #endregion
+
         #region "Mapping Classes"
         // Classes for storing information about mapping and robot data
 
@@ -4511,6 +4542,9 @@ namespace brachIOplexus
                     RobotFeedbackBox.Enabled = true;
                     BentoEnvLimitsBox.Enabled = true;
                     BentoAdaptGripBox.Enabled = true;
+                    AutoLevellingBox.Enabled = true; // - db
+                    RotationPIDBox.Enabled = true; // - db
+                    FlexionPIDBox.Enabled = true;  // - db
                     BentoStatus.Text = "Connected / Torque Off";
                     BentoList.Enabled = true;
                     BentoSelectAll.Enabled = true;
@@ -4553,6 +4587,9 @@ namespace brachIOplexus
             RobotFeedbackBox.Enabled = false;
             BentoEnvLimitsBox.Enabled = false;
             BentoAdaptGripBox.Enabled = false;
+            AutoLevellingBox.Enabled = false; // - db
+            RotationPIDBox.Enabled = false; // - db
+            FlexionPIDBox.Enabled = false;  // - db
             BentoStatus.Text = "Disconnected";
             BentoRunStatus.Text = "Suspend";
             BentoRunStatus.Enabled = false;
@@ -5444,7 +5481,7 @@ namespace brachIOplexus
                             InputMap[4, 0] = Convert.ToInt32(words[1].TrimStart('0').Length > 0 ? words[1].TrimStart('0') : "0") / scale_factor;
                             InputMap[4, 1] = Convert.ToInt32(words[2].TrimStart('0').Length > 0 ? words[2].TrimStart('0') : "0") / scale_factor;
                             InputMap[4, 2] = Convert.ToInt32(words[3].TrimStart('0').Length > 0 ? words[3].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 3] = Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0") / scale_factor;
+                            InputMap[4, 3] = 0;  // disabled A3 since only sending 3 values for IMU - db
                             InputMap[4, 4] = 0;
                             InputMap[4, 5] = 0;
                             InputMap[4, 6] = 0;
@@ -5464,6 +5501,11 @@ namespace brachIOplexus
                     arduino_A5.Text = Convert.ToString(InputMap[4, 5]);
                     arduino_A6.Text = Convert.ToString(InputMap[4, 6]);
                     arduino_A7.Text = Convert.ToString(InputMap[4, 7]);
+
+                    //gather x, y, z data for autolevelling - db
+                    x_component = InputMap[4, 0] * scale_factor;
+                    y_component = InputMap[4, 1] * scale_factor;
+                    z_component = InputMap[4, 2] * scale_factor;
                 }
 
                 // Update Simulink Realtime EMG values
@@ -5724,11 +5766,25 @@ namespace brachIOplexus
                         {
                             switch (dofObj[i].ChA.mapping)
                             {
-                                // Use first past the post control option
+                                // Use first past the post control option (unless auto-levelling is enabled - db)
                                 case 0:
-                                    if (k >= 0)
+                                    if (k >= 0 && AL_Enabled.Checked == false)
                                     {
                                         post(dofObj[i], k, i);
+                                    }
+
+                                    // If auto-levelling enabled, level wrist joints, and use FPTP for the other joints - db
+                                    else if (k >= 0)
+                                    {
+                                        if (i != 2 && i != 3)
+                                        {
+                                            post(dofObj[i], k, i);
+                                        }
+                                        else
+                                        {
+                                            //autolevel
+                                        }
+
                                     }
                                     break;
                             }
@@ -6204,6 +6260,160 @@ namespace brachIOplexus
             }
         }
 
+        #region "AutoLevelling Functions - db"
+
+        // Helper function to find the magnitude of a three component vector - db
+        private double magnitude(int x, int y, int z)
+        {
+            return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2));
+        }
+
+        // Helper function to normalize vector components, given the component and the magnitude of the vector - db
+        private double normalize(double comp, double mag)
+        {
+            return comp / mag;
+        }
+
+        // Finds wrist flexion angle theta from provided vector components. - db
+        // Angle theta defined as the angle between the negative IMU y axis 
+        // and the direction of gravity projected onto the z-y plane, CW
+        // around the x axis. Refer to IMU Axes diagram in BrachI/OPlexus main folder.
+        private double Get_theta(double num, double den, double current_angle)
+        {
+            //Conditions when den = 0:
+            if (den == 0)
+            {
+                if (num < 0)
+                {
+                    return 0.0;
+                }
+                else if (num > 0)
+                {
+                    return 180.0;
+                }
+                else
+                {
+                    return current_angle;
+                }
+            }
+
+            //Conditions when den > 0:
+            else if (den > 0)
+            {
+                return Math.Atan(num / den) * 180 / 3.141592653589793 + 90;
+            }
+
+            //Conditions when den < 0:
+            else
+            {
+                return Math.Atan(num / den) * 180 / 3.141592653589793 + 270;
+            }
+        }
+
+        // Finds wrist rotation angle phi from provided vector components. - db
+        // Angle phi defined as the angle between the negative IMU y axis 
+        // and the direction of gravity projected onto the x-y plane, CCW
+        // around the z axis. Refer to IMU Axes diagram in BrachI/OPlexus main folder.
+        private double Get_phi(double num, double den, double current_angle)
+        {
+            //Conditions when den = 0:
+            if (den == 0)
+            {
+                if (num < 0)
+                {
+                    return 90.0;
+                }
+                else if (num > 0)
+                {
+                    return 270.0;
+                }
+                else
+                {
+                    return current_angle;
+                }
+            }
+
+            //Conditions when den > 0:
+            else if (den > 0)
+            {
+                return Math.Atan(num / den) * 180 / 3.141592653589793 + 180;
+            }
+
+            //Conditions when den < 0 and num <= 0:
+            else if (num <= 0)
+            {
+                return Math.Atan(num / den) * 180 / 3.141592653589793;
+            }
+
+            //Conditions when den < 0 and num > 0:
+            else
+            {
+                return Math.Atan(num / den) * 180 / 3.141592653589793 + 360;
+            }
+        }
+
+        // PID Controller function for autolevelling - db
+        private double PID(double measured_value, double setpoint, double Kp, double Ki, double Kd)
+        {
+            //how long since we last calculated?
+            stopWatch3.Stop();
+            milliSec3 = stopWatch3.ElapsedMilliseconds;
+            stopWatch3.Reset();
+            stopWatch3.Start();
+
+            //compute working variables:
+            double error = setpoint - measured_value;
+            errSum += (error * milliSec3);
+            double dErr = (error - lastErr) / milliSec3;
+
+            //update variables for next loop
+            lastErr = error;
+
+            //compute PID output
+            return Kp * error + Ki * errSum + Kd * dErr;
+        }
+
+        //Function to get the gravity vector and angles phi and theta from the IMU data - db
+        private void Get_Grav()
+        {
+
+            double g_mag = magnitude(x_component, y_component, z_component);
+            double a = normalize(x_component, g_mag);
+            double b = normalize(y_component, g_mag);
+            double c = normalize(z_component, g_mag);
+            phi = Get_phi(a, b, phi);
+            theta = Get_theta(b, c, theta);
+        }
+
+        //Function to call the PID controller, get the desired servo position - db
+        void Get_GoalPos()
+        {
+            //get output from PID controller (amount servo needs to move in degrees)
+            output_phi = PID(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi);
+            output_theta = PID(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
+            RotAdjustment = Deg_to_Ticks(output_phi);
+            FlxAdjustment = Deg_to_Ticks(output_theta);
+        }
+
+        //Function to write the PID driven goal-positions to the rotation servo - db
+        void MoveLevelRot()
+        {
+            robotObj.Motor[2].p = robotObj.Motor[2].p_prev - RotAdjustment;
+        }
+
+        //Function to write the PID driven goal-position to the flexion servo - db
+        void MoveLevelFlx()
+        {
+            robotObj.Motor[3].p = robotObj.Motor[3].p_prev - FlxAdjustment;
+        }
+
+        //Function to convert degrees to encoder position ticks - db
+        private int Deg_to_Ticks(double degrees)
+        {
+            return (int)(degrees * 11.3611111111111111111111); //11.361111 degrees per encoder tick
+        }
+
+        #endregion
         #endregion
 
         #endregion

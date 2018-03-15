@@ -112,9 +112,7 @@ void loop()
     concat_message = "";
     sensor[1].value = imu.x();
     sensor[2].value = imu.y();
-    sensor[3].value = imu.z();
-    sensor[4].value = 5;
-    
+    sensor[3].value = imu.z();   
     
     for(int m=1; m <= ch_num; m++)
     {  
