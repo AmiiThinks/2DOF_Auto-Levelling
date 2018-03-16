@@ -5032,11 +5032,11 @@ namespace brachIOplexus
             {
                 ID3_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
                 robotObj.Motor[2].p_prev = ID3_present_position;
-                Pos3.Text = Convert.ToString(Kp_phi);//Convert.ToString(ID3_present_position);
-                Vel3.Text = Convert.ToString(Ki_phi);//Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
-                Load3.Text = Convert.ToString(Kd_phi);//Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
-                Volt3.Text = Convert.ToString(Kp_theta);//Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
-                Temp3.Text = Convert.ToString(Ki_theta);//Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                Pos3.Text = Convert.ToString(ID3_present_position);
+                Vel3.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
+                Load3.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
+                Volt3.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
+                Temp3.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
                 check_overheat(DXL3_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
                 check_overload(DXL3_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_TORQUE_LIMIT, LEN_MX_TORQUE_LIMIT));
             }
@@ -5048,7 +5048,7 @@ namespace brachIOplexus
             {
                 ID4_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
                 robotObj.Motor[3].p_prev = ID4_present_position;
-                Pos4.Text = Convert.ToString(Kd_theta);//Convert.ToString(ID4_present_position);
+                Pos4.Text = Convert.ToString(ID4_present_position);
                 Vel4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
                 Load4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
                 Volt4.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
@@ -5766,28 +5766,15 @@ namespace brachIOplexus
                         {
                             switch (dofObj[i].ChA.mapping)
                             {
-                                // Use first past the post control option (unless auto-levelling is enabled - db)
+                                // Use first past the post control option 
                                 case 0:
-                                    if (k >= 0 && AL_Enabled.Checked == false)
+                                    if (k >= 0)
                                     {
                                         post(dofObj[i], k, i);
-                                    }
-
-                                    // If auto-levelling enabled, level wrist joints, and use FPTP for the other joints - db
-                                    else if (k >= 0)
-                                    {
-                                        if (i != 2 && i != 3)
-                                        {
-                                            post(dofObj[i], k, i);
-                                        }
-                                        else
-                                        {
-                                            //autolevel
-                                        }
-
-                                    }
+                                    }                                    
                                     break;
                             }
+                            // if auto-levelling enabled, 
                         }
                         
                         // Check if additional Bento functions such as torque on/off or suspend/run are selected
@@ -5929,24 +5916,29 @@ namespace brachIOplexus
             }
 
             // Apply the first past the post algorithm
-            if (dofObj.ChA.signal >= dofObj.ChA.smin && stateObj.motorState[k] != 2 && stateObj.motorState[k] != 3)
+            if (dofObj.ChA.signal >= dofObj.ChA.smin)
             {
                 // Move CW 
                 stateObj.motorState[k] = 1;
                 robotObj.Motor[k].w = linear_mapping(dofObj.ChA, k);
 
-                // Use fake velocity method if grip force lmit is enabled
+                // Use fake velocity method if grip force limit is enabled
                 if (k == 4 && BentoAdaptGripCheck.Checked == true)
                 {
                     MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
                 }
-                // Elsewise use regular velocity method
-                else
+                // Elsewise use regular velocity method (unless autolevelling is enabled - db)
+                else if (AL_Enabled.Checked == false)
+                {
+                    MoveVelocity(k, global_flip, stateObj.motorState[k]);
+                }
+                // Elsewise (AL is on, grip force limit is disabled) - db
+                else if (k == 4)
                 {
                     MoveVelocity(k, global_flip, stateObj.motorState[k]);
                 }
             }
-            else if (dofObj.ChB.signal >= dofObj.ChB.smin && stateObj.motorState[k] != 1 && stateObj.motorState[k] != 3)
+            else if (dofObj.ChB.signal >= dofObj.ChB.smin)
             {
                 // Move CCW 
                 stateObj.motorState[k] = 2;
@@ -5956,8 +5948,13 @@ namespace brachIOplexus
                 {
                     MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
                 }
-                // Elsewise use regular velocity method
-                else
+                // Elsewise use regular velocity method (as long as autolevelling is disabled - db)
+                else if (AL_Enabled.Checked == false)
+                {
+                    MoveVelocity(k, global_flip, stateObj.motorState[k]);
+                }
+                // Elsewise (AL is on, grip force limit is disabled) - db
+                else if (k == 4)
                 {
                     MoveVelocity(k, global_flip, stateObj.motorState[k]);
                 }
