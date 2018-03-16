@@ -5032,11 +5032,11 @@ namespace brachIOplexus
             {
                 ID3_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
                 robotObj.Motor[2].p_prev = ID3_present_position;
-                Pos3.Text = Convert.ToString(ID3_present_position);
-                Vel3.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
-                Load3.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
-                Volt3.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
-                Temp3.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                Pos3.Text = Convert.ToString(Kp_phi);//Convert.ToString(ID3_present_position);
+                Vel3.Text = Convert.ToString(Ki_phi);//Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
+                Load3.Text = Convert.ToString(Kd_phi);//Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
+                Volt3.Text = Convert.ToString(Kp_theta);//Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
+                Temp3.Text = Convert.ToString(Ki_theta);//Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
                 check_overheat(DXL3_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
                 check_overload(DXL3_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_TORQUE_LIMIT, LEN_MX_TORQUE_LIMIT));
             }
@@ -5048,7 +5048,7 @@ namespace brachIOplexus
             {
                 ID4_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
                 robotObj.Motor[3].p_prev = ID4_present_position;
-                Pos4.Text = Convert.ToString(ID4_present_position);
+                Pos4.Text = Convert.ToString(Kd_theta);//Convert.ToString(ID4_present_position);
                 Vel4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
                 Load4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
                 Volt4.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
@@ -6413,6 +6413,43 @@ namespace brachIOplexus
             return (int)(degrees * 11.3611111111111111111111); //11.361111 degrees per encoder tick
         }
 
+        //Functions to update PID constants - db
+        private void Kp_phi_ctrl_ValueChanged(object sender, EventArgs e)
+        {
+            // Auto-suspend the Bento Arm as soon as the control enters focus
+            InvokeOnClick(BentoSuspend, new EventArgs());
+            Kp_phi = Convert.ToDouble(Kp_phi_ctrl.Value);
+        }
+        private void Ki_phi_ctrl_ValueChanged(object sender, EventArgs e)
+        {
+            // Auto-suspend the Bento Arm as soon as the control enters focus
+            InvokeOnClick(BentoSuspend, new EventArgs());
+            Ki_phi = Convert.ToDouble(Ki_phi_ctrl.Value);
+        }
+        private void Kd_phi_ctrl_ValueChanged(object sender, EventArgs e)
+        {
+            // Auto-suspend the Bento Arm as soon as the control enters focus
+            InvokeOnClick(BentoSuspend, new EventArgs());
+            Kd_phi = Convert.ToDouble(Kd_phi_ctrl.Value);
+        }
+        private void Kp_theta_ctrl_ValueChanged(object sender, EventArgs e)
+        {
+            // Auto-suspend the Bento Arm as soon as the control enters focus
+            InvokeOnClick(BentoSuspend, new EventArgs());
+            Kp_theta = Convert.ToDouble(Kp_theta_ctrl.Value);
+        }
+        private void Ki_theta_ctrl_ValueChanged(object sender, EventArgs e)
+        {
+            // Auto-suspend the Bento Arm as soon as the control enters focus
+            InvokeOnClick(BentoSuspend, new EventArgs());
+            Ki_theta = Convert.ToDouble(Ki_theta_ctrl.Value);
+        }
+        private void Kd_theta_ctrl_ValueChanged(object sender, EventArgs e)
+        {
+            // Auto-suspend the Bento Arm as soon as the control enters focus
+            InvokeOnClick(BentoSuspend, new EventArgs());
+            Kd_theta = Convert.ToDouble(Kd_theta_ctrl.Value);
+        }
         #endregion
         #endregion
 
@@ -7358,7 +7395,13 @@ namespace brachIOplexus
 
 
 
+
+
+
+
+
         #endregion
 
+        
     }
 }
