@@ -5773,8 +5773,7 @@ namespace brachIOplexus
                                         post(dofObj[i], k, i);
                                     }                                    
                                     break;
-                            }
-                            // if auto-levelling enabled, 
+                            }                            
                         }
                         
                         // Check if additional Bento functions such as torque on/off or suspend/run are selected
@@ -5915,8 +5914,14 @@ namespace brachIOplexus
                 global_flip = -1;
             }
 
-            // Apply the first past the post algorithm
-            if (dofObj.ChA.signal >= dofObj.ChA.smin)
+            // If autolevelling is enabled, call the auto-levelling function - db
+            if (AL_Enabled.Checked == true)
+            {
+                AutoLevel();
+            }
+
+            // Apply the first past the post algorithm (to all joints if AL disabled; to hand only if AL enabled - db)
+            if (((dofObj.ChA.signal >= dofObj.ChA.smin) && (AL_Enabled.Checked == false)) || ((dofObj.ChA.signal >= dofObj.ChA.smin) && (k == 4)))
             {
                 // Move CW 
                 stateObj.motorState[k] = 1;
@@ -5927,18 +5932,14 @@ namespace brachIOplexus
                 {
                     MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
                 }
-                // Elsewise use regular velocity method (unless autolevelling is enabled - db)
-                else if (AL_Enabled.Checked == false)
+                // Elsewise use regular velocity method 
+                else
                 {
                     MoveVelocity(k, global_flip, stateObj.motorState[k]);
                 }
-                // Elsewise (AL is on, grip force limit is disabled) - db
-                else if (k == 4)
-                {
-                    MoveVelocity(k, global_flip, stateObj.motorState[k]);
-                }
+                               
             }
-            else if (dofObj.ChB.signal >= dofObj.ChB.smin)
+            else if (((dofObj.ChB.signal >= dofObj.ChB.smin) && (AL_Enabled.Checked == false)) || ((dofObj.ChB.signal >= dofObj.ChB.smin) && (k == 4)))
             {
                 // Move CCW 
                 stateObj.motorState[k] = 2;
@@ -5948,16 +5949,12 @@ namespace brachIOplexus
                 {
                     MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
                 }
-                // Elsewise use regular velocity method (as long as autolevelling is disabled - db)
-                else if (AL_Enabled.Checked == false)
+                // Elsewise use regular velocity method 
+                else 
                 {
                     MoveVelocity(k, global_flip, stateObj.motorState[k]);
                 }
-                // Elsewise (AL is on, grip force limit is disabled) - db
-                else if (k == 4)
-                {
-                    MoveVelocity(k, global_flip, stateObj.motorState[k]);
-                }
+                
             }
             else if ((dofObj.ChA.signal < dofObj.ChA.smin && stateObj.motorState[k] == 1) || (dofObj.ChB.signal < dofObj.ChB.smin && stateObj.motorState[k] == 2))
             {
@@ -6258,6 +6255,14 @@ namespace brachIOplexus
         }
 
         #region "AutoLevelling Functions - db"
+        //Main AutoLevelling Loop - db
+        private void AutoLevel()
+        {
+            robotObj.Motor[3].p = 2050;
+            robotObj.Motor[2].p = 2050;
+            //stateObj.motorState[3] = 3;
+            //stateObj.motorState[2] = 3;
+        }
 
         // Helper function to find the magnitude of a three component vector - db
         private double magnitude(int x, int y, int z)
