@@ -255,8 +255,8 @@ namespace brachIOplexus
         double Kd_theta = 0;            //PID derivative constant for theta
         double output_phi = 0;          //output from PID controller for phi
         double output_theta = 0;        //output from PID controller for phi
-        int RotAdjustment = 2050;       //initial goal position for rotation
-        int FlxAdjustment = 2050;       //initial goal position for flexion
+        int RotAdjustment = 0;          //initial adjustment for rotation
+        int FlxAdjustment = 0;          //initial adjustment for flexion
         bool newvalues = true;          //true if arduino input values haven't been remapped yet, false if they have
         bool reset_setpoints = true;    //true if time to reset setpoints (not currently autolevelling), false if currently autolevelling to some setpoint 
         //double a = 0;
@@ -6290,11 +6290,12 @@ namespace brachIOplexus
                 errSum = 0;               
             }
             else
-            {                           
+            {
                 //Autolevel rotation
-                //robotObj.Motor[2].p = robotObj.Motor[2].p - FlxAdjustment;
+                MoveLevelRot();
+                SetpointRotation.Text = Convert.ToString(robotObj.Motor[2].p_prev + RotAdjustment);
                 //Autolevel flexion
-                //robotObj.Motor[3].p = robotObj.Motor[3].p - RotAdjustment;
+                //MoveLevelFlx();
             }
 
         }
@@ -6407,7 +6408,7 @@ namespace brachIOplexus
             lastErr = error;
 
             //compute PID output
-            return Kp * error + Ki * errSum + Kd * dErr;
+            return Kp * error; // + Ki * errSum + Kd * dErr;
         }
 
         //Function to convert IMU values from 0-1023 to -512 to 512 - db
@@ -6449,7 +6450,7 @@ namespace brachIOplexus
         //Function to write the PID driven goal-positions to the rotation servo - db
         void MoveLevelRot()
         {
-            robotObj.Motor[2].p = robotObj.Motor[2].p_prev - RotAdjustment;
+            robotObj.Motor[2].p = robotObj.Motor[2].p_prev + RotAdjustment;
         }
 
         //Function to write the PID driven goal-position to the flexion servo - db
@@ -6468,7 +6469,7 @@ namespace brachIOplexus
         private void Kp_phi_ctrl_ValueChanged(object sender, EventArgs e)
         {
             // Auto-suspend the Bento Arm as soon as the control enters focus
-            InvokeOnClick(BentoSuspend, new EventArgs());
+            //InvokeOnClick(BentoSuspend, new EventArgs());
             Kp_phi = Convert.ToDouble(Kp_phi_ctrl.Value);
         }
         private void Ki_phi_ctrl_ValueChanged(object sender, EventArgs e)
