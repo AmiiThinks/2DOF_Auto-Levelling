@@ -6287,15 +6287,16 @@ namespace brachIOplexus
                 setpoint_phi = phi;
                 setpoint_theta = theta;
                 reset_setpoints = false;
-                errSum = 0;               
+                errSum = 0;
+                              
             }
             else
             {
                 //Autolevel rotation
                 MoveLevelRot();
-                SetpointRotation.Text = Convert.ToString(robotObj.Motor[2].p_prev + RotAdjustment);
+                //SetpointRotation.Text = Convert.ToString(robotObj.Motor[2].p_prev + RotAdjustment);
                 //Autolevel flexion
-                //MoveLevelFlx();
+                MoveLevelFlx();
             }
 
         }
@@ -6450,12 +6451,14 @@ namespace brachIOplexus
         //Function to write the PID driven goal-positions to the rotation servo - db
         void MoveLevelRot()
         {
+            robotObj.Motor[2].w = 250;
             robotObj.Motor[2].p = robotObj.Motor[2].p_prev + RotAdjustment;
         }
 
         //Function to write the PID driven goal-position to the flexion servo - db
         void MoveLevelFlx()
         {
+            robotObj.Motor[3].w = 250;
             robotObj.Motor[3].p = robotObj.Motor[3].p_prev - FlxAdjustment;
         }
 
