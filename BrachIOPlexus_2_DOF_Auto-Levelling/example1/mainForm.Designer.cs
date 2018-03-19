@@ -749,6 +749,14 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
+            this.SetpointRotation = new System.Windows.Forms.Label();
+            this.SetpointFlexion = new System.Windows.Forms.Label();
+            this.label221 = new System.Windows.Forms.Label();
+            this.label222 = new System.Windows.Forms.Label();
+            this.label223 = new System.Windows.Forms.Label();
+            this.label224 = new System.Windows.Forms.Label();
+            this.CurrentRotation = new System.Windows.Forms.Label();
+            this.CurrentFlexion = new System.Windows.Forms.Label();
             this.doF6 = new brachIOplexus.DoF();
             this.doF5 = new brachIOplexus.DoF();
             this.doF4 = new brachIOplexus.DoF();
@@ -8657,13 +8665,17 @@
             this.AutoLevellingBox.Margin = new System.Windows.Forms.Padding(4);
             this.AutoLevellingBox.Name = "AutoLevellingBox";
             this.AutoLevellingBox.Padding = new System.Windows.Forms.Padding(4);
-            this.AutoLevellingBox.Size = new System.Drawing.Size(364, 136);
+            this.AutoLevellingBox.Size = new System.Drawing.Size(365, 181);
             this.AutoLevellingBox.TabIndex = 210;
             this.AutoLevellingBox.TabStop = false;
             this.AutoLevellingBox.Text = "Auto-Levelling";
             // 
             // FlexionPIDBox
             // 
+            this.FlexionPIDBox.Controls.Add(this.CurrentFlexion);
+            this.FlexionPIDBox.Controls.Add(this.label224);
+            this.FlexionPIDBox.Controls.Add(this.label223);
+            this.FlexionPIDBox.Controls.Add(this.SetpointFlexion);
             this.FlexionPIDBox.Controls.Add(this.Kd_theta_ctrl);
             this.FlexionPIDBox.Controls.Add(this.label210);
             this.FlexionPIDBox.Controls.Add(this.Ki_theta_ctrl);
@@ -8675,7 +8687,7 @@
             this.FlexionPIDBox.Margin = new System.Windows.Forms.Padding(4);
             this.FlexionPIDBox.Name = "FlexionPIDBox";
             this.FlexionPIDBox.Padding = new System.Windows.Forms.Padding(4);
-            this.FlexionPIDBox.Size = new System.Drawing.Size(119, 111);
+            this.FlexionPIDBox.Size = new System.Drawing.Size(119, 156);
             this.FlexionPIDBox.TabIndex = 212;
             this.FlexionPIDBox.TabStop = false;
             this.FlexionPIDBox.Text = "Flexion PID";
@@ -8754,7 +8766,11 @@
             // 
             // RotationPIDBox
             // 
+            this.RotationPIDBox.Controls.Add(this.CurrentRotation);
+            this.RotationPIDBox.Controls.Add(this.label222);
+            this.RotationPIDBox.Controls.Add(this.label221);
             this.RotationPIDBox.Controls.Add(this.Kd_phi_ctrl);
+            this.RotationPIDBox.Controls.Add(this.SetpointRotation);
             this.RotationPIDBox.Controls.Add(this.label209);
             this.RotationPIDBox.Controls.Add(this.Ki_phi_ctrl);
             this.RotationPIDBox.Controls.Add(this.label205);
@@ -8765,7 +8781,7 @@
             this.RotationPIDBox.Margin = new System.Windows.Forms.Padding(4);
             this.RotationPIDBox.Name = "RotationPIDBox";
             this.RotationPIDBox.Padding = new System.Windows.Forms.Padding(4);
-            this.RotationPIDBox.Size = new System.Drawing.Size(119, 111);
+            this.RotationPIDBox.Size = new System.Drawing.Size(119, 156);
             this.RotationPIDBox.TabIndex = 211;
             this.RotationPIDBox.TabStop = false;
             this.RotationPIDBox.Text = "Rotation PID";
@@ -10178,6 +10194,82 @@
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
             // 
+            // SetpointRotation
+            // 
+            this.SetpointRotation.AutoSize = true;
+            this.SetpointRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.SetpointRotation.Location = new System.Drawing.Point(65, 107);
+            this.SetpointRotation.Name = "SetpointRotation";
+            this.SetpointRotation.Size = new System.Drawing.Size(18, 17);
+            this.SetpointRotation.TabIndex = 213;
+            this.SetpointRotation.Text = "--";
+            // 
+            // SetpointFlexion
+            // 
+            this.SetpointFlexion.AutoSize = true;
+            this.SetpointFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.SetpointFlexion.Location = new System.Drawing.Point(65, 107);
+            this.SetpointFlexion.Name = "SetpointFlexion";
+            this.SetpointFlexion.Size = new System.Drawing.Size(18, 17);
+            this.SetpointFlexion.TabIndex = 214;
+            this.SetpointFlexion.Text = "--";
+            // 
+            // label221
+            // 
+            this.label221.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label221.Location = new System.Drawing.Point(7, 107);
+            this.label221.Name = "label221";
+            this.label221.Size = new System.Drawing.Size(63, 22);
+            this.label221.TabIndex = 214;
+            this.label221.Text = "Setpoint";
+            // 
+            // label222
+            // 
+            this.label222.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label222.Location = new System.Drawing.Point(7, 132);
+            this.label222.Name = "label222";
+            this.label222.Size = new System.Drawing.Size(63, 22);
+            this.label222.TabIndex = 215;
+            this.label222.Text = "Current";
+            // 
+            // label223
+            // 
+            this.label223.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label223.Location = new System.Drawing.Point(5, 107);
+            this.label223.Name = "label223";
+            this.label223.Size = new System.Drawing.Size(60, 22);
+            this.label223.TabIndex = 215;
+            this.label223.Text = "Setpoint";
+            // 
+            // label224
+            // 
+            this.label224.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label224.Location = new System.Drawing.Point(5, 134);
+            this.label224.Name = "label224";
+            this.label224.Size = new System.Drawing.Size(58, 22);
+            this.label224.TabIndex = 216;
+            this.label224.Text = "Current";
+            // 
+            // CurrentRotation
+            // 
+            this.CurrentRotation.AutoSize = true;
+            this.CurrentRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.CurrentRotation.Location = new System.Drawing.Point(65, 134);
+            this.CurrentRotation.Name = "CurrentRotation";
+            this.CurrentRotation.Size = new System.Drawing.Size(18, 17);
+            this.CurrentRotation.TabIndex = 216;
+            this.CurrentRotation.Text = "--";
+            // 
+            // CurrentFlexion
+            // 
+            this.CurrentFlexion.AutoSize = true;
+            this.CurrentFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.CurrentFlexion.Location = new System.Drawing.Point(65, 134);
+            this.CurrentFlexion.Name = "CurrentFlexion";
+            this.CurrentFlexion.Size = new System.Drawing.Size(18, 17);
+            this.CurrentFlexion.TabIndex = 217;
+            this.CurrentFlexion.Text = "--";
+            // 
             // doF6
             // 
             this.doF6.Location = new System.Drawing.Point(8, 630);
@@ -10383,10 +10475,12 @@
             this.AutoLevellingBox.ResumeLayout(false);
             this.AutoLevellingBox.PerformLayout();
             this.FlexionPIDBox.ResumeLayout(false);
+            this.FlexionPIDBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Kd_theta_ctrl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Ki_theta_ctrl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Kp_theta_ctrl)).EndInit();
             this.RotationPIDBox.ResumeLayout(false);
+            this.RotationPIDBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Kd_phi_ctrl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Ki_phi_ctrl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Kp_phi_ctrl)).EndInit();
@@ -11138,6 +11232,14 @@
         internal System.Windows.Forms.NumericUpDown Kp_phi_ctrl;
         internal System.Windows.Forms.Label label206;
         private System.Windows.Forms.CheckBox AL_Enabled;
+        internal System.Windows.Forms.Label CurrentFlexion;
+        internal System.Windows.Forms.Label label224;
+        internal System.Windows.Forms.Label label223;
+        internal System.Windows.Forms.Label SetpointFlexion;
+        internal System.Windows.Forms.Label CurrentRotation;
+        internal System.Windows.Forms.Label label222;
+        internal System.Windows.Forms.Label label221;
+        internal System.Windows.Forms.Label SetpointRotation;
     }
 }
 

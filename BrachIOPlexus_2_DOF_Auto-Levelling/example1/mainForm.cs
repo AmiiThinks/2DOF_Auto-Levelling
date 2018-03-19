@@ -255,9 +255,13 @@ namespace brachIOplexus
         double Kd_theta = 0;            //PID derivative constant for theta
         double output_phi = 0;          //output from PID controller for phi
         double output_theta = 0;        //output from PID controller for phi
-        int RotAdjustment = 2050;        //initial goal position for rotation
-        int FlxAdjustment = 2050;        //initial goal position for flexion
-
+        int RotAdjustment = 2050;       //initial goal position for rotation
+        int FlxAdjustment = 2050;       //initial goal position for flexion
+        bool newvalues = true;          //true if arduino input values haven't been remapped yet, false if they have
+        bool reset_setpoints = true;    //true if time to reset setpoints (not currently autolevelling), false if currently autolevelling to some setpoint 
+        //double a = 0;
+        //double b = 0;
+        //double c = 0;
 
         #endregion
 
@@ -5506,6 +5510,15 @@ namespace brachIOplexus
                     x_component = InputMap[4, 0] * scale_factor;
                     y_component = InputMap[4, 1] * scale_factor;
                     z_component = InputMap[4, 2] * scale_factor;
+                    newvalues = true;
+
+
+                    //Feedback for PID GUI - db
+                    SetpointRotation.Text = Convert.ToString(setpoint_phi);
+                    SetpointFlexion.Text = Convert.ToString(setpoint_theta);
+                    CurrentRotation.Text = Convert.ToString(phi);
+                    CurrentFlexion.Text = Convert.ToString(theta);
+
                 }
 
                 // Update Simulink Realtime EMG values
@@ -5914,10 +5927,15 @@ namespace brachIOplexus
                 global_flip = -1;
             }
 
-            // If autolevelling is enabled, call the auto-levelling function - db
+            // If autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
             if (AL_Enabled.Checked == true)
             {
                 AutoLevel();
+
+            }
+            else
+            {
+                reset_setpoints = true;
             }
 
             // Apply the first past the post algorithm (to all joints if AL disabled; to hand only if AL enabled - db)
@@ -6258,16 +6276,33 @@ namespace brachIOplexus
         //Main AutoLevelling Loop - db
         private void AutoLevel()
         {
-            robotObj.Motor[3].p = 2050;
-            robotObj.Motor[2].p = 2050;
-            //stateObj.motorState[3] = 3;
-            //stateObj.motorState[2] = 3;
+            //Get current position
+            Get_Grav();
+            //Get goal position
+            Get_GoalPos();                       
+
+            //If first time through, set the setpoints and clear the errSum. Otherwise, autolevel
+            if (reset_setpoints == true)
+            {
+                setpoint_phi = phi;
+                setpoint_theta = theta;
+                reset_setpoints = false;
+                errSum = 0;               
+            }
+            else
+            {                           
+                //Autolevel rotation
+                //robotObj.Motor[2].p = robotObj.Motor[2].p - FlxAdjustment;
+                //Autolevel flexion
+                //robotObj.Motor[3].p = robotObj.Motor[3].p - RotAdjustment;
+            }
+
         }
 
         // Helper function to find the magnitude of a three component vector - db
         private double magnitude(int x, int y, int z)
         {
-            return Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2));
+            return Math.Sqrt(Convert.ToDouble(Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Pow(z, 2)));
         }
 
         // Helper function to normalize vector components, given the component and the magnitude of the vector - db
@@ -6375,16 +6410,30 @@ namespace brachIOplexus
             return Kp * error + Ki * errSum + Kd * dErr;
         }
 
+        //Function to convert IMU values from 0-1023 to -512 to 512 - db
+        private void sign()
+        {
+            if (newvalues)
+            {
+                x_component = x_component - 512;
+                y_component = y_component - 512;
+                z_component = z_component - 512;
+                newvalues = false;
+            }
+            
+        }
+
         //Function to get the gravity vector and angles phi and theta from the IMU data - db
         private void Get_Grav()
         {
-
+            sign();
             double g_mag = magnitude(x_component, y_component, z_component);
             double a = normalize(x_component, g_mag);
             double b = normalize(y_component, g_mag);
             double c = normalize(z_component, g_mag);
             phi = Get_phi(a, b, phi);
             theta = Get_theta(b, c, theta);
+            
         }
 
         //Function to call the PID controller, get the desired servo position - db

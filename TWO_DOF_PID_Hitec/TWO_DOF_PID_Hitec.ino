@@ -88,6 +88,9 @@ void loop() {
   Get_DV();
   ph = Get_ph(a,b,ph);
   th = Get_th(b,c,th);
+  Serial.print(ph);
+  Serial.print(", ");
+  Serial.println(th);
   
   //Using current position and PID controller, find desired servo position and go there:
   Set_Position();
