@@ -622,9 +622,19 @@
             this.label158 = new System.Windows.Forms.Label();
             this.label157 = new System.Windows.Forms.Label();
             this.label156 = new System.Windows.Forms.Label();
+            this.doF6 = new brachIOplexus.DoF();
+            this.doF5 = new brachIOplexus.DoF();
+            this.doF4 = new brachIOplexus.DoF();
+            this.doF3 = new brachIOplexus.DoF();
+            this.doF2 = new brachIOplexus.DoF();
+            this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
             this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
             this.FlexionPIDBox = new System.Windows.Forms.GroupBox();
+            this.CurrentFlexion = new System.Windows.Forms.Label();
+            this.label224 = new System.Windows.Forms.Label();
+            this.label223 = new System.Windows.Forms.Label();
+            this.SetpointFlexion = new System.Windows.Forms.Label();
             this.Kd_theta_ctrl = new System.Windows.Forms.NumericUpDown();
             this.label210 = new System.Windows.Forms.Label();
             this.Ki_theta_ctrl = new System.Windows.Forms.NumericUpDown();
@@ -632,7 +642,11 @@
             this.Kp_theta_ctrl = new System.Windows.Forms.NumericUpDown();
             this.label212 = new System.Windows.Forms.Label();
             this.RotationPIDBox = new System.Windows.Forms.GroupBox();
+            this.CurrentRotation = new System.Windows.Forms.Label();
+            this.label222 = new System.Windows.Forms.Label();
+            this.label221 = new System.Windows.Forms.Label();
             this.Kd_phi_ctrl = new System.Windows.Forms.NumericUpDown();
+            this.SetpointRotation = new System.Windows.Forms.Label();
             this.label209 = new System.Windows.Forms.Label();
             this.Ki_phi_ctrl = new System.Windows.Forms.NumericUpDown();
             this.label205 = new System.Windows.Forms.Label();
@@ -749,20 +763,6 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
-            this.SetpointRotation = new System.Windows.Forms.Label();
-            this.SetpointFlexion = new System.Windows.Forms.Label();
-            this.label221 = new System.Windows.Forms.Label();
-            this.label222 = new System.Windows.Forms.Label();
-            this.label223 = new System.Windows.Forms.Label();
-            this.label224 = new System.Windows.Forms.Label();
-            this.CurrentRotation = new System.Windows.Forms.Label();
-            this.CurrentFlexion = new System.Windows.Forms.Label();
-            this.doF6 = new brachIOplexus.DoF();
-            this.doF5 = new brachIOplexus.DoF();
-            this.doF4 = new brachIOplexus.DoF();
-            this.doF3 = new brachIOplexus.DoF();
-            this.doF2 = new brachIOplexus.DoF();
-            this.doF1 = new brachIOplexus.DoF();
             this.MenuStrip1.SuspendLayout();
             this.VoiceCoilCommBox.SuspendLayout();
             this.EMGParamBox.SuspendLayout();
@@ -8629,6 +8629,54 @@
             this.label156.TabIndex = 29;
             this.label156.Text = "Smax";
             // 
+            // doF6
+            // 
+            this.doF6.Location = new System.Drawing.Point(8, 630);
+            this.doF6.Margin = new System.Windows.Forms.Padding(5);
+            this.doF6.Name = "doF6";
+            this.doF6.Size = new System.Drawing.Size(865, 116);
+            this.doF6.TabIndex = 144;
+            // 
+            // doF5
+            // 
+            this.doF5.Location = new System.Drawing.Point(8, 507);
+            this.doF5.Margin = new System.Windows.Forms.Padding(5);
+            this.doF5.Name = "doF5";
+            this.doF5.Size = new System.Drawing.Size(865, 116);
+            this.doF5.TabIndex = 143;
+            // 
+            // doF4
+            // 
+            this.doF4.Location = new System.Drawing.Point(8, 384);
+            this.doF4.Margin = new System.Windows.Forms.Padding(5);
+            this.doF4.Name = "doF4";
+            this.doF4.Size = new System.Drawing.Size(865, 116);
+            this.doF4.TabIndex = 142;
+            // 
+            // doF3
+            // 
+            this.doF3.Location = new System.Drawing.Point(8, 261);
+            this.doF3.Margin = new System.Windows.Forms.Padding(5);
+            this.doF3.Name = "doF3";
+            this.doF3.Size = new System.Drawing.Size(865, 116);
+            this.doF3.TabIndex = 141;
+            // 
+            // doF2
+            // 
+            this.doF2.Location = new System.Drawing.Point(8, 142);
+            this.doF2.Margin = new System.Windows.Forms.Padding(5);
+            this.doF2.Name = "doF2";
+            this.doF2.Size = new System.Drawing.Size(865, 116);
+            this.doF2.TabIndex = 140;
+            // 
+            // doF1
+            // 
+            this.doF1.Location = new System.Drawing.Point(8, 22);
+            this.doF1.Margin = new System.Windows.Forms.Padding(5);
+            this.doF1.Name = "doF1";
+            this.doF1.Size = new System.Drawing.Size(865, 116);
+            this.doF1.TabIndex = 139;
+            // 
             // tabBento
             // 
             this.tabBento.Controls.Add(this.AutoLevellingBox);
@@ -8692,6 +8740,44 @@
             this.FlexionPIDBox.TabStop = false;
             this.FlexionPIDBox.Text = "Flexion PID";
             // 
+            // CurrentFlexion
+            // 
+            this.CurrentFlexion.AutoSize = true;
+            this.CurrentFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.CurrentFlexion.Location = new System.Drawing.Point(65, 134);
+            this.CurrentFlexion.Name = "CurrentFlexion";
+            this.CurrentFlexion.Size = new System.Drawing.Size(18, 17);
+            this.CurrentFlexion.TabIndex = 217;
+            this.CurrentFlexion.Text = "--";
+            // 
+            // label224
+            // 
+            this.label224.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label224.Location = new System.Drawing.Point(5, 134);
+            this.label224.Name = "label224";
+            this.label224.Size = new System.Drawing.Size(58, 22);
+            this.label224.TabIndex = 216;
+            this.label224.Text = "Current";
+            // 
+            // label223
+            // 
+            this.label223.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label223.Location = new System.Drawing.Point(5, 107);
+            this.label223.Name = "label223";
+            this.label223.Size = new System.Drawing.Size(60, 22);
+            this.label223.TabIndex = 215;
+            this.label223.Text = "Setpoint";
+            // 
+            // SetpointFlexion
+            // 
+            this.SetpointFlexion.AutoSize = true;
+            this.SetpointFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.SetpointFlexion.Location = new System.Drawing.Point(65, 107);
+            this.SetpointFlexion.Name = "SetpointFlexion";
+            this.SetpointFlexion.Size = new System.Drawing.Size(18, 17);
+            this.SetpointFlexion.TabIndex = 214;
+            this.SetpointFlexion.Text = "--";
+            // 
             // Kd_theta_ctrl
             // 
             this.Kd_theta_ctrl.DecimalPlaces = 2;
@@ -8753,6 +8839,11 @@
             this.Kp_theta_ctrl.Name = "Kp_theta_ctrl";
             this.Kp_theta_ctrl.Size = new System.Drawing.Size(64, 22);
             this.Kp_theta_ctrl.TabIndex = 150;
+            this.Kp_theta_ctrl.Value = new decimal(new int[] {
+            45,
+            0,
+            0,
+            131072});
             this.Kp_theta_ctrl.ValueChanged += new System.EventHandler(this.Kp_theta_ctrl_ValueChanged);
             // 
             // label212
@@ -8786,6 +8877,34 @@
             this.RotationPIDBox.TabStop = false;
             this.RotationPIDBox.Text = "Rotation PID";
             // 
+            // CurrentRotation
+            // 
+            this.CurrentRotation.AutoSize = true;
+            this.CurrentRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.CurrentRotation.Location = new System.Drawing.Point(65, 134);
+            this.CurrentRotation.Name = "CurrentRotation";
+            this.CurrentRotation.Size = new System.Drawing.Size(18, 17);
+            this.CurrentRotation.TabIndex = 216;
+            this.CurrentRotation.Text = "--";
+            // 
+            // label222
+            // 
+            this.label222.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label222.Location = new System.Drawing.Point(7, 132);
+            this.label222.Name = "label222";
+            this.label222.Size = new System.Drawing.Size(63, 22);
+            this.label222.TabIndex = 215;
+            this.label222.Text = "Current";
+            // 
+            // label221
+            // 
+            this.label221.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label221.Location = new System.Drawing.Point(7, 107);
+            this.label221.Name = "label221";
+            this.label221.Size = new System.Drawing.Size(63, 22);
+            this.label221.TabIndex = 214;
+            this.label221.Text = "Setpoint";
+            // 
             // Kd_phi_ctrl
             // 
             this.Kd_phi_ctrl.DecimalPlaces = 2;
@@ -8800,6 +8919,16 @@
             this.Kd_phi_ctrl.Size = new System.Drawing.Size(64, 22);
             this.Kd_phi_ctrl.TabIndex = 153;
             this.Kd_phi_ctrl.ValueChanged += new System.EventHandler(this.Kd_phi_ctrl_ValueChanged);
+            // 
+            // SetpointRotation
+            // 
+            this.SetpointRotation.AutoSize = true;
+            this.SetpointRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.SetpointRotation.Location = new System.Drawing.Point(65, 107);
+            this.SetpointRotation.Name = "SetpointRotation";
+            this.SetpointRotation.Size = new System.Drawing.Size(18, 17);
+            this.SetpointRotation.TabIndex = 213;
+            this.SetpointRotation.Text = "--";
             // 
             // label209
             // 
@@ -8847,6 +8976,11 @@
             this.Kp_phi_ctrl.Name = "Kp_phi_ctrl";
             this.Kp_phi_ctrl.Size = new System.Drawing.Size(64, 22);
             this.Kp_phi_ctrl.TabIndex = 150;
+            this.Kp_phi_ctrl.Value = new decimal(new int[] {
+            65,
+            0,
+            0,
+            131072});
             this.Kp_phi_ctrl.ValueChanged += new System.EventHandler(this.Kp_phi_ctrl_ValueChanged);
             // 
             // label206
@@ -10193,130 +10327,6 @@
             // 
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
-            // 
-            // SetpointRotation
-            // 
-            this.SetpointRotation.AutoSize = true;
-            this.SetpointRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.SetpointRotation.Location = new System.Drawing.Point(65, 107);
-            this.SetpointRotation.Name = "SetpointRotation";
-            this.SetpointRotation.Size = new System.Drawing.Size(18, 17);
-            this.SetpointRotation.TabIndex = 213;
-            this.SetpointRotation.Text = "--";
-            // 
-            // SetpointFlexion
-            // 
-            this.SetpointFlexion.AutoSize = true;
-            this.SetpointFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.SetpointFlexion.Location = new System.Drawing.Point(65, 107);
-            this.SetpointFlexion.Name = "SetpointFlexion";
-            this.SetpointFlexion.Size = new System.Drawing.Size(18, 17);
-            this.SetpointFlexion.TabIndex = 214;
-            this.SetpointFlexion.Text = "--";
-            // 
-            // label221
-            // 
-            this.label221.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label221.Location = new System.Drawing.Point(7, 107);
-            this.label221.Name = "label221";
-            this.label221.Size = new System.Drawing.Size(63, 22);
-            this.label221.TabIndex = 214;
-            this.label221.Text = "Setpoint";
-            // 
-            // label222
-            // 
-            this.label222.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label222.Location = new System.Drawing.Point(7, 132);
-            this.label222.Name = "label222";
-            this.label222.Size = new System.Drawing.Size(63, 22);
-            this.label222.TabIndex = 215;
-            this.label222.Text = "Current";
-            // 
-            // label223
-            // 
-            this.label223.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label223.Location = new System.Drawing.Point(5, 107);
-            this.label223.Name = "label223";
-            this.label223.Size = new System.Drawing.Size(60, 22);
-            this.label223.TabIndex = 215;
-            this.label223.Text = "Setpoint";
-            // 
-            // label224
-            // 
-            this.label224.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label224.Location = new System.Drawing.Point(5, 134);
-            this.label224.Name = "label224";
-            this.label224.Size = new System.Drawing.Size(58, 22);
-            this.label224.TabIndex = 216;
-            this.label224.Text = "Current";
-            // 
-            // CurrentRotation
-            // 
-            this.CurrentRotation.AutoSize = true;
-            this.CurrentRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.CurrentRotation.Location = new System.Drawing.Point(65, 134);
-            this.CurrentRotation.Name = "CurrentRotation";
-            this.CurrentRotation.Size = new System.Drawing.Size(18, 17);
-            this.CurrentRotation.TabIndex = 216;
-            this.CurrentRotation.Text = "--";
-            // 
-            // CurrentFlexion
-            // 
-            this.CurrentFlexion.AutoSize = true;
-            this.CurrentFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.CurrentFlexion.Location = new System.Drawing.Point(65, 134);
-            this.CurrentFlexion.Name = "CurrentFlexion";
-            this.CurrentFlexion.Size = new System.Drawing.Size(18, 17);
-            this.CurrentFlexion.TabIndex = 217;
-            this.CurrentFlexion.Text = "--";
-            // 
-            // doF6
-            // 
-            this.doF6.Location = new System.Drawing.Point(8, 630);
-            this.doF6.Margin = new System.Windows.Forms.Padding(5);
-            this.doF6.Name = "doF6";
-            this.doF6.Size = new System.Drawing.Size(865, 116);
-            this.doF6.TabIndex = 144;
-            // 
-            // doF5
-            // 
-            this.doF5.Location = new System.Drawing.Point(8, 507);
-            this.doF5.Margin = new System.Windows.Forms.Padding(5);
-            this.doF5.Name = "doF5";
-            this.doF5.Size = new System.Drawing.Size(865, 116);
-            this.doF5.TabIndex = 143;
-            // 
-            // doF4
-            // 
-            this.doF4.Location = new System.Drawing.Point(8, 384);
-            this.doF4.Margin = new System.Windows.Forms.Padding(5);
-            this.doF4.Name = "doF4";
-            this.doF4.Size = new System.Drawing.Size(865, 116);
-            this.doF4.TabIndex = 142;
-            // 
-            // doF3
-            // 
-            this.doF3.Location = new System.Drawing.Point(8, 261);
-            this.doF3.Margin = new System.Windows.Forms.Padding(5);
-            this.doF3.Name = "doF3";
-            this.doF3.Size = new System.Drawing.Size(865, 116);
-            this.doF3.TabIndex = 141;
-            // 
-            // doF2
-            // 
-            this.doF2.Location = new System.Drawing.Point(8, 142);
-            this.doF2.Margin = new System.Windows.Forms.Padding(5);
-            this.doF2.Name = "doF2";
-            this.doF2.Size = new System.Drawing.Size(865, 116);
-            this.doF2.TabIndex = 140;
-            // 
-            // doF1
-            // 
-            this.doF1.Location = new System.Drawing.Point(8, 22);
-            this.doF1.Margin = new System.Windows.Forms.Padding(5);
-            this.doF1.Name = "doF1";
-            this.doF1.Size = new System.Drawing.Size(865, 116);
-            this.doF1.TabIndex = 139;
             // 
             // mainForm
             // 

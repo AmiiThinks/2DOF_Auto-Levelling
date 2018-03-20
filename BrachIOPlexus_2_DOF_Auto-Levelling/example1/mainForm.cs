@@ -234,23 +234,23 @@ namespace brachIOplexus
         //Variable initialization for auto-levelling functionality - db
 
         // add stopwatch for tracking PID loop time
-        Stopwatch stopWatch3 = new Stopwatch();
-        long milliSec3;     // the timestep of the PID loop in milliseconds
+        Stopwatch stopWatch3 = new Stopwatch();       
+        long milliSec3 = 3;             // the timestep of the PID loop in milliseconds, initialized to 3 so the first time through you don't divide by 0
 
         //PID variables
         double errSum = 0;              //sum of error accumulated for integral component of PID
         double lastErr = 0;             //error on last timestep of PID
-        int x_component = 0;            //x component of IMU reading of gravity acceleration (0-1023)
-        int y_component = 0;            //y component of IMU reading of gravity acceleration (0-1023)
-        int z_component = 0;            //x component of IMU reading of gravity acceleration (0-1023)
+        int x_component = 0;            //x component of IMU reading of gravity acceleration 
+        int y_component = 0;            //y component of IMU reading of gravity acceleration 
+        int z_component = 0;            //x component of IMU reading of gravity acceleration 
         double phi = 180;               //roll angle of wrist
         double theta = 180;             //flexion angle of wrist
         double setpoint_phi = 180;      //target roll angle of wrist
         double setpoint_theta = 180;    //target flexion angle of wrist
-        double Kp_phi = 0;              //PID proportional constant for phi
+        double Kp_phi = 0.65;           //PID proportional constant for phi
         double Ki_phi = 0;              //PID integral constant for phi
         double Kd_phi = 0;              //PID derivative constant for phi
-        double Kp_theta = 0;            //PID proportional constant for theta
+        double Kp_theta = 0.45;         //PID proportional constant for theta
         double Ki_theta = 0;            //PID integral constant for theta
         double Kd_theta = 0;            //PID derivative constant for theta
         double output_phi = 0;          //output from PID controller for phi
@@ -259,9 +259,7 @@ namespace brachIOplexus
         int FlxAdjustment = 0;          //initial adjustment for flexion
         bool newvalues = true;          //true if arduino input values haven't been remapped yet, false if they have
         bool reset_setpoints = true;    //true if time to reset setpoints (not currently autolevelling), false if currently autolevelling to some setpoint 
-        //double a = 0;
-        //double b = 0;
-        //double c = 0;
+       
 
         #endregion
 
@@ -5220,7 +5218,7 @@ namespace brachIOplexus
                 stopWatch1.Stop();
                 milliSec1 = stopWatch1.ElapsedMilliseconds;
                 delay.Text = Convert.ToString(milliSec1);
-
+               
                 // Check to see if the previous delay is the new maximum delay
                 if (milliSec1 > Convert.ToDecimal(delay_max.Text))
                 {
@@ -6276,27 +6274,33 @@ namespace brachIOplexus
         //Main AutoLevelling Loop - db
         private void AutoLevel()
         {
+                        
             //Get current position
-            Get_Grav();
+            Get_Grav();            
             //Get goal position
-            Get_GoalPos();                       
+            Get_GoalPos();
 
-            //If first time through, set the setpoints and clear the errSum. Otherwise, autolevel
-            if (reset_setpoints == true)
+            //First level the hand in terms of rotation. Then set setpoint for flexion levelling. Once setpoint is set, level both rotation and flexion.
+            if (phi < 181 || phi > 179)
             {
-                setpoint_phi = phi;
-                setpoint_theta = theta;
-                reset_setpoints = false;
-                errSum = 0;
-                              
-            }
+                if (reset_setpoints == true)
+                {
+                    setpoint_theta = theta;
+                    reset_setpoints = false;
+                    errSum = 0;
+                }
+                else
+                {
+                    //Autolevel rotation
+                    MoveLevelRot();
+                    //Autolevel flexion
+                    MoveLevelFlx();
+                }
+            }            
             else
             {
                 //Autolevel rotation
-                MoveLevelRot();
-                //SetpointRotation.Text = Convert.ToString(robotObj.Motor[2].p_prev + RotAdjustment);
-                //Autolevel flexion
-                MoveLevelFlx();
+                MoveLevelRot();                              
             }
 
         }
@@ -6394,22 +6398,26 @@ namespace brachIOplexus
         // PID Controller function for autolevelling - db
         private double PID(double measured_value, double setpoint, double Kp, double Ki, double Kd)
         {
-            //how long since we last calculated?
-            stopWatch3.Stop();
-            milliSec3 = stopWatch3.ElapsedMilliseconds;
-            stopWatch3.Reset();
-            stopWatch3.Start();
+            //if (reset_setpoints == false)
+            //{
+            //    //how long since we last calculated?
+            //    stopWatch3.Stop();
+            //    milliSec3 = stopWatch3.ElapsedMilliseconds;
+            //    stopWatch3.Reset();
+            //    stopWatch3.Start();
+            //}
+            
 
             //compute working variables:
             double error = setpoint - measured_value;
             errSum += (error * milliSec3);
-            double dErr = (error - lastErr) / milliSec3;
+            double dErr = (error - lastErr) / milliSec1;
 
             //update variables for next loop
             lastErr = error;
 
             //compute PID output
-            return Kp * error; // + Ki * errSum + Kd * dErr;
+            return Kp * error + Kd * dErr; // + Ki * errSum + Kd * dErr;
         }
 
         //Function to convert IMU values from 0-1023 to -512 to 512 - db
