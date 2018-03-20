@@ -6444,6 +6444,7 @@ namespace brachIOplexus
             //get output from PID controller (amount servo needs to move in degrees)
             output_phi = PID(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi);
             output_theta = PID(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
+            //convert to encoder ticks
             RotAdjustment = Deg_to_Ticks(output_phi);
             FlxAdjustment = Deg_to_Ticks(output_theta);
         }
@@ -6451,6 +6452,7 @@ namespace brachIOplexus
         //Function to write the PID driven goal-positions to the rotation servo - db
         void MoveLevelRot()
         {
+            robotObj.Motor[2].wmax = 250;
             robotObj.Motor[2].w = 250;
             robotObj.Motor[2].p = robotObj.Motor[2].p_prev + RotAdjustment;
         }
@@ -6458,6 +6460,7 @@ namespace brachIOplexus
         //Function to write the PID driven goal-position to the flexion servo - db
         void MoveLevelFlx()
         {
+            robotObj.Motor[3].wmax = 250;
             robotObj.Motor[3].w = 250;
             robotObj.Motor[3].p = robotObj.Motor[3].p_prev - FlxAdjustment;
         }
