@@ -238,8 +238,10 @@ namespace brachIOplexus
         long milliSec3 = 3;             // the timestep of the PID loop in milliseconds, initialized to 3 so the first time through you don't divide by 0
 
         //PID variables
-        double errSum = 0;              //sum of error accumulated for integral component of PID
-        double lastErr = 0;             //error on last timestep of PID
+        double errSum_phi = 0;              //sum of error accumulated for integral component of PID
+        double lastErr_phi = 0;             //error on last timestep of PID
+        double errSum_theta = 0;              //sum of error accumulated for integral component of PID
+        double lastErr_theta = 0;             //error on last timestep of PID
         int x_component = 0;            //x component of IMU reading of gravity acceleration 
         int y_component = 0;            //y component of IMU reading of gravity acceleration 
         int z_component = 0;            //x component of IMU reading of gravity acceleration 
@@ -503,7 +505,7 @@ namespace brachIOplexus
             try
             {
                 // Disconnect from the target.
-                tg.Disconnect();
+                //tg.Disconnect();
 
                 // Close simulator connection
                 socketClient.Close();
@@ -6287,7 +6289,8 @@ namespace brachIOplexus
                 {
                     setpoint_theta = theta;
                     reset_setpoints = false;
-                    errSum = 0;
+                    errSum_phi = 0;
+                    errSum_theta = 0;
                 }
                 else
                 {
@@ -6396,28 +6399,28 @@ namespace brachIOplexus
         }
 
         // PID Controller function for autolevelling - db
-        private double PID(double measured_value, double setpoint, double Kp, double Ki, double Kd)
+        private double PID(double measured_value, double setpoint, double Kp, double Ki, double Kd, double errSum, double lastErr)
         {
-            //if (reset_setpoints == false)
-            //{
-            //    //how long since we last calculated?
-            //    stopWatch3.Stop();
-            //    milliSec3 = stopWatch3.ElapsedMilliseconds;
-            //    stopWatch3.Reset();
-            //    stopWatch3.Start();
-            //}
-            
+            if (reset_setpoints == false)
+            {
+                //how long since we last calculated?
+                stopWatch3.Stop();
+                milliSec3 = stopWatch3.ElapsedMilliseconds;
+                stopWatch3.Reset();
+                stopWatch3.Start();
+            }
+
 
             //compute working variables:
             double error = setpoint - measured_value;
-            errSum += (error * milliSec3);
-            double dErr = (error - lastErr) / milliSec1;
+            errSum += (error * (milliSec3 + 1)); // +1 to avoid problems when milliSec3 = 0
+            double dErr = (error - lastErr) / (milliSec3 + 1); // +1 to avoid problems when milliSec3 = 0
 
             //update variables for next loop
             lastErr = error;
 
             //compute PID output
-            return Kp * error + Kd * dErr; // + Ki * errSum + Kd * dErr;
+            return Kp * error + Kd * dErr + Ki * errSum;// + Kd * dErr;
         }
 
         //Function to convert IMU values from 0-1023 to -512 to 512 - db
@@ -6450,8 +6453,8 @@ namespace brachIOplexus
         void Get_GoalPos()
         {
             //get output from PID controller (amount servo needs to move in degrees)
-            output_phi = PID(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi);
-            output_theta = PID(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
+            output_phi = PID(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi, errSum_phi, lastErr_phi);
+            output_theta = PID(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta, errSum_theta, lastErr_theta);
             //convert to encoder ticks
             RotAdjustment = Deg_to_Ticks(output_phi);
             FlxAdjustment = Deg_to_Ticks(output_theta);
@@ -6489,31 +6492,32 @@ namespace brachIOplexus
         private void Ki_phi_ctrl_ValueChanged(object sender, EventArgs e)
         {
             // Auto-suspend the Bento Arm as soon as the control enters focus
-            InvokeOnClick(BentoSuspend, new EventArgs());
+            //InvokeOnClick(BentoSuspend, new EventArgs());
+            errSum_phi = 0;
             Ki_phi = Convert.ToDouble(Ki_phi_ctrl.Value);
         }
         private void Kd_phi_ctrl_ValueChanged(object sender, EventArgs e)
         {
             // Auto-suspend the Bento Arm as soon as the control enters focus
-            InvokeOnClick(BentoSuspend, new EventArgs());
+            //InvokeOnClick(BentoSuspend, new EventArgs());
             Kd_phi = Convert.ToDouble(Kd_phi_ctrl.Value);
         }
         private void Kp_theta_ctrl_ValueChanged(object sender, EventArgs e)
         {
             // Auto-suspend the Bento Arm as soon as the control enters focus
-            InvokeOnClick(BentoSuspend, new EventArgs());
+            //InvokeOnClick(BentoSuspend, new EventArgs());
             Kp_theta = Convert.ToDouble(Kp_theta_ctrl.Value);
         }
         private void Ki_theta_ctrl_ValueChanged(object sender, EventArgs e)
         {
             // Auto-suspend the Bento Arm as soon as the control enters focus
-            InvokeOnClick(BentoSuspend, new EventArgs());
+            //InvokeOnClick(BentoSuspend, new EventArgs());
             Ki_theta = Convert.ToDouble(Ki_theta_ctrl.Value);
         }
         private void Kd_theta_ctrl_ValueChanged(object sender, EventArgs e)
         {
             // Auto-suspend the Bento Arm as soon as the control enters focus
-            InvokeOnClick(BentoSuspend, new EventArgs());
+            //InvokeOnClick(BentoSuspend, new EventArgs());
             Kd_theta = Convert.ToDouble(Kd_theta_ctrl.Value);
         }
         #endregion
