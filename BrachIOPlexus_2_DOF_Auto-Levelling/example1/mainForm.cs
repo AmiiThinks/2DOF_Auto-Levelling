@@ -233,9 +233,12 @@ namespace brachIOplexus
         #region "Auto-Levelling Initialization"
         //Variable initialization for auto-levelling functionality - db
 
-        // add stopwatch for tracking PID loop time
-        Stopwatch stopWatch3 = new Stopwatch();       
-        long milliSec3 = 3;             // the timestep of the PID loop in milliseconds, initialized to 3 so the first time through you don't divide by 0
+        // add stopwatches for tracking PID loop time
+        Stopwatch stopWatch_phi = new Stopwatch();       
+        long milliSec_phi;             // the timestep of the PID loop in milliseconds
+
+        Stopwatch stopWatch_theta = new Stopwatch();
+        long milliSec_theta;             // the timestep of the PID loop in milliseconds
 
         //PID variables
         double errSum_phi = 0;              //sum of error accumulated for integral component of PID
@@ -5037,8 +5040,8 @@ namespace brachIOplexus
                 ID3_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
                 robotObj.Motor[2].p_prev = ID3_present_position;
                 Pos3.Text = Convert.ToString(ID3_present_position);
-                Vel3.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
-                Load3.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
+                Vel3.Text = Convert.ToString(milliSec_phi);//parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
+                Load3.Text = Convert.ToString(milliSec_theta);//parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
                 Volt3.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
                 Temp3.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
                 check_overheat(DXL3_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
@@ -6398,23 +6401,41 @@ namespace brachIOplexus
             }
         }
 
-        // PID Controller function for autolevelling - db
-        private double PID(double measured_value, double setpoint, double Kp, double Ki, double Kd, double errSum, double lastErr)
+        // PID Controller function for autolevelling phi - db
+        private double PID_phi(double measured_value, double setpoint, double Kp, double Ki, double Kd, double errSum, double lastErr)
         {
-            if (reset_setpoints == false)
-            {
-                //how long since we last calculated?
-                stopWatch3.Stop();
-                milliSec3 = stopWatch3.ElapsedMilliseconds;
-                stopWatch3.Reset();
-                stopWatch3.Start();
-            }
-
-
+            //how long since we last calculated?
+            //stopWatch_phi.Stop();
+            milliSec_phi = stopWatch_phi.ElapsedMilliseconds;
+            stopWatch_phi.Reset();
+            stopWatch_phi.Start();
+            
             //compute working variables:
             double error = setpoint - measured_value;
-            errSum += (error * (milliSec3 + 1)); // +1 to avoid problems when milliSec3 = 0
-            double dErr = (error - lastErr) / (milliSec3 + 1); // +1 to avoid problems when milliSec3 = 0
+            errSum += (error * (milliSec_phi + 1)); // +1 to avoid problems when milliSec_phi = 0
+            double dErr = (error - lastErr) / (milliSec_phi + 1); // +1 to avoid problems when milliSec_phi = 0
+
+            //update variables for next loop
+            lastErr = error;
+
+            //compute PID output
+            return Kp * error + Kd * dErr + Ki * errSum;// + Kd * dErr;
+        }
+
+        // PID Controller function for autolevelling theta - db
+        private double PID_theta(double measured_value, double setpoint, double Kp, double Ki, double Kd, double errSum, double lastErr)
+        {
+            
+            //how long since we last calculated?
+            //stopWatch_theta.Stop();
+            milliSec_theta = stopWatch_theta.ElapsedMilliseconds;
+            stopWatch_theta.Reset();
+            stopWatch_theta.Start();
+            
+            //compute working variables:
+            double error = setpoint - measured_value;
+            errSum += (error * (milliSec_theta + 1)); // +1 to avoid problems when milliSec_theta = 0
+            double dErr = (error - lastErr) / (milliSec_theta + 1); // +1 to avoid problems when milliSec_theta = 0
 
             //update variables for next loop
             lastErr = error;
@@ -6453,8 +6474,8 @@ namespace brachIOplexus
         void Get_GoalPos()
         {
             //get output from PID controller (amount servo needs to move in degrees)
-            output_phi = PID(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi, errSum_phi, lastErr_phi);
-            output_theta = PID(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta, errSum_theta, lastErr_theta);
+            output_phi = PID_phi(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi, errSum_phi, lastErr_phi);
+            output_theta = PID_theta(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta, errSum_theta, lastErr_theta);
             //convert to encoder ticks
             RotAdjustment = Deg_to_Ticks(output_phi);
             FlxAdjustment = Deg_to_Ticks(output_theta);
@@ -6463,16 +6484,16 @@ namespace brachIOplexus
         //Function to write the PID driven goal-positions to the rotation servo - db
         void MoveLevelRot()
         {
-            robotObj.Motor[2].wmax = 250;
-            robotObj.Motor[2].w = 250;
+            robotObj.Motor[2].wmax = 500;
+            robotObj.Motor[2].w = 500;
             robotObj.Motor[2].p = robotObj.Motor[2].p_prev + RotAdjustment;
         }
 
         //Function to write the PID driven goal-position to the flexion servo - db
         void MoveLevelFlx()
         {
-            robotObj.Motor[3].wmax = 250;
-            robotObj.Motor[3].w = 250;
+            robotObj.Motor[3].wmax = 500;
+            robotObj.Motor[3].w = 500;
             robotObj.Motor[3].p = robotObj.Motor[3].p_prev - FlxAdjustment;
         }
 
