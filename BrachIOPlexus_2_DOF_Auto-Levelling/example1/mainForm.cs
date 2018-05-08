@@ -5485,14 +5485,15 @@ namespace brachIOplexus
                             // only channels A0-A3 are enabled for now. The rest are set to 0
                             string[] words = RxString.Split(separatingChars);
 
+                            // reading 6 arduino values for IMU and joystick control. Joystick is split into 4 channels around the 512 axis - db
                             InputMap[4, 0] = Convert.ToInt32(words[1].TrimStart('0').Length > 0 ? words[1].TrimStart('0') : "0") / scale_factor;
                             InputMap[4, 1] = Convert.ToInt32(words[2].TrimStart('0').Length > 0 ? words[2].TrimStart('0') : "0") / scale_factor;
                             InputMap[4, 2] = Convert.ToInt32(words[3].TrimStart('0').Length > 0 ? words[3].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 3] = Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 4] = Convert.ToInt32(words[5].TrimStart('0').Length > 0 ? words[5].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 5] = Convert.ToInt32(words[6].TrimStart('0').Length > 0 ? words[6].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 6] = 0; // reading 6 arduino values for IMU and joystick control - db
-                            InputMap[4, 7] = 0;
+                            InputMap[4, 3] = Convert.ToInt32(words[6].TrimStart('0').Length > 0 ? words[6].TrimStart('0') : "0") / scale_factor;
+                            InputMap[4, 4] = splitAxis512(Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0"), true);// / scale_factor;
+                            InputMap[4, 5] = splitAxis512(Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0"), false);// / scale_factor;
+                            InputMap[4, 6] = splitAxis512(Convert.ToInt32(words[5].TrimStart('0').Length > 0 ? words[5].TrimStart('0') : "0"), true);// / scale_factor;  
+                            InputMap[4, 7] = splitAxis512(Convert.ToInt32(words[5].TrimStart('0').Length > 0 ? words[5].TrimStart('0') : "0"), false);// / scale_factor; 
                         }
                     }
                     catch (Exception ex)
@@ -6178,6 +6179,27 @@ namespace brachIOplexus
 
         }
 
+        private int splitAxis512(int axisValue, bool upperAxis)
+        {
+            // Splits analog inputs that are centered around 512 into two separate channels that both begin at zero (i.e. arduino joystick) - db
+            if ((axisValue <= 512) && (upperAxis == true))
+            {
+                return axisValue = 0;
+            }
+            else if ((axisValue >= 512) && (upperAxis == false))
+            {
+                return axisValue = 0;
+            }
+            else if ((axisValue >= 512) && (upperAxis == true))
+            {
+                return axisValue = axisValue - 512;
+            }
+            else
+            {
+                return axisValue = 512 - axisValue;
+            }
+        }
+
         // Helper function that filters values to see if they are greater than 0
         private bool greaterThanZero(int value)
         {
@@ -6274,6 +6296,7 @@ namespace brachIOplexus
                 return value;
             }
         }
+
 
         #region "AutoLevelling Functions - db"
         //Main AutoLevelling Loop - db
@@ -6676,7 +6699,7 @@ namespace brachIOplexus
             comboBox_AddItems(3, InputComboBox, biopatrecList);
             comboBox_AddItems(4, InputComboBox, ArduinoInputList);
             comboBox_AddItems(5, InputComboBox, SLRTlist);
-            InputComboBox.SelectedIndex = InputComboBox.FindStringExact(InputBoxText); // Keep selected item persistant when the list changes
+            InputComboBox.SelectedIndex = InputComboBox.FindStringExact(InputBoxText); // Keep selected item persistent when the list changes
 
 
             // Update output device list
