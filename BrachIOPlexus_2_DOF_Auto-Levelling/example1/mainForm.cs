@@ -5488,10 +5488,10 @@ namespace brachIOplexus
                             InputMap[4, 0] = Convert.ToInt32(words[1].TrimStart('0').Length > 0 ? words[1].TrimStart('0') : "0") / scale_factor;
                             InputMap[4, 1] = Convert.ToInt32(words[2].TrimStart('0').Length > 0 ? words[2].TrimStart('0') : "0") / scale_factor;
                             InputMap[4, 2] = Convert.ToInt32(words[3].TrimStart('0').Length > 0 ? words[3].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 3] = 0;  // disabled A3 since only sending 3 values for IMU - db
-                            InputMap[4, 4] = 0;
-                            InputMap[4, 5] = 0;
-                            InputMap[4, 6] = 0;
+                            InputMap[4, 3] = Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0") / scale_factor;
+                            InputMap[4, 4] = Convert.ToInt32(words[5].TrimStart('0').Length > 0 ? words[5].TrimStart('0') : "0") / scale_factor;
+                            InputMap[4, 5] = Convert.ToInt32(words[6].TrimStart('0').Length > 0 ? words[6].TrimStart('0') : "0") / scale_factor;
+                            InputMap[4, 6] = 0; // reading 6 arduino values for IMU and joystick control - db
                             InputMap[4, 7] = 0;
                         }
                     }
