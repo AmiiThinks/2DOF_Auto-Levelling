@@ -6319,8 +6319,8 @@ namespace brachIOplexus
             Get_GoalPos();
 
             //First level the hand in terms of rotation. Then set setpoint for flexion levelling, if wrist flexion is not being directly controlled.
-            //Once setpoint is set, level both rotation and flexion.
-            if ((phi < 181 || phi > 179) && !wristFlexControl)
+            //Once setpoint is set, level both rotation and flexion.            
+            if (!wristFlexControl)
             {
                 if (reset_setpoints == true)
                 {
@@ -6336,13 +6336,12 @@ namespace brachIOplexus
                     //Autolevel flexion
                     MoveLevelFlx();
                 }
-            }            
+            }
             else
             {
                 //Autolevel rotation
-                MoveLevelRot();                              
-            }
-
+                MoveLevelRot();
+            }         
         }
 
         // Helper function to find the magnitude of a three component vector - db
@@ -6518,9 +6517,11 @@ namespace brachIOplexus
         //Function to write the PID driven goal-positions to the rotation servo - db
         void MoveLevelRot()
         {
-            robotObj.Motor[2].wmax = 500;
-            robotObj.Motor[2].w = 500;
-            robotObj.Motor[2].p = robotObj.Motor[2].p_prev + RotAdjustment;
+            
+                robotObj.Motor[2].wmax = 500;
+                robotObj.Motor[2].w = 500;
+                robotObj.Motor[2].p = robotObj.Motor[2].p_prev + taper(RotAdjustment,theta);
+                        
         }
 
         //Function to write the PID driven goal-position to the flexion servo - db
@@ -6574,6 +6575,19 @@ namespace brachIOplexus
             // Auto-suspend the Bento Arm as soon as the control enters focus
             //InvokeOnClick(BentoSuspend, new EventArgs());
             Kd_theta = Convert.ToDouble(Kd_theta_ctrl.Value);
+        }
+
+        //Function to taper off the rotation adjustments near the vertical positions - db
+        private int taper(int adjustment_val, double theta)
+        {
+            if (theta > 90 && theta < 270)
+            {
+                return Convert.ToInt16((90 - Math.Abs(180 - theta)) / 90 * adjustment_val);
+            }
+            else
+            {
+                return 0;
+            }
         }
         #endregion
         #endregion

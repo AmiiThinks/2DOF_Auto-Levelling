@@ -4602,7 +4602,7 @@
             this.wristFlex_wmax_ctrl.Size = new System.Drawing.Size(64, 22);
             this.wristFlex_wmax_ctrl.TabIndex = 128;
             this.wristFlex_wmax_ctrl.Value = new decimal(new int[] {
-            67,
+            90,
             0,
             0,
             0});
@@ -8982,7 +8982,7 @@
             this.Kp_phi_ctrl.Size = new System.Drawing.Size(64, 22);
             this.Kp_phi_ctrl.TabIndex = 150;
             this.Kp_phi_ctrl.Value = new decimal(new int[] {
-            65,
+            50,
             0,
             0,
             131072});
