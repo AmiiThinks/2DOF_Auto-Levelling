@@ -264,7 +264,7 @@ namespace brachIOplexus
         int FlxAdjustment = 0;          //initial adjustment for flexion
         bool newvalues = true;          //true if arduino input values haven't been remapped yet, false if they have
         bool reset_setpoints = true;    //true if time to reset setpoints (not currently autolevelling), false if currently autolevelling to some setpoint 
-       
+        bool wristFlexControl = false;  //true if wrist flexion is being directly controlled (disallows autolevelling), false if it is not (allows autolevelling)       
 
         #endregion
 
@@ -5486,14 +5486,14 @@ namespace brachIOplexus
                             string[] words = RxString.Split(separatingChars);
 
                             // reading 6 arduino values for IMU and joystick control. Joystick is split into 4 channels around the 512 axis - db
-                            InputMap[4, 0] = Convert.ToInt32(words[1].TrimStart('0').Length > 0 ? words[1].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 1] = Convert.ToInt32(words[2].TrimStart('0').Length > 0 ? words[2].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 2] = Convert.ToInt32(words[3].TrimStart('0').Length > 0 ? words[3].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 3] = Convert.ToInt32(words[6].TrimStart('0').Length > 0 ? words[6].TrimStart('0') : "0") / scale_factor;
-                            InputMap[4, 4] = splitAxis512(Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0"), true);// / scale_factor;
-                            InputMap[4, 5] = splitAxis512(Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0"), false);// / scale_factor;
-                            InputMap[4, 6] = splitAxis512(Convert.ToInt32(words[5].TrimStart('0').Length > 0 ? words[5].TrimStart('0') : "0"), true);// / scale_factor;  
-                            InputMap[4, 7] = splitAxis512(Convert.ToInt32(words[5].TrimStart('0').Length > 0 ? words[5].TrimStart('0') : "0"), false);// / scale_factor; 
+                            InputMap[4, 0] = Convert.ToInt32(words[1].TrimStart('0').Length > 0 ? words[1].TrimStart('0') : "0") / scale_factor; //IMU X
+                            InputMap[4, 1] = Convert.ToInt32(words[2].TrimStart('0').Length > 0 ? words[2].TrimStart('0') : "0") / scale_factor; //IMU Y
+                            InputMap[4, 2] = Convert.ToInt32(words[3].TrimStart('0').Length > 0 ? words[3].TrimStart('0') : "0") / scale_factor; //IMU Z
+                            InputMap[4, 3] = Convert.ToInt32(words[6].TrimStart('0').Length > 0 ? words[6].TrimStart('0') : "0") / scale_factor; //Joystick SEL
+                            InputMap[4, 4] = splitAxis512(Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0"), true); //Joystick Vert UP
+                            InputMap[4, 5] = splitAxis512(Convert.ToInt32(words[4].TrimStart('0').Length > 0 ? words[4].TrimStart('0') : "0"), false);//Joystick Vert DOWN
+                            InputMap[4, 6] = splitAxis512(Convert.ToInt32(words[5].TrimStart('0').Length > 0 ? words[5].TrimStart('0') : "0"), true); //Joystick Horiz FORWARD 
+                            InputMap[4, 7] = splitAxis512(Convert.ToInt32(words[5].TrimStart('0').Length > 0 ? words[5].TrimStart('0') : "0"), false);//Joystick Horiz BACKWARD 
                         }
                     }
                     catch (Exception ex)
@@ -5787,7 +5787,17 @@ namespace brachIOplexus
                                 case 0:
                                     if (k >= 0)
                                     {
-                                        post(dofObj[i], k, i);
+                                        // if controlling the wrist flexion, set the flag so that the autolevelling is disallowed. Otherwise, set the flag as false to allow AL.
+                                        if (k == 3)
+                                        {
+                                            wristFlexControl = true;
+                                            reset_setpoints = true;
+                                        }
+                                        else
+                                        {
+                                            wristFlexControl = false;
+                                        }
+                                       post(dofObj[i], k, i);
                                     }                                    
                                     break;
                             }                            
@@ -5931,7 +5941,7 @@ namespace brachIOplexus
                 global_flip = -1;
             }
 
-            // If autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
+            // If full autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
             if (AL_Enabled.Checked == true)
             {
                 AutoLevel();
@@ -5942,8 +5952,8 @@ namespace brachIOplexus
                 reset_setpoints = true;
             }
 
-            // Apply the first past the post algorithm (to all joints if AL disabled; to hand only if AL enabled - db)
-            if (((dofObj.ChA.signal >= dofObj.ChA.smin) && (AL_Enabled.Checked == false)) || ((dofObj.ChA.signal >= dofObj.ChA.smin) && (k == 4)))
+            // Apply the first past the post algorithm 
+            if ((dofObj.ChA.signal >= dofObj.ChA.smin) || ((dofObj.ChA.signal >= dofObj.ChA.smin) && (k == 4)))
             {
                 // Move CW 
                 stateObj.motorState[k] = 1;
@@ -5961,7 +5971,7 @@ namespace brachIOplexus
                 }
                                
             }
-            else if (((dofObj.ChB.signal >= dofObj.ChB.smin) && (AL_Enabled.Checked == false)) || ((dofObj.ChB.signal >= dofObj.ChB.smin) && (k == 4)))
+            else if ((dofObj.ChB.signal >= dofObj.ChB.smin)|| ((dofObj.ChB.signal >= dofObj.ChB.smin) && (k == 4)))
             {
                 // Move CCW 
                 stateObj.motorState[k] = 2;
@@ -6308,8 +6318,9 @@ namespace brachIOplexus
             //Get goal position
             Get_GoalPos();
 
-            //First level the hand in terms of rotation. Then set setpoint for flexion levelling. Once setpoint is set, level both rotation and flexion.
-            if (phi < 181 || phi > 179)
+            //First level the hand in terms of rotation. Then set setpoint for flexion levelling, if wrist flexion is not being directly controlled.
+            //Once setpoint is set, level both rotation and flexion.
+            if ((phi < 181 || phi > 179) && !wristFlexControl)
             {
                 if (reset_setpoints == true)
                 {
