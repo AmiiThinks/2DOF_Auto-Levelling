@@ -58,6 +58,7 @@
             this.inputBox.Size = new System.Drawing.Size(99, 21);
             this.inputBox.TabIndex = 157;
             this.inputBox.SelectedIndexChanged += new System.EventHandler(this.inputBox_SelectedIndexChanged);
+            this.inputBox.Enter += new System.EventHandler(this.inputBox_Enter);
             // 
             // label145
             // 
@@ -179,16 +180,12 @@
             this.mappingBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.mappingBox.FormattingEnabled = true;
             this.mappingBox.Items.AddRange(new object[] {
-            "First to Smin",
-            "Joint Position2",
-            "Joint Position1",
-            "Toggle"});
+            "First to Smin"});
             this.mappingBox.Location = new System.Drawing.Point(242, 0);
             this.mappingBox.Margin = new System.Windows.Forms.Padding(2);
             this.mappingBox.Name = "mappingBox";
             this.mappingBox.Size = new System.Drawing.Size(99, 21);
             this.mappingBox.TabIndex = 148;
-            this.mappingBox.SelectedIndexChanged += new System.EventHandler(this.mappingBox_SelectedIndexChanged);
             // 
             // label161
             // 

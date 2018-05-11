@@ -67,19 +67,20 @@ namespace brachIOplexus
         {
             OnInputIndexChanged(e);
         }
-        
-        // When index changes on mapping box trigger method in parent form using event handler
-        public event EventHandler MappingIndexChanged;
 
-        protected virtual void OnMappingIndexChanged(EventArgs e)
+        // When inputbox comes into focus (either by clicking on or tabbing to it) on input box trigger method in parent form using event handler
+        public event EventHandler InputEnter;
+
+        protected virtual void OnInputEnter(EventArgs e)
         {
-            var handler = MappingIndexChanged;
+            var handler = InputEnter;
             if (handler != null)
                 handler(this, e);
         }
-        private void mappingBox_SelectedIndexChanged(object sender, EventArgs e)
+
+        private void inputBox_Enter(object sender, EventArgs e)
         {
-            OnMappingIndexChanged(e);
+            OnInputEnter(e);
         }
     }
 }
