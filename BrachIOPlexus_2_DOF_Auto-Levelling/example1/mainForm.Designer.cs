@@ -622,12 +622,6 @@
             this.label158 = new System.Windows.Forms.Label();
             this.label157 = new System.Windows.Forms.Label();
             this.label156 = new System.Windows.Forms.Label();
-            this.doF6 = new brachIOplexus.DoF();
-            this.doF5 = new brachIOplexus.DoF();
-            this.doF4 = new brachIOplexus.DoF();
-            this.doF3 = new brachIOplexus.DoF();
-            this.doF2 = new brachIOplexus.DoF();
-            this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
             this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
             this.FlexionPIDBox = new System.Windows.Forms.GroupBox();
@@ -763,6 +757,12 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
+            this.doF6 = new brachIOplexus.DoF();
+            this.doF5 = new brachIOplexus.DoF();
+            this.doF4 = new brachIOplexus.DoF();
+            this.doF3 = new brachIOplexus.DoF();
+            this.doF2 = new brachIOplexus.DoF();
+            this.doF1 = new brachIOplexus.DoF();
             this.MenuStrip1.SuspendLayout();
             this.VoiceCoilCommBox.SuspendLayout();
             this.EMGParamBox.SuspendLayout();
@@ -4602,7 +4602,7 @@
             this.wristFlex_wmax_ctrl.Size = new System.Drawing.Size(64, 22);
             this.wristFlex_wmax_ctrl.TabIndex = 128;
             this.wristFlex_wmax_ctrl.Value = new decimal(new int[] {
-            90,
+            67,
             0,
             0,
             0});
@@ -8634,54 +8634,6 @@
             this.label156.TabIndex = 29;
             this.label156.Text = "Smax";
             // 
-            // doF6
-            // 
-            this.doF6.Location = new System.Drawing.Point(8, 630);
-            this.doF6.Margin = new System.Windows.Forms.Padding(5);
-            this.doF6.Name = "doF6";
-            this.doF6.Size = new System.Drawing.Size(865, 116);
-            this.doF6.TabIndex = 144;
-            // 
-            // doF5
-            // 
-            this.doF5.Location = new System.Drawing.Point(8, 507);
-            this.doF5.Margin = new System.Windows.Forms.Padding(5);
-            this.doF5.Name = "doF5";
-            this.doF5.Size = new System.Drawing.Size(865, 116);
-            this.doF5.TabIndex = 143;
-            // 
-            // doF4
-            // 
-            this.doF4.Location = new System.Drawing.Point(8, 384);
-            this.doF4.Margin = new System.Windows.Forms.Padding(5);
-            this.doF4.Name = "doF4";
-            this.doF4.Size = new System.Drawing.Size(865, 116);
-            this.doF4.TabIndex = 142;
-            // 
-            // doF3
-            // 
-            this.doF3.Location = new System.Drawing.Point(8, 261);
-            this.doF3.Margin = new System.Windows.Forms.Padding(5);
-            this.doF3.Name = "doF3";
-            this.doF3.Size = new System.Drawing.Size(865, 116);
-            this.doF3.TabIndex = 141;
-            // 
-            // doF2
-            // 
-            this.doF2.Location = new System.Drawing.Point(8, 142);
-            this.doF2.Margin = new System.Windows.Forms.Padding(5);
-            this.doF2.Name = "doF2";
-            this.doF2.Size = new System.Drawing.Size(865, 116);
-            this.doF2.TabIndex = 140;
-            // 
-            // doF1
-            // 
-            this.doF1.Location = new System.Drawing.Point(8, 22);
-            this.doF1.Margin = new System.Windows.Forms.Padding(5);
-            this.doF1.Name = "doF1";
-            this.doF1.Size = new System.Drawing.Size(865, 116);
-            this.doF1.TabIndex = 139;
-            // 
             // tabBento
             // 
             this.tabBento.Controls.Add(this.AutoLevellingBox);
@@ -10332,6 +10284,54 @@
             // 
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
+            // 
+            // doF6
+            // 
+            this.doF6.Location = new System.Drawing.Point(8, 630);
+            this.doF6.Margin = new System.Windows.Forms.Padding(5);
+            this.doF6.Name = "doF6";
+            this.doF6.Size = new System.Drawing.Size(865, 116);
+            this.doF6.TabIndex = 144;
+            // 
+            // doF5
+            // 
+            this.doF5.Location = new System.Drawing.Point(8, 507);
+            this.doF5.Margin = new System.Windows.Forms.Padding(5);
+            this.doF5.Name = "doF5";
+            this.doF5.Size = new System.Drawing.Size(865, 116);
+            this.doF5.TabIndex = 143;
+            // 
+            // doF4
+            // 
+            this.doF4.Location = new System.Drawing.Point(8, 384);
+            this.doF4.Margin = new System.Windows.Forms.Padding(5);
+            this.doF4.Name = "doF4";
+            this.doF4.Size = new System.Drawing.Size(865, 116);
+            this.doF4.TabIndex = 142;
+            // 
+            // doF3
+            // 
+            this.doF3.Location = new System.Drawing.Point(8, 261);
+            this.doF3.Margin = new System.Windows.Forms.Padding(5);
+            this.doF3.Name = "doF3";
+            this.doF3.Size = new System.Drawing.Size(865, 116);
+            this.doF3.TabIndex = 141;
+            // 
+            // doF2
+            // 
+            this.doF2.Location = new System.Drawing.Point(8, 142);
+            this.doF2.Margin = new System.Windows.Forms.Padding(5);
+            this.doF2.Name = "doF2";
+            this.doF2.Size = new System.Drawing.Size(865, 116);
+            this.doF2.TabIndex = 140;
+            // 
+            // doF1
+            // 
+            this.doF1.Location = new System.Drawing.Point(8, 22);
+            this.doF1.Margin = new System.Windows.Forms.Padding(5);
+            this.doF1.Name = "doF1";
+            this.doF1.Size = new System.Drawing.Size(865, 116);
+            this.doF1.TabIndex = 139;
             // 
             // mainForm
             // 
