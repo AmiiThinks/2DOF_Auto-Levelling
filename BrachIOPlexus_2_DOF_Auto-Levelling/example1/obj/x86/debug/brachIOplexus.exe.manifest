@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="brachIOplexus.exe" size="4071840">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="brachIOplexus.exe" size="4077472">
       <assemblyIdentity name="brachIOplexus" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>ChNPiB1W4hxuRllaGbZiSk2Q98E=</dsig:DigestValue>
+        <dsig:DigestValue>s5Az1ZfcuMQTAcRd/T8B6psqyOo=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -67,14 +67,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MyoSharp.dll" size="62976">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MyoSharp.dll" size="85504">
       <assemblyIdentity name="MyoSharp" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>rlDjiBzT0uM0r2RS/RyltbwWqb0=</dsig:DigestValue>
+        <dsig:DigestValue>MQixXSQgxBUyIDTeag8+zKSfsEQ=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -192,76 +192,103 @@
       <dsig:DigestValue>+viYu4TS8zEnfQu4FTKo8RwG6mQ=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Resources\Profiles\default.dat" size="1244">
+  <file name="Resources\Profiles\BentoProfiles\profile0.dat" size="337">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>Utvr0NQbOgmL5tSYr7rp4i9TVLU=</dsig:DigestValue>
+      <dsig:DigestValue>IfhlswGEPdgXbR82SIMPRWOO4/Q=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Resources\Profiles\empty.dat" size="1244">
+  <file name="Resources\Profiles\BentoProfiles\profile1.dat" size="337">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>/+rvfSjQLqS+hscbRvCZZEMwILk=</dsig:DigestValue>
+      <dsig:DigestValue>ymmNRD5h9TceLC+R93FdBy0ePzo=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Resources\Profiles\kb_multi.dat" size="1244">
+  <file name="Resources\Profiles\BentoProfiles\profile2.dat" size="337">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>m5iykSJ0qI+my8zJN8l3IaZ2b5w=</dsig:DigestValue>
+      <dsig:DigestValue>XHlcy8VVD6ULZOLeFbN/2W/ksWg=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Resources\Profiles\kb_sequential.dat" size="1244">
+  <file name="Resources\Profiles\default.dat" size="1331">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>bbUJlq4+W2I76gC4AsDzBDs5wJE=</dsig:DigestValue>
+      <dsig:DigestValue>tvKx7KpLMiDo2h6G/pGedA6FIN8=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Resources\Profiles\MYO_sequential_left.dat" size="1244">
+  <file name="Resources\Profiles\empty.dat" size="1331">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>bJmZbUetLialqOF1nXqLxJ4rg+g=</dsig:DigestValue>
+      <dsig:DigestValue>bfHRoQylwKK+57ubY4+tTfyu4ow=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Resources\Profiles\MYO_sequential_right.dat" size="1244">
+  <file name="Resources\Profiles\kb_multi.dat" size="1331">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>InAHnLbQMK16KidSo/ONBG6jgZ8=</dsig:DigestValue>
+      <dsig:DigestValue>jkG8CQrbeoYMkTjpLMNnoHCUiBI=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Resources\Profiles\xbox_multi.dat" size="1244">
+  <file name="Resources\Profiles\kb_sequential.dat" size="1331">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>Utvr0NQbOgmL5tSYr7rp4i9TVLU=</dsig:DigestValue>
+      <dsig:DigestValue>OppkOElNTrXHr/dk4M9F6+kDllU=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Resources\Profiles\xbox_sequential.dat" size="1244">
+  <file name="Resources\Profiles\MYO_sequential_left.dat" size="1331">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>Ze0lMCD5YdXJ96T1bGtdP9iVml0=</dsig:DigestValue>
+      <dsig:DigestValue>eUpiOE7omI/qpwJwOUQDXibiNL0=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Resources\Profiles\MYO_sequential_right.dat" size="1331">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>pCJ3o6umxDzxbXA80FP2ojNV51A=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Resources\Profiles\xbox_multi.dat" size="1331">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>tvKx7KpLMiDo2h6G/pGedA6FIN8=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="Resources\Profiles\xbox_sequential.dat" size="1331">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>XXMaB6eF5lzGWTZHT+Kws7ItW5M=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Resources\switching_sounds\elbow001.wav" size="6554">
