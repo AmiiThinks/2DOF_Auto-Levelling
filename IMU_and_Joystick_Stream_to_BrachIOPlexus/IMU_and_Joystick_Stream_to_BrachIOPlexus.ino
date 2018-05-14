@@ -23,7 +23,7 @@
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
 // DEFINE number of sensor channels
-const int ch_num = 6;
+const int ch_num = 8;
 
 // Define timing parameters
 const int timestep1 = 40; // timestep to update servo position and read values from FSRs in milliseconds
@@ -47,7 +47,7 @@ const int SEL = 4;
 struct sensorParam {
   int value;          // the analog input pin that will be assigned to this sensor channel 
   int enabled;             // whether the sensor is enabled or not 0 = false, 1 = true
-} sensor[8]; // need to make one more than the amount used because of some kind of bug in the compiler
+} sensor[9]; // need to make one more than the amount used because of some kind of bug in the compiler
 
 // This sketch outputs Serial data at 9600 baud (open Serial Monitor to view).
 
@@ -81,6 +81,14 @@ void setup()
   // Define sensor 2 parameters  
   sensor[6].value = 0;          // the analog input pin that will be assigned to this sensor channel                
   sensor[6].enabled = 1;              // whether the sensor is enabled or not 0 = false, 1 = true
+  
+  // Define sensor 2 parameters  
+  sensor[7].value = 0;          // the analog input pin that will be assigned to this sensor channel                
+  sensor[7].enabled = 1;              // whether the sensor is enabled or not 0 = false, 1 = true
+  
+  // Define sensor 2 parameters  
+  sensor[8].value = 0;          // the analog input pin that will be assigned to this sensor channel                
+  sensor[8].enabled = 1;              // whether the sensor is enabled or not 0 = false, 1 = true
   
   // set up Serial port for output
   // Use Serial for arduino leonardo/micro boards when using usb connection https://www.arduino.cc/en/Reference/Serial
@@ -134,12 +142,14 @@ void loop()
     sensor[1].value = imu.x();
     sensor[2].value = imu.y();
     sensor[3].value = imu.z();
-    sensor[4].value = analogRead(VERT);
-    sensor[5].value = analogRead(HORIZ);
+    sensor[4].value = splitAxis512(analogRead(VERT), true);
+    sensor[5].value = splitAxis512(analogRead(VERT), false);
+    sensor[6].value = splitAxis512(analogRead(HORIZ), true);
+    sensor[7].value = splitAxis512(analogRead(HORIZ), false);
     if(select == HIGH)
-        sensor[6].value = 1; 
+        sensor[8].value = 1; 
     else
-        sensor[6].value = 1023;  
+        sensor[8].value = 1023;  
     
     for(int m=1; m <= ch_num; m++)
     {  
@@ -157,3 +167,24 @@ void loop()
   }
   
 }
+
+int splitAxis512(int axisValue, bool upperAxis)
+        {
+            // Splits analog inputs that are centered around 512 into two separate channels that both begin at zero (i.e. arduino joystick) - db
+            if ((axisValue <= 512) && (upperAxis == true))
+            {
+                return axisValue = 0;
+            }
+            else if ((axisValue >= 512) && (upperAxis == false))
+            {
+                return axisValue = 0;
+            }
+            else if ((axisValue >= 512) && (upperAxis == true))
+            {
+                return axisValue = axisValue - 512;
+            }
+            else
+            {
+                return axisValue = 512 - axisValue;
+            }
+        }

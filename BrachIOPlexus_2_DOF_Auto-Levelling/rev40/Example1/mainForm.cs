@@ -5996,6 +5996,17 @@ namespace brachIOplexus
                                 case 0:
                                     if (k >= 0)
                                     {
+                                        // if controlling the wrist flexion, set the flag so that the autolevelling is disallowed. 
+                                        //Otherwise, set the flag as false to allow AL. - db
+                                        if (k == 3)
+                                        {
+                                            wristFlexControl = true;
+                                            reset_setpoints = true;
+                                        }
+                                        else
+                                        {
+                                            wristFlexControl = false;
+                                        }
                                         post(dofObj[i], k, i);
                                     }
                                     break;
