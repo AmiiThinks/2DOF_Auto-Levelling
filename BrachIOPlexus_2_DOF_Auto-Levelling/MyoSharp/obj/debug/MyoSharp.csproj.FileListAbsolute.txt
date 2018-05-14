@@ -33,24 +33,27 @@ C:\Users\SlashC\Desktop\Bento GUI\GUI_DOF6_12ch_BENTO_rev23\MyoSharp\obj\Debug\M
 C:\Users\SlashC\Desktop\Bento GUI\GUI_DOF6_12ch_BENTO_rev23\MyoSharp\obj\Debug\Decl\MyoSharp.dll
 C:\Users\SlashC\Desktop\Bento GUI\GUI_DOF6_12ch_BENTO_rev23\MyoSharp\obj\Debug\Decl\MyoSharp.pdb
 C:\Users\SlashC\Desktop\Bento GUI\GUI_DOF6_12ch_BENTO_rev23\MyoSharp\obj\Debug\CodeContractAnalysisRun.log
-C:\Users\Dylan\Desktop\BrachIO\MyoSharp\bin\Debug\x64\myo.dll
-C:\Users\Dylan\Desktop\BrachIO\MyoSharp\bin\Debug\x86\myo.dll
-C:\Users\Dylan\Desktop\BrachIO\MyoSharp\bin\Debug\MyoSharp.dll
-C:\Users\Dylan\Desktop\BrachIO\MyoSharp\bin\Debug\MyoSharp.pdb
-C:\Users\Dylan\Desktop\BrachIO\MyoSharp\obj\Debug\MyoSharp.csprojResolveAssemblyReference.cache
-C:\Users\Dylan\Desktop\BrachIO\MyoSharp\obj\Debug\MyoSharp.dll
-C:\Users\Dylan\Desktop\BrachIO\MyoSharp\obj\Debug\MyoSharp.pdb
-C:\Users\Dylan\Desktop\2DOF_Auto-Levelling-master\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\bin\Debug\x64\myo.dll
-C:\Users\Dylan\Desktop\2DOF_Auto-Levelling-master\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\bin\Debug\x86\myo.dll
-C:\Users\Dylan\Desktop\2DOF_Auto-Levelling-master\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\bin\Debug\MyoSharp.dll
-C:\Users\Dylan\Desktop\2DOF_Auto-Levelling-master\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\bin\Debug\MyoSharp.pdb
-C:\Users\Dylan\Desktop\2DOF_Auto-Levelling-master\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\obj\Debug\MyoSharp.csprojResolveAssemblyReference.cache
-C:\Users\Dylan\Desktop\2DOF_Auto-Levelling-master\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\obj\Debug\MyoSharp.dll
-C:\Users\Dylan\Desktop\2DOF_Auto-Levelling-master\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\obj\Debug\MyoSharp.pdb
-C:\Users\Dylan\Dropbox\School\GitHub\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\bin\Debug\x64\myo.dll
-C:\Users\Dylan\Dropbox\School\GitHub\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\bin\Debug\x86\myo.dll
-C:\Users\Dylan\Dropbox\School\GitHub\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\bin\Debug\MyoSharp.dll
-C:\Users\Dylan\Dropbox\School\GitHub\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\bin\Debug\MyoSharp.pdb
-C:\Users\Dylan\Dropbox\School\GitHub\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\obj\Debug\MyoSharp.csprojResolveAssemblyReference.cache
-C:\Users\Dylan\Dropbox\School\GitHub\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\obj\Debug\MyoSharp.dll
-C:\Users\Dylan\Dropbox\School\GitHub\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MyoSharp\obj\Debug\MyoSharp.pdb
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\bin\Debug\x64\myo.dll
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\bin\Debug\x86\myo.dll
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\bin\Debug\MyoSharp.dll
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\bin\Debug\MyoSharp.pdb
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\bin\Debug\Microsoft.Contracts.dll
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\obj\Debug\MyoSharp.csprojResolveAssemblyReference.cache
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\obj\Debug\MyoSharp.rewritten
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\obj\Debug\MyoSharp.dll
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\obj\Debug\MyoSharp.pdb
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\obj\Debug\Decl\MyoSharp.dll
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\obj\Debug\Decl\MyoSharp.pdb
+C:\Users\APP-Voltorb\Desktop\Bento GUI Backup_210417\Bento GUI\GUI_DOF6_12ch_BENTO_rev40 - copy\MyoSharp\obj\Debug\CodeContractAnalysisRun.log
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\bin\Debug\x64\myo.dll
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\bin\Debug\x86\myo.dll
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\bin\Debug\MyoSharp.dll
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\bin\Debug\MyoSharp.pdb
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\bin\Debug\Microsoft.Contracts.dll
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\obj\Debug\MyoSharp.csprojResolveAssemblyReference.cache
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\obj\Debug\MyoSharp.rewritten
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\obj\Debug\MyoSharp.dll
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\obj\Debug\MyoSharp.pdb
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\obj\Debug\Decl\MyoSharp.dll
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\obj\Debug\Decl\MyoSharp.pdb
+H:\DLR Updated Files_180511\GUI_DOF6_12ch_BENTO_rev40\MyoSharp\obj\Debug\CodeContractAnalysisRun.log

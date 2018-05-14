@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(mainForm));
+            this.tg = new MathWorks.xPCTarget.FrameWork.xPCTargetPC(this.components);
             this.MenuStrip1 = new System.Windows.Forms.MenuStrip();
             this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.NewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -557,9 +558,26 @@
             this.labelText = new System.Windows.Forms.Label();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.tabMapping = new System.Windows.Forms.TabPage();
+            this.switchState_label = new System.Windows.Forms.Label();
+            this.label213 = new System.Windows.Forms.Label();
+            this.flag2_label = new System.Windows.Forms.Label();
+            this.label211 = new System.Windows.Forms.Label();
+            this.flag1_label = new System.Windows.Forms.Label();
+            this.label209 = new System.Windows.Forms.Label();
+            this.timer1_label = new System.Windows.Forms.Label();
+            this.label205 = new System.Windows.Forms.Label();
             this.ID2_state = new System.Windows.Forms.Label();
             this.label148 = new System.Windows.Forms.Label();
             this.groupBox16 = new System.Windows.Forms.GroupBox();
+            this.switchSmaxLabel2 = new System.Windows.Forms.Label();
+            this.switchSminLabel2 = new System.Windows.Forms.Label();
+            this.switchSminTick2 = new System.Windows.Forms.Label();
+            this.switchSmaxTick2 = new System.Windows.Forms.Label();
+            this.switchSmaxCtrl2 = new System.Windows.Forms.NumericUpDown();
+            this.switchSminCtrl2 = new System.Windows.Forms.NumericUpDown();
+            this.switchSignalBar2 = new System.Windows.Forms.ProgressBar();
+            this.switchGainCtrl2 = new System.Windows.Forms.NumericUpDown();
+            this.switchTimeCtrl2 = new System.Windows.Forms.NumericUpDown();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.groupBox14 = new System.Windows.Forms.GroupBox();
             this.textBox = new System.Windows.Forms.CheckBox();
@@ -597,18 +615,18 @@
             this.label104 = new System.Windows.Forms.Label();
             this.label145 = new System.Windows.Forms.Label();
             this.label147 = new System.Windows.Forms.Label();
-            this.switchSmaxLabel = new System.Windows.Forms.Label();
-            this.switchSminLabel = new System.Windows.Forms.Label();
-            this.switchSminTick = new System.Windows.Forms.Label();
-            this.switchSmaxTick = new System.Windows.Forms.Label();
-            this.switchSmaxCtrl = new System.Windows.Forms.NumericUpDown();
-            this.switchSminCtrl = new System.Windows.Forms.NumericUpDown();
-            this.switchSignalBar = new System.Windows.Forms.ProgressBar();
-            this.switchGainCtrl = new System.Windows.Forms.NumericUpDown();
+            this.switchSmaxLabel1 = new System.Windows.Forms.Label();
+            this.switchSminLabel1 = new System.Windows.Forms.Label();
+            this.switchSminTick1 = new System.Windows.Forms.Label();
+            this.switchSmaxTick1 = new System.Windows.Forms.Label();
+            this.switchSmaxCtrl1 = new System.Windows.Forms.NumericUpDown();
+            this.switchSminCtrl1 = new System.Windows.Forms.NumericUpDown();
+            this.switchSignalBar1 = new System.Windows.Forms.ProgressBar();
+            this.switchGainCtrl1 = new System.Windows.Forms.NumericUpDown();
             this.switchInputBox = new System.Windows.Forms.ComboBox();
             this.label39 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
-            this.switchTimeCtrl = new System.Windows.Forms.NumericUpDown();
+            this.switchTimeCtrl1 = new System.Windows.Forms.NumericUpDown();
             this.label242 = new System.Windows.Forms.Label();
             this.switchModeBox = new System.Windows.Forms.ComboBox();
             this.switchLabel = new System.Windows.Forms.Label();
@@ -622,31 +640,17 @@
             this.label158 = new System.Windows.Forms.Label();
             this.label157 = new System.Windows.Forms.Label();
             this.label156 = new System.Windows.Forms.Label();
+            this.doF6 = new brachIOplexus.DoF();
+            this.doF5 = new brachIOplexus.DoF();
+            this.doF4 = new brachIOplexus.DoF();
+            this.doF3 = new brachIOplexus.DoF();
+            this.doF2 = new brachIOplexus.DoF();
+            this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
-            this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
-            this.FlexionPIDBox = new System.Windows.Forms.GroupBox();
-            this.CurrentFlexion = new System.Windows.Forms.Label();
-            this.label224 = new System.Windows.Forms.Label();
-            this.label223 = new System.Windows.Forms.Label();
-            this.SetpointFlexion = new System.Windows.Forms.Label();
-            this.Kd_theta_ctrl = new System.Windows.Forms.NumericUpDown();
-            this.label210 = new System.Windows.Forms.Label();
-            this.Ki_theta_ctrl = new System.Windows.Forms.NumericUpDown();
-            this.label211 = new System.Windows.Forms.Label();
-            this.Kp_theta_ctrl = new System.Windows.Forms.NumericUpDown();
-            this.label212 = new System.Windows.Forms.Label();
-            this.RotationPIDBox = new System.Windows.Forms.GroupBox();
-            this.CurrentRotation = new System.Windows.Forms.Label();
-            this.label222 = new System.Windows.Forms.Label();
-            this.label221 = new System.Windows.Forms.Label();
-            this.Kd_phi_ctrl = new System.Windows.Forms.NumericUpDown();
-            this.SetpointRotation = new System.Windows.Forms.Label();
-            this.label209 = new System.Windows.Forms.Label();
-            this.Ki_phi_ctrl = new System.Windows.Forms.NumericUpDown();
-            this.label205 = new System.Windows.Forms.Label();
-            this.Kp_phi_ctrl = new System.Windows.Forms.NumericUpDown();
-            this.label206 = new System.Windows.Forms.Label();
-            this.AL_Enabled = new System.Windows.Forms.CheckBox();
+            this.groupBox19 = new System.Windows.Forms.GroupBox();
+            this.BentoProfileOpen = new System.Windows.Forms.Button();
+            this.BentoProfileBox = new System.Windows.Forms.ComboBox();
+            this.BentoProfileSave = new System.Windows.Forms.Button();
             this.BentoEnvLimitsBox = new System.Windows.Forms.GroupBox();
             this.label159 = new System.Windows.Forms.Label();
             this.label155 = new System.Windows.Forms.Label();
@@ -757,12 +761,30 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
-            this.doF6 = new brachIOplexus.DoF();
-            this.doF5 = new brachIOplexus.DoF();
-            this.doF4 = new brachIOplexus.DoF();
-            this.doF3 = new brachIOplexus.DoF();
-            this.doF2 = new brachIOplexus.DoF();
-            this.doF1 = new brachIOplexus.DoF();
+            this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
+            this.FlexionPIDBox = new System.Windows.Forms.GroupBox();
+            this.CurrentFlexion = new System.Windows.Forms.Label();
+            this.label224 = new System.Windows.Forms.Label();
+            this.label223 = new System.Windows.Forms.Label();
+            this.SetpointFlexion = new System.Windows.Forms.Label();
+            this.Kd_theta_ctrl = new System.Windows.Forms.NumericUpDown();
+            this.label210 = new System.Windows.Forms.Label();
+            this.Ki_theta_ctrl = new System.Windows.Forms.NumericUpDown();
+            this.label206 = new System.Windows.Forms.Label();
+            this.Kp_theta_ctrl = new System.Windows.Forms.NumericUpDown();
+            this.label212 = new System.Windows.Forms.Label();
+            this.RotationPIDBox = new System.Windows.Forms.GroupBox();
+            this.CurrentRotation = new System.Windows.Forms.Label();
+            this.label222 = new System.Windows.Forms.Label();
+            this.label221 = new System.Windows.Forms.Label();
+            this.Kd_phi_ctrl = new System.Windows.Forms.NumericUpDown();
+            this.SetpointRotation = new System.Windows.Forms.Label();
+            this.label215 = new System.Windows.Forms.Label();
+            this.Ki_phi_ctrl = new System.Windows.Forms.NumericUpDown();
+            this.label225 = new System.Windows.Forms.Label();
+            this.Kp_phi_ctrl = new System.Windows.Forms.NumericUpDown();
+            this.label226 = new System.Windows.Forms.Label();
+            this.AL_Enabled = new System.Windows.Forms.CheckBox();
             this.MenuStrip1.SuspendLayout();
             this.VoiceCoilCommBox.SuspendLayout();
             this.EMGParamBox.SuspendLayout();
@@ -865,25 +887,21 @@
             this.groupBox9.SuspendLayout();
             this.tabMapping.SuspendLayout();
             this.groupBox16.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.switchSmaxCtrl2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchSminCtrl2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchGainCtrl2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl2)).BeginInit();
             this.groupBox11.SuspendLayout();
             this.groupBox14.SuspendLayout();
             this.groupBox13.SuspendLayout();
             this.groupBox12.SuspendLayout();
             this.groupBox10.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.switchSmaxCtrl)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.switchSminCtrl)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.switchGainCtrl)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchSmaxCtrl1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchSminCtrl1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchGainCtrl1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl1)).BeginInit();
             this.tabBento.SuspendLayout();
-            this.AutoLevellingBox.SuspendLayout();
-            this.FlexionPIDBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.Kd_theta_ctrl)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Ki_theta_ctrl)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Kp_theta_ctrl)).BeginInit();
-            this.RotationPIDBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.Kd_phi_ctrl)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Ki_phi_ctrl)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Kp_phi_ctrl)).BeginInit();
+            this.groupBox19.SuspendLayout();
             this.BentoEnvLimitsBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -895,7 +913,27 @@
             this.biopatrecGroupBox.SuspendLayout();
             this.SLRTgroupBox.SuspendLayout();
             this.statusPanel1.SuspendLayout();
+            this.AutoLevellingBox.SuspendLayout();
+            this.FlexionPIDBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Kd_theta_ctrl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ki_theta_ctrl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Kp_theta_ctrl)).BeginInit();
+            this.RotationPIDBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Kd_phi_ctrl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ki_phi_ctrl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Kp_phi_ctrl)).BeginInit();
             this.SuspendLayout();
+            // 
+            // tg
+            // 
+            this.tg.ContainerControl = this;
+            this.tg.DLMFileName = "";
+            this.tg.HostTargetComm = MathWorks.xPCTarget.FrameWork.XPCProtocol.TCPIP;
+            this.tg.RS232Baudrate = MathWorks.xPCTarget.FrameWork.XPCRS232BaudRate.BAUD115200;
+            this.tg.RS232HostPort = MathWorks.xPCTarget.FrameWork.XPCRS232CommPort.COM1;
+            this.tg.TargetPCName = "TargetPC1";
+            this.tg.TcpIpTargetAddress = "10.10.10.15";
+            this.tg.TcpIpTargetPort = "22222";
             // 
             // MenuStrip1
             // 
@@ -1557,7 +1595,7 @@
             this.ch8_gain_ctrl.Size = new System.Drawing.Size(51, 22);
             this.ch8_gain_ctrl.TabIndex = 24;
             this.ch8_gain_ctrl.Value = new decimal(new int[] {
-            1,
+            20,
             0,
             0,
             0});
@@ -1659,7 +1697,7 @@
             this.ch7_gain_ctrl.Size = new System.Drawing.Size(51, 22);
             this.ch7_gain_ctrl.TabIndex = 15;
             this.ch7_gain_ctrl.Value = new decimal(new int[] {
-            1,
+            20,
             0,
             0,
             0});
@@ -2010,7 +2048,7 @@
             this.ch6_gain_ctrl.Size = new System.Drawing.Size(51, 22);
             this.ch6_gain_ctrl.TabIndex = 24;
             this.ch6_gain_ctrl.Value = new decimal(new int[] {
-            1,
+            20,
             0,
             0,
             0});
@@ -2112,7 +2150,7 @@
             this.ch5_gain_ctrl.Size = new System.Drawing.Size(51, 22);
             this.ch5_gain_ctrl.TabIndex = 15;
             this.ch5_gain_ctrl.Value = new decimal(new int[] {
-            1,
+            20,
             0,
             0,
             0});
@@ -2463,7 +2501,7 @@
             this.ch4_gain_ctrl.Size = new System.Drawing.Size(51, 22);
             this.ch4_gain_ctrl.TabIndex = 24;
             this.ch4_gain_ctrl.Value = new decimal(new int[] {
-            1,
+            20,
             0,
             0,
             0});
@@ -2565,7 +2603,7 @@
             this.ch3_gain_ctrl.Size = new System.Drawing.Size(51, 22);
             this.ch3_gain_ctrl.TabIndex = 15;
             this.ch3_gain_ctrl.Value = new decimal(new int[] {
-            1,
+            20,
             0,
             0,
             0});
@@ -2916,7 +2954,7 @@
             this.ch2_gain_ctrl.Size = new System.Drawing.Size(51, 22);
             this.ch2_gain_ctrl.TabIndex = 24;
             this.ch2_gain_ctrl.Value = new decimal(new int[] {
-            1,
+            20,
             0,
             0,
             0});
@@ -3018,7 +3056,7 @@
             this.ch1_gain_ctrl.Size = new System.Drawing.Size(51, 22);
             this.ch1_gain_ctrl.TabIndex = 15;
             this.ch1_gain_ctrl.Value = new decimal(new int[] {
-            1,
+            20,
             0,
             0,
             0});
@@ -4287,15 +4325,10 @@
             // 
             // wristRot_wmax_ctrl
             // 
-            this.wristRot_wmax_ctrl.Increment = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
             this.wristRot_wmax_ctrl.Location = new System.Drawing.Point(419, 95);
             this.wristRot_wmax_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.wristRot_wmax_ctrl.Maximum = new decimal(new int[] {
-            500,
+            255,
             0,
             0,
             0});
@@ -4809,7 +4842,7 @@
             // 
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(11, 43);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(4);
+            this.comboBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(87, 24);
             this.comboBox1.TabIndex = 65;
@@ -4829,7 +4862,7 @@
             // 
             this.cmbSerialPorts.FormattingEnabled = true;
             this.cmbSerialPorts.Location = new System.Drawing.Point(272, 22);
-            this.cmbSerialPorts.Margin = new System.Windows.Forms.Padding(4);
+            this.cmbSerialPorts.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cmbSerialPorts.Name = "cmbSerialPorts";
             this.cmbSerialPorts.Size = new System.Drawing.Size(87, 24);
             this.cmbSerialPorts.TabIndex = 15;
@@ -5287,7 +5320,7 @@
             this.checkGuide.BackColor = System.Drawing.Color.Transparent;
             this.checkGuide.Enabled = false;
             this.checkGuide.Location = new System.Drawing.Point(120, 124);
-            this.checkGuide.Margin = new System.Windows.Forms.Padding(4);
+            this.checkGuide.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkGuide.Name = "checkGuide";
             this.checkGuide.Size = new System.Drawing.Size(18, 17);
             this.checkGuide.TabIndex = 163;
@@ -5371,7 +5404,7 @@
             this.checkDPadLeft.BackColor = System.Drawing.Color.Transparent;
             this.checkDPadLeft.Enabled = false;
             this.checkDPadLeft.Location = new System.Drawing.Point(252, 73);
-            this.checkDPadLeft.Margin = new System.Windows.Forms.Padding(4);
+            this.checkDPadLeft.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkDPadLeft.Name = "checkDPadLeft";
             this.checkDPadLeft.Size = new System.Drawing.Size(18, 17);
             this.checkDPadLeft.TabIndex = 156;
@@ -5383,7 +5416,7 @@
             this.checkDPadDown.BackColor = System.Drawing.Color.Transparent;
             this.checkDPadDown.Enabled = false;
             this.checkDPadDown.Location = new System.Drawing.Point(252, 53);
-            this.checkDPadDown.Margin = new System.Windows.Forms.Padding(4);
+            this.checkDPadDown.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkDPadDown.Name = "checkDPadDown";
             this.checkDPadDown.Size = new System.Drawing.Size(18, 17);
             this.checkDPadDown.TabIndex = 155;
@@ -5395,7 +5428,7 @@
             this.checkDPadRight.BackColor = System.Drawing.Color.Transparent;
             this.checkDPadRight.Enabled = false;
             this.checkDPadRight.Location = new System.Drawing.Point(252, 33);
-            this.checkDPadRight.Margin = new System.Windows.Forms.Padding(4);
+            this.checkDPadRight.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkDPadRight.Name = "checkDPadRight";
             this.checkDPadRight.Size = new System.Drawing.Size(18, 17);
             this.checkDPadRight.TabIndex = 154;
@@ -5407,7 +5440,7 @@
             this.checkDPadUp.BackColor = System.Drawing.Color.Transparent;
             this.checkDPadUp.Enabled = false;
             this.checkDPadUp.Location = new System.Drawing.Point(252, 15);
-            this.checkDPadUp.Margin = new System.Windows.Forms.Padding(4);
+            this.checkDPadUp.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkDPadUp.Name = "checkDPadUp";
             this.checkDPadUp.Size = new System.Drawing.Size(18, 17);
             this.checkDPadUp.TabIndex = 153;
@@ -5419,7 +5452,7 @@
             this.checkStickLeft.BackColor = System.Drawing.Color.Transparent;
             this.checkStickLeft.Enabled = false;
             this.checkStickLeft.Location = new System.Drawing.Point(120, 145);
-            this.checkStickLeft.Margin = new System.Windows.Forms.Padding(4);
+            this.checkStickLeft.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkStickLeft.Name = "checkStickLeft";
             this.checkStickLeft.Size = new System.Drawing.Size(18, 17);
             this.checkStickLeft.TabIndex = 152;
@@ -5431,7 +5464,7 @@
             this.checkStickRight.BackColor = System.Drawing.Color.Transparent;
             this.checkStickRight.Enabled = false;
             this.checkStickRight.Location = new System.Drawing.Point(120, 164);
-            this.checkStickRight.Margin = new System.Windows.Forms.Padding(4);
+            this.checkStickRight.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkStickRight.Name = "checkStickRight";
             this.checkStickRight.Size = new System.Drawing.Size(18, 17);
             this.checkStickRight.TabIndex = 151;
@@ -5443,7 +5476,7 @@
             this.checkBack.BackColor = System.Drawing.Color.Transparent;
             this.checkBack.Enabled = false;
             this.checkBack.Location = new System.Drawing.Point(120, 106);
-            this.checkBack.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBack.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkBack.Name = "checkBack";
             this.checkBack.Size = new System.Drawing.Size(18, 17);
             this.checkBack.TabIndex = 150;
@@ -5455,7 +5488,7 @@
             this.checkStart.BackColor = System.Drawing.Color.Transparent;
             this.checkStart.Enabled = false;
             this.checkStart.Location = new System.Drawing.Point(120, 86);
-            this.checkStart.Margin = new System.Windows.Forms.Padding(4);
+            this.checkStart.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkStart.Name = "checkStart";
             this.checkStart.Size = new System.Drawing.Size(18, 17);
             this.checkStart.TabIndex = 149;
@@ -5467,7 +5500,7 @@
             this.checkA.BackColor = System.Drawing.Color.Transparent;
             this.checkA.Enabled = false;
             this.checkA.Location = new System.Drawing.Point(120, 15);
-            this.checkA.Margin = new System.Windows.Forms.Padding(4);
+            this.checkA.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkA.Name = "checkA";
             this.checkA.Size = new System.Drawing.Size(18, 17);
             this.checkA.TabIndex = 148;
@@ -5479,7 +5512,7 @@
             this.checkB.BackColor = System.Drawing.Color.Transparent;
             this.checkB.Enabled = false;
             this.checkB.Location = new System.Drawing.Point(120, 32);
-            this.checkB.Margin = new System.Windows.Forms.Padding(4);
+            this.checkB.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkB.Name = "checkB";
             this.checkB.Size = new System.Drawing.Size(18, 17);
             this.checkB.TabIndex = 147;
@@ -5491,7 +5524,7 @@
             this.checkX.BackColor = System.Drawing.Color.Transparent;
             this.checkX.Enabled = false;
             this.checkX.Location = new System.Drawing.Point(120, 49);
-            this.checkX.Margin = new System.Windows.Forms.Padding(4);
+            this.checkX.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkX.Name = "checkX";
             this.checkX.Size = new System.Drawing.Size(18, 17);
             this.checkX.TabIndex = 146;
@@ -5503,7 +5536,7 @@
             this.checkY.BackColor = System.Drawing.Color.Transparent;
             this.checkY.Enabled = false;
             this.checkY.Location = new System.Drawing.Point(120, 68);
-            this.checkY.Margin = new System.Windows.Forms.Padding(4);
+            this.checkY.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkY.Name = "checkY";
             this.checkY.Size = new System.Drawing.Size(18, 17);
             this.checkY.TabIndex = 145;
@@ -5515,7 +5548,7 @@
             this.checkShoulderRight.BackColor = System.Drawing.Color.Transparent;
             this.checkShoulderRight.Enabled = false;
             this.checkShoulderRight.Location = new System.Drawing.Point(120, 202);
-            this.checkShoulderRight.Margin = new System.Windows.Forms.Padding(4);
+            this.checkShoulderRight.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkShoulderRight.Name = "checkShoulderRight";
             this.checkShoulderRight.Size = new System.Drawing.Size(18, 17);
             this.checkShoulderRight.TabIndex = 144;
@@ -5678,7 +5711,7 @@
             this.checkShoulderLeft.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.checkShoulderLeft.Enabled = false;
             this.checkShoulderLeft.Location = new System.Drawing.Point(119, 183);
-            this.checkShoulderLeft.Margin = new System.Windows.Forms.Padding(4);
+            this.checkShoulderLeft.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkShoulderLeft.Name = "checkShoulderLeft";
             this.checkShoulderLeft.Size = new System.Drawing.Size(18, 17);
             this.checkShoulderLeft.TabIndex = 178;
@@ -5994,9 +6027,9 @@
             this.BentoGroupBox.Controls.Add(this.TorqueOff);
             this.BentoGroupBox.Enabled = false;
             this.BentoGroupBox.Location = new System.Drawing.Point(4, 6);
-            this.BentoGroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.BentoGroupBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoGroupBox.Name = "BentoGroupBox";
-            this.BentoGroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.BentoGroupBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoGroupBox.Size = new System.Drawing.Size(492, 149);
             this.BentoGroupBox.TabIndex = 207;
             this.BentoGroupBox.TabStop = false;
@@ -6084,9 +6117,9 @@
             this.xBoxGroupBox.Controls.Add(this.label84);
             this.xBoxGroupBox.Enabled = false;
             this.xBoxGroupBox.Location = new System.Drawing.Point(4, 4);
-            this.xBoxGroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.xBoxGroupBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.xBoxGroupBox.Name = "xBoxGroupBox";
-            this.xBoxGroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.xBoxGroupBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.xBoxGroupBox.Size = new System.Drawing.Size(349, 223);
             this.xBoxGroupBox.TabIndex = 208;
             this.xBoxGroupBox.TabStop = false;
@@ -6124,9 +6157,9 @@
             this.groupBox4.Controls.Add(this.groupBox8);
             this.groupBox4.Controls.Add(this.groupBox5);
             this.groupBox4.Location = new System.Drawing.Point(4, 7);
-            this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox4.Size = new System.Drawing.Size(791, 743);
             this.groupBox4.TabIndex = 211;
             this.groupBox4.TabStop = false;
@@ -6142,9 +6175,9 @@
             this.groupBox18.Controls.Add(this.ArduinoInputDisconnect);
             this.groupBox18.Controls.Add(this.ArduinoInputList);
             this.groupBox18.Location = new System.Drawing.Point(399, 18);
-            this.groupBox18.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox18.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox18.Name = "groupBox18";
-            this.groupBox18.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox18.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox18.Size = new System.Drawing.Size(383, 180);
             this.groupBox18.TabIndex = 227;
             this.groupBox18.TabStop = false;
@@ -6154,7 +6187,7 @@
             // 
             this.ArduinoInputCOM.FormattingEnabled = true;
             this.ArduinoInputCOM.Location = new System.Drawing.Point(85, 48);
-            this.ArduinoInputCOM.Margin = new System.Windows.Forms.Padding(4);
+            this.ArduinoInputCOM.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.ArduinoInputCOM.Name = "ArduinoInputCOM";
             this.ArduinoInputCOM.Size = new System.Drawing.Size(97, 24);
             this.ArduinoInputCOM.TabIndex = 226;
@@ -6231,7 +6264,7 @@
             "A6 - Arduino",
             "A7 - Arduino"});
             this.ArduinoInputList.Location = new System.Drawing.Point(192, 23);
-            this.ArduinoInputList.Margin = new System.Windows.Forms.Padding(4);
+            this.ArduinoInputList.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.ArduinoInputList.Name = "ArduinoInputList";
             this.ArduinoInputList.Size = new System.Drawing.Size(177, 89);
             this.ArduinoInputList.TabIndex = 223;
@@ -6243,11 +6276,10 @@
             this.groupBox17.Controls.Add(this.SLRTselectAll);
             this.groupBox17.Controls.Add(this.SLRTdisconnect);
             this.groupBox17.Controls.Add(this.SLRTlist);
-            this.groupBox17.Enabled = false;
             this.groupBox17.Location = new System.Drawing.Point(400, 206);
-            this.groupBox17.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox17.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox17.Name = "groupBox17";
-            this.groupBox17.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox17.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox17.Size = new System.Drawing.Size(383, 180);
             this.groupBox17.TabIndex = 226;
             this.groupBox17.TabStop = false;
@@ -6315,7 +6347,7 @@
             "Ch7 - SLRT",
             "Ch8 - SLRT"});
             this.SLRTlist.Location = new System.Drawing.Point(192, 23);
-            this.SLRTlist.Margin = new System.Windows.Forms.Padding(4);
+            this.SLRTlist.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.SLRTlist.Name = "SLRTlist";
             this.SLRTlist.Size = new System.Drawing.Size(177, 89);
             this.SLRTlist.TabIndex = 223;
@@ -6333,11 +6365,10 @@
             this.groupBox15.Controls.Add(this.biopatrecSelectAll);
             this.groupBox15.Controls.Add(this.biopatrecDisconnect);
             this.groupBox15.Controls.Add(this.biopatrecList);
-            this.groupBox15.Enabled = false;
             this.groupBox15.Location = new System.Drawing.Point(8, 578);
-            this.groupBox15.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox15.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox15.Name = "groupBox15";
-            this.groupBox15.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox15.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox15.Size = new System.Drawing.Size(383, 160);
             this.groupBox15.TabIndex = 226;
             this.groupBox15.TabStop = false;
@@ -6480,7 +6511,7 @@
             "Rotate Elbow Ext",
             "Side Grip"});
             this.biopatrecList.Location = new System.Drawing.Point(192, 23);
-            this.biopatrecList.Margin = new System.Windows.Forms.Padding(4);
+            this.biopatrecList.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.biopatrecList.Name = "biopatrecList";
             this.biopatrecList.Size = new System.Drawing.Size(177, 89);
             this.biopatrecList.TabIndex = 223;
@@ -6494,9 +6525,9 @@
             this.groupBox7.Controls.Add(this.MYOdisconnect);
             this.groupBox7.Controls.Add(this.MYOlist);
             this.groupBox7.Location = new System.Drawing.Point(8, 206);
-            this.groupBox7.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox7.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox7.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox7.Size = new System.Drawing.Size(383, 180);
             this.groupBox7.TabIndex = 211;
             this.groupBox7.TabStop = false;
@@ -6506,7 +6537,7 @@
             // 
             this.pictureBox10.Image = global::brachIOplexus.Properties.Resources.myo_edit;
             this.pictureBox10.Location = new System.Drawing.Point(5, 52);
-            this.pictureBox10.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox10.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pictureBox10.Name = "pictureBox10";
             this.pictureBox10.Size = new System.Drawing.Size(177, 116);
             this.pictureBox10.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -6575,7 +6606,7 @@
             "Ch7",
             "Ch8"});
             this.MYOlist.Location = new System.Drawing.Point(192, 23);
-            this.MYOlist.Margin = new System.Windows.Forms.Padding(4);
+            this.MYOlist.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MYOlist.Name = "MYOlist";
             this.MYOlist.Size = new System.Drawing.Size(177, 89);
             this.MYOlist.TabIndex = 223;
@@ -6591,9 +6622,9 @@
             this.groupBox8.Controls.Add(this.KBconnect);
             this.groupBox8.Controls.Add(this.KBdisconnect);
             this.groupBox8.Location = new System.Drawing.Point(8, 393);
-            this.groupBox8.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox8.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox8.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox8.Size = new System.Drawing.Size(383, 180);
             this.groupBox8.TabIndex = 212;
             this.groupBox8.TabStop = false;
@@ -6603,7 +6634,7 @@
             // 
             this.pictureBox11.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox11.Image")));
             this.pictureBox11.Location = new System.Drawing.Point(8, 53);
-            this.pictureBox11.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox11.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pictureBox11.Name = "pictureBox11";
             this.pictureBox11.Size = new System.Drawing.Size(177, 86);
             this.pictureBox11.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -6644,7 +6675,7 @@
             "RightAlt",
             "Space"});
             this.KBlist.Location = new System.Drawing.Point(193, 23);
-            this.KBlist.Margin = new System.Windows.Forms.Padding(4);
+            this.KBlist.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBlist.Name = "KBlist";
             this.KBlist.Size = new System.Drawing.Size(177, 89);
             this.KBlist.TabIndex = 223;
@@ -6667,7 +6698,7 @@
             this.KBcheckRamp.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckRamp.Enabled = false;
             this.KBcheckRamp.Location = new System.Drawing.Point(39, 149);
-            this.KBcheckRamp.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckRamp.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckRamp.Name = "KBcheckRamp";
             this.KBcheckRamp.Size = new System.Drawing.Size(18, 17);
             this.KBcheckRamp.TabIndex = 211;
@@ -6715,9 +6746,9 @@
             this.groupBox5.Controls.Add(this.XBoxSelectAll);
             this.groupBox5.Controls.Add(this.XBoxList);
             this.groupBox5.Location = new System.Drawing.Point(8, 18);
-            this.groupBox5.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox5.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox5.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox5.Size = new System.Drawing.Size(383, 180);
             this.groupBox5.TabIndex = 0;
             this.groupBox5.TabStop = false;
@@ -6728,7 +6759,7 @@
             this.pictureBox9.Image = global::brachIOplexus.Properties.Resources.Xbox_Controller_edit;
             this.pictureBox9.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox9.InitialImage")));
             this.pictureBox9.Location = new System.Drawing.Point(8, 52);
-            this.pictureBox9.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox9.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pictureBox9.Name = "pictureBox9";
             this.pictureBox9.Size = new System.Drawing.Size(177, 116);
             this.pictureBox9.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -6791,7 +6822,7 @@
             "Back",
             "Guide"});
             this.XBoxList.Location = new System.Drawing.Point(193, 23);
-            this.XBoxList.Margin = new System.Windows.Forms.Padding(4);
+            this.XBoxList.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.XBoxList.Name = "XBoxList";
             this.XBoxList.Size = new System.Drawing.Size(177, 89);
             this.XBoxList.TabIndex = 219;
@@ -6830,9 +6861,9 @@
             this.groupBox6.Controls.Add(this.cmbSerialRefresh);
             this.groupBox6.Controls.Add(this.label116);
             this.groupBox6.Location = new System.Drawing.Point(8, 18);
-            this.groupBox6.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox6.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox6.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox6.Size = new System.Drawing.Size(445, 206);
             this.groupBox6.TabIndex = 1;
             this.groupBox6.TabStop = false;
@@ -6843,7 +6874,7 @@
             this.pictureBox12.Image = global::brachIOplexus.Properties.Resources.img_4816_brachIOplexusE;
             this.pictureBox12.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox12.InitialImage")));
             this.pictureBox12.Location = new System.Drawing.Point(8, 49);
-            this.pictureBox12.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox12.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pictureBox12.Name = "pictureBox12";
             this.pictureBox12.Size = new System.Drawing.Size(235, 148);
             this.pictureBox12.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -6893,7 +6924,7 @@
             "Torque On/Off",
             "Run/Suspend"});
             this.BentoList.Location = new System.Drawing.Point(257, 52);
-            this.BentoList.Margin = new System.Windows.Forms.Padding(4);
+            this.BentoList.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoList.Name = "BentoList";
             this.BentoList.Size = new System.Drawing.Size(177, 89);
             this.BentoList.TabIndex = 223;
@@ -6902,7 +6933,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(1339, 494);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(153, 28);
             this.button1.TabIndex = 214;
@@ -6917,7 +6948,7 @@
             this.comboBox2.FormattingEnabled = true;
             this.comboBox2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.comboBox2.Location = new System.Drawing.Point(1340, 526);
-            this.comboBox2.Margin = new System.Windows.Forms.Padding(4);
+            this.comboBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(160, 24);
             this.comboBox2.TabIndex = 213;
@@ -6932,7 +6963,7 @@
             "Orange",
             "Banana"});
             this.checkedListFruit.Location = new System.Drawing.Point(1375, 348);
-            this.checkedListFruit.Margin = new System.Windows.Forms.Padding(4);
+            this.checkedListFruit.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkedListFruit.Name = "checkedListFruit";
             this.checkedListFruit.Size = new System.Drawing.Size(159, 89);
             this.checkedListFruit.TabIndex = 212;
@@ -6958,9 +6989,9 @@
             this.MYOgroupBox.Controls.Add(this.label137);
             this.MYOgroupBox.Enabled = false;
             this.MYOgroupBox.Location = new System.Drawing.Point(4, 234);
-            this.MYOgroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.MYOgroupBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MYOgroupBox.Name = "MYOgroupBox";
-            this.MYOgroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.MYOgroupBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MYOgroupBox.Size = new System.Drawing.Size(349, 202);
             this.MYOgroupBox.TabIndex = 209;
             this.MYOgroupBox.TabStop = false;
@@ -7180,9 +7211,9 @@
             this.KBgroupBox.Controls.Add(this.label125);
             this.KBgroupBox.Enabled = false;
             this.KBgroupBox.Location = new System.Drawing.Point(4, 443);
-            this.KBgroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.KBgroupBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBgroupBox.Name = "KBgroupBox";
-            this.KBgroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.KBgroupBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBgroupBox.Size = new System.Drawing.Size(349, 202);
             this.KBgroupBox.TabIndex = 210;
             this.KBgroupBox.TabStop = false;
@@ -7230,7 +7261,7 @@
             this.KBcheckRightAlt.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckRightAlt.Enabled = false;
             this.KBcheckRightAlt.Location = new System.Drawing.Point(205, 137);
-            this.KBcheckRightAlt.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckRightAlt.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckRightAlt.Name = "KBcheckRightAlt";
             this.KBcheckRightAlt.Size = new System.Drawing.Size(18, 17);
             this.KBcheckRightAlt.TabIndex = 191;
@@ -7254,7 +7285,7 @@
             this.KBcheckSpace.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckSpace.Enabled = false;
             this.KBcheckSpace.Location = new System.Drawing.Point(205, 118);
-            this.KBcheckSpace.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckSpace.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckSpace.Name = "KBcheckSpace";
             this.KBcheckSpace.Size = new System.Drawing.Size(18, 17);
             this.KBcheckSpace.TabIndex = 192;
@@ -7266,7 +7297,7 @@
             this.KBcheckLeftAlt.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckLeftAlt.Enabled = false;
             this.KBcheckLeftAlt.Location = new System.Drawing.Point(205, 101);
-            this.KBcheckLeftAlt.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckLeftAlt.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckLeftAlt.Name = "KBcheckLeftAlt";
             this.KBcheckLeftAlt.Size = new System.Drawing.Size(18, 17);
             this.KBcheckLeftAlt.TabIndex = 193;
@@ -7308,7 +7339,7 @@
             this.KBcheckRight.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckRight.Enabled = false;
             this.KBcheckRight.Location = new System.Drawing.Point(205, 74);
-            this.KBcheckRight.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckRight.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckRight.Name = "KBcheckRight";
             this.KBcheckRight.Size = new System.Drawing.Size(18, 17);
             this.KBcheckRight.TabIndex = 183;
@@ -7320,7 +7351,7 @@
             this.KBcheckDown.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckDown.Enabled = false;
             this.KBcheckDown.Location = new System.Drawing.Point(205, 55);
-            this.KBcheckDown.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckDown.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckDown.Name = "KBcheckDown";
             this.KBcheckDown.Size = new System.Drawing.Size(18, 17);
             this.KBcheckDown.TabIndex = 184;
@@ -7332,7 +7363,7 @@
             this.KBcheckLeft.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckLeft.Enabled = false;
             this.KBcheckLeft.Location = new System.Drawing.Point(205, 38);
-            this.KBcheckLeft.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckLeft.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckLeft.Name = "KBcheckLeft";
             this.KBcheckLeft.Size = new System.Drawing.Size(18, 17);
             this.KBcheckLeft.TabIndex = 185;
@@ -7344,7 +7375,7 @@
             this.KBcheckUp.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckUp.Enabled = false;
             this.KBcheckUp.Location = new System.Drawing.Point(205, 21);
-            this.KBcheckUp.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckUp.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckUp.Name = "KBcheckUp";
             this.KBcheckUp.Size = new System.Drawing.Size(18, 17);
             this.KBcheckUp.TabIndex = 186;
@@ -7396,7 +7427,7 @@
             this.KBcheckSemiColon.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckSemiColon.Enabled = false;
             this.KBcheckSemiColon.Location = new System.Drawing.Point(35, 158);
-            this.KBcheckSemiColon.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckSemiColon.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckSemiColon.Name = "KBcheckSemiColon";
             this.KBcheckSemiColon.Size = new System.Drawing.Size(18, 17);
             this.KBcheckSemiColon.TabIndex = 175;
@@ -7408,7 +7439,7 @@
             this.KBcheckL.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckL.Enabled = false;
             this.KBcheckL.Location = new System.Drawing.Point(35, 139);
-            this.KBcheckL.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckL.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckL.Name = "KBcheckL";
             this.KBcheckL.Size = new System.Drawing.Size(18, 17);
             this.KBcheckL.TabIndex = 176;
@@ -7420,7 +7451,7 @@
             this.KBcheckK.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckK.Enabled = false;
             this.KBcheckK.Location = new System.Drawing.Point(35, 122);
-            this.KBcheckK.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckK.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckK.Name = "KBcheckK";
             this.KBcheckK.Size = new System.Drawing.Size(18, 17);
             this.KBcheckK.TabIndex = 177;
@@ -7432,7 +7463,7 @@
             this.KBcheckO.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckO.Enabled = false;
             this.KBcheckO.Location = new System.Drawing.Point(35, 105);
-            this.KBcheckO.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckO.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckO.Name = "KBcheckO";
             this.KBcheckO.Size = new System.Drawing.Size(18, 17);
             this.KBcheckO.TabIndex = 178;
@@ -7484,7 +7515,7 @@
             this.KBcheckD.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckD.Enabled = false;
             this.KBcheckD.Location = new System.Drawing.Point(35, 75);
-            this.KBcheckD.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckD.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckD.Name = "KBcheckD";
             this.KBcheckD.Size = new System.Drawing.Size(18, 17);
             this.KBcheckD.TabIndex = 167;
@@ -7496,7 +7527,7 @@
             this.KBcheckS.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckS.Enabled = false;
             this.KBcheckS.Location = new System.Drawing.Point(35, 57);
-            this.KBcheckS.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckS.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckS.Name = "KBcheckS";
             this.KBcheckS.Size = new System.Drawing.Size(18, 17);
             this.KBcheckS.TabIndex = 168;
@@ -7508,7 +7539,7 @@
             this.KBcheckA.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckA.Enabled = false;
             this.KBcheckA.Location = new System.Drawing.Point(35, 39);
-            this.KBcheckA.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckA.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckA.Name = "KBcheckA";
             this.KBcheckA.Size = new System.Drawing.Size(18, 17);
             this.KBcheckA.TabIndex = 169;
@@ -7520,7 +7551,7 @@
             this.KBcheckW.BackColor = System.Drawing.Color.Transparent;
             this.KBcheckW.Enabled = false;
             this.KBcheckW.Location = new System.Drawing.Point(35, 22);
-            this.KBcheckW.Margin = new System.Windows.Forms.Padding(4);
+            this.KBcheckW.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KBcheckW.Name = "KBcheckW";
             this.KBcheckW.Size = new System.Drawing.Size(18, 17);
             this.KBcheckW.TabIndex = 170;
@@ -7576,11 +7607,12 @@
             this.tabControl1.Controls.Add(this.tabXPC);
             this.tabControl1.Controls.Add(this.tabViz);
             this.tabControl1.Location = new System.Drawing.Point(11, 33);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1560, 822);
             this.tabControl1.TabIndex = 215;
+            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             this.tabControl1.Deselecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabControl1_Deselecting);
             // 
             // tabIO
@@ -7608,9 +7640,9 @@
             this.tabIO.Controls.Add(this.dynaStatus);
             this.tabIO.Controls.Add(this.label119);
             this.tabIO.Location = new System.Drawing.Point(4, 25);
-            this.tabIO.Margin = new System.Windows.Forms.Padding(4);
+            this.tabIO.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabIO.Name = "tabIO";
-            this.tabIO.Padding = new System.Windows.Forms.Padding(4);
+            this.tabIO.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabIO.Size = new System.Drawing.Size(1552, 793);
             this.tabIO.TabIndex = 0;
             this.tabIO.Text = "Input/Output";
@@ -7619,37 +7651,34 @@
             // demoShutdownButton
             // 
             this.demoShutdownButton.Location = new System.Drawing.Point(969, 452);
-            this.demoShutdownButton.Margin = new System.Windows.Forms.Padding(4);
+            this.demoShutdownButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.demoShutdownButton.Name = "demoShutdownButton";
             this.demoShutdownButton.Size = new System.Drawing.Size(137, 59);
             this.demoShutdownButton.TabIndex = 228;
             this.demoShutdownButton.Text = "Shutdown Demos";
             this.demoShutdownButton.UseVisualStyleBackColor = true;
-            this.demoShutdownButton.Visible = false;
             this.demoShutdownButton.Click += new System.EventHandler(this.demoShutdownButton_Click);
             // 
             // demoMYObutton
             // 
             this.demoMYObutton.Location = new System.Drawing.Point(969, 385);
-            this.demoMYObutton.Margin = new System.Windows.Forms.Padding(4);
+            this.demoMYObutton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.demoMYObutton.Name = "demoMYObutton";
             this.demoMYObutton.Size = new System.Drawing.Size(137, 59);
             this.demoMYObutton.TabIndex = 227;
             this.demoMYObutton.Text = "Start MYO Demo";
             this.demoMYObutton.UseVisualStyleBackColor = true;
-            this.demoMYObutton.Visible = false;
             this.demoMYObutton.Click += new System.EventHandler(this.demoMYObutton_Click);
             // 
             // demoXBoxButton
             // 
             this.demoXBoxButton.Location = new System.Drawing.Point(969, 321);
-            this.demoXBoxButton.Margin = new System.Windows.Forms.Padding(4);
+            this.demoXBoxButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.demoXBoxButton.Name = "demoXBoxButton";
             this.demoXBoxButton.Size = new System.Drawing.Size(137, 59);
             this.demoXBoxButton.TabIndex = 226;
             this.demoXBoxButton.Text = "Start XBox Demo";
             this.demoXBoxButton.UseVisualStyleBackColor = true;
-            this.demoXBoxButton.Visible = false;
             this.demoXBoxButton.Click += new System.EventHandler(this.demoXBoxButton_Click);
             // 
             // InputComboBox
@@ -7705,7 +7734,7 @@
             "Cheese",
             "Milk"});
             this.checkedListDairy.Location = new System.Drawing.Point(1207, 348);
-            this.checkedListDairy.Margin = new System.Windows.Forms.Padding(4);
+            this.checkedListDairy.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkedListDairy.Name = "checkedListDairy";
             this.checkedListDairy.Size = new System.Drawing.Size(159, 89);
             this.checkedListDairy.TabIndex = 218;
@@ -7749,9 +7778,9 @@
             // 
             this.groupBox9.Controls.Add(this.groupBox6);
             this.groupBox9.Location = new System.Drawing.Point(803, 7);
-            this.groupBox9.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox9.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox9.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox9.Size = new System.Drawing.Size(464, 234);
             this.groupBox9.TabIndex = 215;
             this.groupBox9.TabStop = false;
@@ -7759,6 +7788,14 @@
             // 
             // tabMapping
             // 
+            this.tabMapping.Controls.Add(this.switchState_label);
+            this.tabMapping.Controls.Add(this.label213);
+            this.tabMapping.Controls.Add(this.flag2_label);
+            this.tabMapping.Controls.Add(this.label211);
+            this.tabMapping.Controls.Add(this.flag1_label);
+            this.tabMapping.Controls.Add(this.label209);
+            this.tabMapping.Controls.Add(this.timer1_label);
+            this.tabMapping.Controls.Add(this.label205);
             this.tabMapping.Controls.Add(this.ID2_state);
             this.tabMapping.Controls.Add(this.label148);
             this.tabMapping.Controls.Add(this.groupBox16);
@@ -7776,29 +7813,104 @@
             this.tabMapping.Controls.Add(this.doF2);
             this.tabMapping.Controls.Add(this.doF1);
             this.tabMapping.Location = new System.Drawing.Point(4, 25);
-            this.tabMapping.Margin = new System.Windows.Forms.Padding(4);
+            this.tabMapping.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabMapping.Name = "tabMapping";
-            this.tabMapping.Padding = new System.Windows.Forms.Padding(4);
+            this.tabMapping.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabMapping.Size = new System.Drawing.Size(1552, 793);
             this.tabMapping.TabIndex = 1;
             this.tabMapping.Text = "Mapping";
             this.tabMapping.UseVisualStyleBackColor = true;
             // 
+            // switchState_label
+            // 
+            this.switchState_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchState_label.Location = new System.Drawing.Point(1111, 613);
+            this.switchState_label.Name = "switchState_label";
+            this.switchState_label.Size = new System.Drawing.Size(107, 18);
+            this.switchState_label.TabIndex = 232;
+            this.switchState_label.Text = "switchState";
+            // 
+            // label213
+            // 
+            this.label213.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label213.Location = new System.Drawing.Point(999, 613);
+            this.label213.Name = "label213";
+            this.label213.Size = new System.Drawing.Size(107, 18);
+            this.label213.TabIndex = 231;
+            this.label213.Text = "switchState:";
+            this.label213.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // flag2_label
+            // 
+            this.flag2_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.flag2_label.Location = new System.Drawing.Point(1111, 594);
+            this.flag2_label.Name = "flag2_label";
+            this.flag2_label.Size = new System.Drawing.Size(107, 18);
+            this.flag2_label.TabIndex = 230;
+            this.flag2_label.Text = "flag2";
+            // 
+            // label211
+            // 
+            this.label211.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label211.Location = new System.Drawing.Point(999, 594);
+            this.label211.Name = "label211";
+            this.label211.Size = new System.Drawing.Size(107, 18);
+            this.label211.TabIndex = 229;
+            this.label211.Text = "flag2:";
+            this.label211.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // flag1_label
+            // 
+            this.flag1_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.flag1_label.Location = new System.Drawing.Point(1111, 576);
+            this.flag1_label.Name = "flag1_label";
+            this.flag1_label.Size = new System.Drawing.Size(107, 18);
+            this.flag1_label.TabIndex = 228;
+            this.flag1_label.Text = "flag1";
+            // 
+            // label209
+            // 
+            this.label209.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label209.Location = new System.Drawing.Point(999, 576);
+            this.label209.Name = "label209";
+            this.label209.Size = new System.Drawing.Size(107, 18);
+            this.label209.TabIndex = 227;
+            this.label209.Text = "flag1:";
+            this.label209.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // timer1_label
+            // 
+            this.timer1_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.timer1_label.Location = new System.Drawing.Point(1111, 558);
+            this.timer1_label.Name = "timer1_label";
+            this.timer1_label.Size = new System.Drawing.Size(107, 18);
+            this.timer1_label.TabIndex = 226;
+            this.timer1_label.Text = "timer1";
+            // 
+            // label205
+            // 
+            this.label205.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label205.Location = new System.Drawing.Point(999, 558);
+            this.label205.Name = "label205";
+            this.label205.Size = new System.Drawing.Size(107, 18);
+            this.label205.TabIndex = 225;
+            this.label205.Text = "timer1:";
+            this.label205.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // ID2_state
             // 
             this.ID2_state.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.ID2_state.Location = new System.Drawing.Point(1104, 544);
+            this.ID2_state.Location = new System.Drawing.Point(1111, 703);
             this.ID2_state.Name = "ID2_state";
             this.ID2_state.Size = new System.Drawing.Size(107, 18);
             this.ID2_state.TabIndex = 224;
             this.ID2_state.Text = "ID2 State:";
-            this.ID2_state.TextAlign = System.Drawing.ContentAlignment.TopRight;
             this.ID2_state.Visible = false;
             // 
             // label148
             // 
             this.label148.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label148.Location = new System.Drawing.Point(992, 544);
+            this.label148.Location = new System.Drawing.Point(999, 703);
             this.label148.Name = "label148";
             this.label148.Size = new System.Drawing.Size(107, 18);
             this.label148.TabIndex = 223;
@@ -7808,24 +7920,33 @@
             // 
             // groupBox16
             // 
+            this.groupBox16.Controls.Add(this.switchSmaxLabel2);
+            this.groupBox16.Controls.Add(this.switchSminLabel2);
+            this.groupBox16.Controls.Add(this.switchSminTick2);
+            this.groupBox16.Controls.Add(this.switchSmaxTick2);
+            this.groupBox16.Controls.Add(this.switchSmaxCtrl2);
+            this.groupBox16.Controls.Add(this.switchSminCtrl2);
+            this.groupBox16.Controls.Add(this.switchSignalBar2);
+            this.groupBox16.Controls.Add(this.switchGainCtrl2);
+            this.groupBox16.Controls.Add(this.switchTimeCtrl2);
             this.groupBox16.Controls.Add(this.groupBox11);
             this.groupBox16.Controls.Add(this.groupBox10);
             this.groupBox16.Controls.Add(this.label103);
             this.groupBox16.Controls.Add(this.label104);
             this.groupBox16.Controls.Add(this.label145);
             this.groupBox16.Controls.Add(this.label147);
-            this.groupBox16.Controls.Add(this.switchSmaxLabel);
-            this.groupBox16.Controls.Add(this.switchSminLabel);
-            this.groupBox16.Controls.Add(this.switchSminTick);
-            this.groupBox16.Controls.Add(this.switchSmaxTick);
-            this.groupBox16.Controls.Add(this.switchSmaxCtrl);
-            this.groupBox16.Controls.Add(this.switchSminCtrl);
-            this.groupBox16.Controls.Add(this.switchSignalBar);
-            this.groupBox16.Controls.Add(this.switchGainCtrl);
+            this.groupBox16.Controls.Add(this.switchSmaxLabel1);
+            this.groupBox16.Controls.Add(this.switchSminLabel1);
+            this.groupBox16.Controls.Add(this.switchSminTick1);
+            this.groupBox16.Controls.Add(this.switchSmaxTick1);
+            this.groupBox16.Controls.Add(this.switchSmaxCtrl1);
+            this.groupBox16.Controls.Add(this.switchSminCtrl1);
+            this.groupBox16.Controls.Add(this.switchSignalBar1);
+            this.groupBox16.Controls.Add(this.switchGainCtrl1);
             this.groupBox16.Controls.Add(this.switchInputBox);
             this.groupBox16.Controls.Add(this.label39);
             this.groupBox16.Controls.Add(this.label27);
-            this.groupBox16.Controls.Add(this.switchTimeCtrl);
+            this.groupBox16.Controls.Add(this.switchTimeCtrl1);
             this.groupBox16.Controls.Add(this.label242);
             this.groupBox16.Controls.Add(this.switchModeBox);
             this.groupBox16.Controls.Add(this.switchLabel);
@@ -7836,17 +7957,152 @@
             this.groupBox16.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox16.Name = "groupBox16";
             this.groupBox16.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.groupBox16.Size = new System.Drawing.Size(496, 459);
+            this.groupBox16.Size = new System.Drawing.Size(496, 521);
             this.groupBox16.TabIndex = 138;
             this.groupBox16.TabStop = false;
             this.groupBox16.Text = "Sequential Switch";
+            // 
+            // switchSmaxLabel2
+            // 
+            this.switchSmaxLabel2.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F);
+            this.switchSmaxLabel2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSmaxLabel2.Location = new System.Drawing.Point(179, 176);
+            this.switchSmaxLabel2.Name = "switchSmaxLabel2";
+            this.switchSmaxLabel2.Size = new System.Drawing.Size(40, 18);
+            this.switchSmaxLabel2.TabIndex = 212;
+            this.switchSmaxLabel2.Text = "Smax";
+            this.switchSmaxLabel2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // switchSminLabel2
+            // 
+            this.switchSminLabel2.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F);
+            this.switchSminLabel2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSminLabel2.Location = new System.Drawing.Point(4, 176);
+            this.switchSminLabel2.Name = "switchSminLabel2";
+            this.switchSminLabel2.Size = new System.Drawing.Size(35, 18);
+            this.switchSminLabel2.TabIndex = 211;
+            this.switchSminLabel2.Text = "Smin";
+            this.switchSminLabel2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            // 
+            // switchSminTick2
+            // 
+            this.switchSminTick2.BackColor = System.Drawing.Color.MediumPurple;
+            this.switchSminTick2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSminTick2.Location = new System.Drawing.Point(20, 146);
+            this.switchSminTick2.Name = "switchSminTick2";
+            this.switchSminTick2.Size = new System.Drawing.Size(3, 30);
+            this.switchSminTick2.TabIndex = 210;
+            // 
+            // switchSmaxTick2
+            // 
+            this.switchSmaxTick2.BackColor = System.Drawing.Color.MediumPurple;
+            this.switchSmaxTick2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSmaxTick2.Location = new System.Drawing.Point(197, 146);
+            this.switchSmaxTick2.Name = "switchSmaxTick2";
+            this.switchSmaxTick2.Size = new System.Drawing.Size(3, 30);
+            this.switchSmaxTick2.TabIndex = 209;
+            // 
+            // switchSmaxCtrl2
+            // 
+            this.switchSmaxCtrl2.DecimalPlaces = 1;
+            this.switchSmaxCtrl2.Increment = new decimal(new int[] {
+            2,
+            0,
+            0,
+            65536});
+            this.switchSmaxCtrl2.Location = new System.Drawing.Point(336, 146);
+            this.switchSmaxCtrl2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchSmaxCtrl2.Maximum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.switchSmaxCtrl2.Name = "switchSmaxCtrl2";
+            this.switchSmaxCtrl2.Size = new System.Drawing.Size(53, 22);
+            this.switchSmaxCtrl2.TabIndex = 208;
+            this.switchSmaxCtrl2.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.switchSmaxCtrl2.ValueChanged += new System.EventHandler(this.switchSmaxCtrl2_ValueChanged);
+            // 
+            // switchSminCtrl2
+            // 
+            this.switchSminCtrl2.DecimalPlaces = 1;
+            this.switchSminCtrl2.Increment = new decimal(new int[] {
+            2,
+            0,
+            0,
+            65536});
+            this.switchSminCtrl2.Location = new System.Drawing.Point(279, 146);
+            this.switchSminCtrl2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchSminCtrl2.Maximum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.switchSminCtrl2.Name = "switchSminCtrl2";
+            this.switchSminCtrl2.Size = new System.Drawing.Size(53, 22);
+            this.switchSminCtrl2.TabIndex = 207;
+            this.switchSminCtrl2.Value = new decimal(new int[] {
+            6,
+            0,
+            0,
+            65536});
+            this.switchSminCtrl2.ValueChanged += new System.EventHandler(this.switchSminCtrl2_ValueChanged);
+            // 
+            // switchSignalBar2
+            // 
+            this.switchSignalBar2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSignalBar2.Location = new System.Drawing.Point(20, 146);
+            this.switchSignalBar2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchSignalBar2.MarqueeAnimationSpeed = 30;
+            this.switchSignalBar2.Maximum = 500;
+            this.switchSignalBar2.Name = "switchSignalBar2";
+            this.switchSignalBar2.Size = new System.Drawing.Size(179, 27);
+            this.switchSignalBar2.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.switchSignalBar2.TabIndex = 206;
+            // 
+            // switchGainCtrl2
+            // 
+            this.switchGainCtrl2.Enabled = false;
+            this.switchGainCtrl2.Location = new System.Drawing.Point(216, 146);
+            this.switchGainCtrl2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchGainCtrl2.Maximum = new decimal(new int[] {
+            5000,
+            0,
+            0,
+            0});
+            this.switchGainCtrl2.Name = "switchGainCtrl2";
+            this.switchGainCtrl2.Size = new System.Drawing.Size(56, 22);
+            this.switchGainCtrl2.TabIndex = 205;
+            this.switchGainCtrl2.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // switchTimeCtrl2
+            // 
+            this.switchTimeCtrl2.Enabled = false;
+            this.switchTimeCtrl2.Location = new System.Drawing.Point(397, 146);
+            this.switchTimeCtrl2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchTimeCtrl2.Maximum = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            this.switchTimeCtrl2.Name = "switchTimeCtrl2";
+            this.switchTimeCtrl2.Size = new System.Drawing.Size(61, 22);
+            this.switchTimeCtrl2.TabIndex = 204;
             // 
             // groupBox11
             // 
             this.groupBox11.Controls.Add(this.groupBox14);
             this.groupBox11.Controls.Add(this.groupBox13);
             this.groupBox11.Controls.Add(this.groupBox12);
-            this.groupBox11.Location = new System.Drawing.Point(325, 149);
+            this.groupBox11.Location = new System.Drawing.Point(325, 198);
             this.groupBox11.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox11.Name = "groupBox11";
             this.groupBox11.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -7859,9 +8115,9 @@
             // 
             this.groupBox14.Controls.Add(this.textBox);
             this.groupBox14.Location = new System.Drawing.Point(7, 129);
-            this.groupBox14.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox14.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox14.Name = "groupBox14";
-            this.groupBox14.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox14.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox14.Size = new System.Drawing.Size(149, 47);
             this.groupBox14.TabIndex = 208;
             this.groupBox14.TabStop = false;
@@ -7883,9 +8139,9 @@
             this.groupBox13.Controls.Add(this.XboxBuzzBox);
             this.groupBox13.Controls.Add(this.myoBuzzBox);
             this.groupBox13.Location = new System.Drawing.Point(7, 75);
-            this.groupBox13.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox13.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox13.Name = "groupBox13";
-            this.groupBox13.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox13.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox13.Size = new System.Drawing.Size(149, 47);
             this.groupBox13.TabIndex = 207;
             this.groupBox13.TabStop = false;
@@ -7918,9 +8174,9 @@
             this.groupBox12.Controls.Add(this.dingBox);
             this.groupBox12.Controls.Add(this.vocalBox);
             this.groupBox12.Location = new System.Drawing.Point(7, 21);
-            this.groupBox12.Margin = new System.Windows.Forms.Padding(4);
+            this.groupBox12.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox12.Name = "groupBox12";
-            this.groupBox12.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox12.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBox12.Size = new System.Drawing.Size(149, 47);
             this.groupBox12.TabIndex = 206;
             this.groupBox12.TabStop = false;
@@ -7974,7 +8230,7 @@
             this.groupBox10.Controls.Add(this.switch5OutputBox);
             this.groupBox10.Controls.Add(this.switch2MappingBox);
             this.groupBox10.Controls.Add(this.switch4OutputBox);
-            this.groupBox10.Location = new System.Drawing.Point(7, 149);
+            this.groupBox10.Location = new System.Drawing.Point(7, 198);
             this.groupBox10.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox10.Name = "groupBox10";
             this.groupBox10.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -8049,13 +8305,15 @@
             this.switch5MappingBox.FormattingEnabled = true;
             this.switch5MappingBox.Items.AddRange(new object[] {
             "First to Smin",
-            "Differential",
-            "Single site"});
+            "Joint Position2",
+            "Joint Position1",
+            "Toggle"});
             this.switch5MappingBox.Location = new System.Drawing.Point(152, 158);
             this.switch5MappingBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.switch5MappingBox.Name = "switch5MappingBox";
             this.switch5MappingBox.Size = new System.Drawing.Size(111, 24);
             this.switch5MappingBox.TabIndex = 183;
+            this.switch5MappingBox.SelectedIndexChanged += new System.EventHandler(this.switch5MappingBox_SelectedIndexChanged);
             // 
             // switch4MappingBox
             // 
@@ -8064,13 +8322,15 @@
             this.switch4MappingBox.FormattingEnabled = true;
             this.switch4MappingBox.Items.AddRange(new object[] {
             "First to Smin",
-            "Differential",
-            "Single site"});
+            "Joint Position2",
+            "Joint Position1",
+            "Toggle"});
             this.switch4MappingBox.Location = new System.Drawing.Point(152, 133);
             this.switch4MappingBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.switch4MappingBox.Name = "switch4MappingBox";
             this.switch4MappingBox.Size = new System.Drawing.Size(111, 24);
             this.switch4MappingBox.TabIndex = 181;
+            this.switch4MappingBox.SelectedIndexChanged += new System.EventHandler(this.switch4MappingBox_SelectedIndexChanged);
             // 
             // switch2OutputBox
             // 
@@ -8177,13 +8437,15 @@
             this.switch1MappingBox.FormattingEnabled = true;
             this.switch1MappingBox.Items.AddRange(new object[] {
             "First to Smin",
-            "Differential",
-            "Single site"});
+            "Joint Position2",
+            "Joint Position1",
+            "Toggle"});
             this.switch1MappingBox.Location = new System.Drawing.Point(152, 55);
             this.switch1MappingBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.switch1MappingBox.Name = "switch1MappingBox";
             this.switch1MappingBox.Size = new System.Drawing.Size(111, 24);
             this.switch1MappingBox.TabIndex = 136;
+            this.switch1MappingBox.SelectedIndexChanged += new System.EventHandler(this.switch1MappingBox_SelectedIndexChanged);
             // 
             // switch3OutputBox
             // 
@@ -8221,13 +8483,15 @@
             this.switch3MappingBox.FormattingEnabled = true;
             this.switch3MappingBox.Items.AddRange(new object[] {
             "First to Smin",
-            "Differential",
-            "Single site"});
+            "Joint Position2",
+            "Joint Position1",
+            "Toggle"});
             this.switch3MappingBox.Location = new System.Drawing.Point(152, 107);
             this.switch3MappingBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.switch3MappingBox.Name = "switch3MappingBox";
             this.switch3MappingBox.Size = new System.Drawing.Size(111, 24);
             this.switch3MappingBox.TabIndex = 179;
+            this.switch3MappingBox.SelectedIndexChanged += new System.EventHandler(this.switch3MappingBox_SelectedIndexChanged);
             // 
             // switch5OutputBox
             // 
@@ -8254,13 +8518,15 @@
             this.switch2MappingBox.FormattingEnabled = true;
             this.switch2MappingBox.Items.AddRange(new object[] {
             "First to Smin",
-            "Differential",
-            "Single site"});
+            "Joint Position2",
+            "Joint Position1",
+            "Toggle"});
             this.switch2MappingBox.Location = new System.Drawing.Point(152, 81);
             this.switch2MappingBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.switch2MappingBox.Name = "switch2MappingBox";
             this.switch2MappingBox.Size = new System.Drawing.Size(111, 24);
             this.switch2MappingBox.TabIndex = 177;
+            this.switch2MappingBox.SelectedIndexChanged += new System.EventHandler(this.switch2MappingBox_SelectedIndexChanged);
             // 
             // switch4OutputBox
             // 
@@ -8320,121 +8586,121 @@
             this.label147.TabIndex = 201;
             this.label147.Text = "Smax:";
             // 
-            // switchSmaxLabel
+            // switchSmaxLabel1
             // 
-            this.switchSmaxLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F);
-            this.switchSmaxLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.switchSmaxLabel.Location = new System.Drawing.Point(179, 128);
-            this.switchSmaxLabel.Name = "switchSmaxLabel";
-            this.switchSmaxLabel.Size = new System.Drawing.Size(40, 18);
-            this.switchSmaxLabel.TabIndex = 197;
-            this.switchSmaxLabel.Text = "Smax";
-            this.switchSmaxLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.switchSmaxLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F);
+            this.switchSmaxLabel1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSmaxLabel1.Location = new System.Drawing.Point(179, 128);
+            this.switchSmaxLabel1.Name = "switchSmaxLabel1";
+            this.switchSmaxLabel1.Size = new System.Drawing.Size(40, 18);
+            this.switchSmaxLabel1.TabIndex = 197;
+            this.switchSmaxLabel1.Text = "Smax";
+            this.switchSmaxLabel1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // switchSminLabel
+            // switchSminLabel1
             // 
-            this.switchSminLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F);
-            this.switchSminLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.switchSminLabel.Location = new System.Drawing.Point(4, 128);
-            this.switchSminLabel.Name = "switchSminLabel";
-            this.switchSminLabel.Size = new System.Drawing.Size(35, 18);
-            this.switchSminLabel.TabIndex = 196;
-            this.switchSminLabel.Text = "Smin";
-            this.switchSminLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.switchSminLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F);
+            this.switchSminLabel1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSminLabel1.Location = new System.Drawing.Point(4, 128);
+            this.switchSminLabel1.Name = "switchSminLabel1";
+            this.switchSminLabel1.Size = new System.Drawing.Size(35, 18);
+            this.switchSminLabel1.TabIndex = 196;
+            this.switchSminLabel1.Text = "Smin";
+            this.switchSminLabel1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // switchSminTick
+            // switchSminTick1
             // 
-            this.switchSminTick.BackColor = System.Drawing.Color.MediumPurple;
-            this.switchSminTick.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.switchSminTick.Location = new System.Drawing.Point(20, 98);
-            this.switchSminTick.Name = "switchSminTick";
-            this.switchSminTick.Size = new System.Drawing.Size(3, 30);
-            this.switchSminTick.TabIndex = 195;
+            this.switchSminTick1.BackColor = System.Drawing.Color.MediumPurple;
+            this.switchSminTick1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSminTick1.Location = new System.Drawing.Point(20, 98);
+            this.switchSminTick1.Name = "switchSminTick1";
+            this.switchSminTick1.Size = new System.Drawing.Size(3, 30);
+            this.switchSminTick1.TabIndex = 195;
             // 
-            // switchSmaxTick
+            // switchSmaxTick1
             // 
-            this.switchSmaxTick.BackColor = System.Drawing.Color.MediumPurple;
-            this.switchSmaxTick.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.switchSmaxTick.Location = new System.Drawing.Point(197, 98);
-            this.switchSmaxTick.Name = "switchSmaxTick";
-            this.switchSmaxTick.Size = new System.Drawing.Size(3, 30);
-            this.switchSmaxTick.TabIndex = 194;
+            this.switchSmaxTick1.BackColor = System.Drawing.Color.MediumPurple;
+            this.switchSmaxTick1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSmaxTick1.Location = new System.Drawing.Point(197, 98);
+            this.switchSmaxTick1.Name = "switchSmaxTick1";
+            this.switchSmaxTick1.Size = new System.Drawing.Size(3, 30);
+            this.switchSmaxTick1.TabIndex = 194;
             // 
-            // switchSmaxCtrl
+            // switchSmaxCtrl1
             // 
-            this.switchSmaxCtrl.DecimalPlaces = 1;
-            this.switchSmaxCtrl.Increment = new decimal(new int[] {
+            this.switchSmaxCtrl1.DecimalPlaces = 1;
+            this.switchSmaxCtrl1.Increment = new decimal(new int[] {
             2,
             0,
             0,
             65536});
-            this.switchSmaxCtrl.Location = new System.Drawing.Point(336, 98);
-            this.switchSmaxCtrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.switchSmaxCtrl.Maximum = new decimal(new int[] {
+            this.switchSmaxCtrl1.Location = new System.Drawing.Point(336, 98);
+            this.switchSmaxCtrl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchSmaxCtrl1.Maximum = new decimal(new int[] {
             5,
             0,
             0,
             0});
-            this.switchSmaxCtrl.Name = "switchSmaxCtrl";
-            this.switchSmaxCtrl.Size = new System.Drawing.Size(53, 22);
-            this.switchSmaxCtrl.TabIndex = 193;
-            this.switchSmaxCtrl.Value = new decimal(new int[] {
+            this.switchSmaxCtrl1.Name = "switchSmaxCtrl1";
+            this.switchSmaxCtrl1.Size = new System.Drawing.Size(53, 22);
+            this.switchSmaxCtrl1.TabIndex = 193;
+            this.switchSmaxCtrl1.Value = new decimal(new int[] {
             5,
             0,
             0,
             0});
-            this.switchSmaxCtrl.ValueChanged += new System.EventHandler(this.switchSmaxCtrl_ValueChanged);
+            this.switchSmaxCtrl1.ValueChanged += new System.EventHandler(this.switchSmaxCtrl1_ValueChanged);
             // 
-            // switchSminCtrl
+            // switchSminCtrl1
             // 
-            this.switchSminCtrl.DecimalPlaces = 1;
-            this.switchSminCtrl.Increment = new decimal(new int[] {
+            this.switchSminCtrl1.DecimalPlaces = 1;
+            this.switchSminCtrl1.Increment = new decimal(new int[] {
             2,
             0,
             0,
             65536});
-            this.switchSminCtrl.Location = new System.Drawing.Point(279, 98);
-            this.switchSminCtrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.switchSminCtrl.Maximum = new decimal(new int[] {
+            this.switchSminCtrl1.Location = new System.Drawing.Point(279, 98);
+            this.switchSminCtrl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchSminCtrl1.Maximum = new decimal(new int[] {
             5,
             0,
             0,
             0});
-            this.switchSminCtrl.Name = "switchSminCtrl";
-            this.switchSminCtrl.Size = new System.Drawing.Size(53, 22);
-            this.switchSminCtrl.TabIndex = 192;
-            this.switchSminCtrl.ValueChanged += new System.EventHandler(this.switchSminCtrl_ValueChanged);
+            this.switchSminCtrl1.Name = "switchSminCtrl1";
+            this.switchSminCtrl1.Size = new System.Drawing.Size(53, 22);
+            this.switchSminCtrl1.TabIndex = 192;
+            this.switchSminCtrl1.ValueChanged += new System.EventHandler(this.switchSminCtrl1_ValueChanged);
             // 
-            // switchSignalBar
+            // switchSignalBar1
             // 
-            this.switchSignalBar.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.switchSignalBar.Location = new System.Drawing.Point(20, 98);
-            this.switchSignalBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.switchSignalBar.MarqueeAnimationSpeed = 30;
-            this.switchSignalBar.Maximum = 500;
-            this.switchSignalBar.Name = "switchSignalBar";
-            this.switchSignalBar.Size = new System.Drawing.Size(179, 27);
-            this.switchSignalBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.switchSignalBar.TabIndex = 191;
+            this.switchSignalBar1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchSignalBar1.Location = new System.Drawing.Point(20, 98);
+            this.switchSignalBar1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchSignalBar1.MarqueeAnimationSpeed = 30;
+            this.switchSignalBar1.Maximum = 500;
+            this.switchSignalBar1.Name = "switchSignalBar1";
+            this.switchSignalBar1.Size = new System.Drawing.Size(179, 27);
+            this.switchSignalBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.switchSignalBar1.TabIndex = 191;
             // 
-            // switchGainCtrl
+            // switchGainCtrl1
             // 
-            this.switchGainCtrl.Location = new System.Drawing.Point(216, 98);
-            this.switchGainCtrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.switchGainCtrl.Maximum = new decimal(new int[] {
+            this.switchGainCtrl1.Location = new System.Drawing.Point(216, 98);
+            this.switchGainCtrl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchGainCtrl1.Maximum = new decimal(new int[] {
             5000,
             0,
             0,
             0});
-            this.switchGainCtrl.Name = "switchGainCtrl";
-            this.switchGainCtrl.Size = new System.Drawing.Size(56, 22);
-            this.switchGainCtrl.TabIndex = 190;
-            this.switchGainCtrl.Value = new decimal(new int[] {
+            this.switchGainCtrl1.Name = "switchGainCtrl1";
+            this.switchGainCtrl1.Size = new System.Drawing.Size(56, 22);
+            this.switchGainCtrl1.TabIndex = 190;
+            this.switchGainCtrl1.Value = new decimal(new int[] {
             100,
             0,
             0,
             0});
-            this.switchGainCtrl.ValueChanged += new System.EventHandler(this.switchGainCtrl_ValueChanged);
+            this.switchGainCtrl1.ValueChanged += new System.EventHandler(this.switchGainCtrl1_ValueChanged);
             // 
             // switchInputBox
             // 
@@ -8470,24 +8736,24 @@
             this.label27.TabIndex = 184;
             this.label27.Text = "Degree of Freedom:";
             // 
-            // switchTimeCtrl
+            // switchTimeCtrl1
             // 
-            this.switchTimeCtrl.Location = new System.Drawing.Point(397, 98);
-            this.switchTimeCtrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.switchTimeCtrl.Maximum = new decimal(new int[] {
+            this.switchTimeCtrl1.Location = new System.Drawing.Point(397, 98);
+            this.switchTimeCtrl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.switchTimeCtrl1.Maximum = new decimal(new int[] {
             2000,
             0,
             0,
             0});
-            this.switchTimeCtrl.Name = "switchTimeCtrl";
-            this.switchTimeCtrl.Size = new System.Drawing.Size(61, 22);
-            this.switchTimeCtrl.TabIndex = 175;
-            this.switchTimeCtrl.Value = new decimal(new int[] {
+            this.switchTimeCtrl1.Name = "switchTimeCtrl1";
+            this.switchTimeCtrl1.Size = new System.Drawing.Size(61, 22);
+            this.switchTimeCtrl1.TabIndex = 175;
+            this.switchTimeCtrl1.Value = new decimal(new int[] {
             40,
             0,
             0,
             0});
-            this.switchTimeCtrl.ValueChanged += new System.EventHandler(this.switchTimeCtrl_ValueChanged);
+            this.switchTimeCtrl1.ValueChanged += new System.EventHandler(this.switchTimeCtrl1_ValueChanged);
             // 
             // label242
             // 
@@ -8518,7 +8784,7 @@
             this.switchLabel.AutoSize = true;
             this.switchLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 28.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.switchLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.switchLabel.Location = new System.Drawing.Point(105, 356);
+            this.switchLabel.Location = new System.Drawing.Point(105, 405);
             this.switchLabel.Name = "switchLabel";
             this.switchLabel.Size = new System.Drawing.Size(56, 55);
             this.switchLabel.TabIndex = 69;
@@ -8528,7 +8794,7 @@
             // 
             this.label257.AutoSize = true;
             this.label257.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label257.Location = new System.Drawing.Point(12, 377);
+            this.label257.Location = new System.Drawing.Point(12, 426);
             this.label257.Name = "label257";
             this.label257.Size = new System.Drawing.Size(84, 17);
             this.label257.TabIndex = 68;
@@ -8634,9 +8900,58 @@
             this.label156.TabIndex = 29;
             this.label156.Text = "Smax";
             // 
+            // doF6
+            // 
+            this.doF6.Location = new System.Drawing.Point(8, 630);
+            this.doF6.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.doF6.Name = "doF6";
+            this.doF6.Size = new System.Drawing.Size(865, 116);
+            this.doF6.TabIndex = 144;
+            // 
+            // doF5
+            // 
+            this.doF5.Location = new System.Drawing.Point(8, 507);
+            this.doF5.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.doF5.Name = "doF5";
+            this.doF5.Size = new System.Drawing.Size(865, 116);
+            this.doF5.TabIndex = 143;
+            // 
+            // doF4
+            // 
+            this.doF4.Location = new System.Drawing.Point(8, 384);
+            this.doF4.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.doF4.Name = "doF4";
+            this.doF4.Size = new System.Drawing.Size(865, 116);
+            this.doF4.TabIndex = 142;
+            // 
+            // doF3
+            // 
+            this.doF3.Location = new System.Drawing.Point(8, 261);
+            this.doF3.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.doF3.Name = "doF3";
+            this.doF3.Size = new System.Drawing.Size(865, 116);
+            this.doF3.TabIndex = 141;
+            // 
+            // doF2
+            // 
+            this.doF2.Location = new System.Drawing.Point(8, 142);
+            this.doF2.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.doF2.Name = "doF2";
+            this.doF2.Size = new System.Drawing.Size(865, 116);
+            this.doF2.TabIndex = 140;
+            // 
+            // doF1
+            // 
+            this.doF1.Location = new System.Drawing.Point(8, 22);
+            this.doF1.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.doF1.Name = "doF1";
+            this.doF1.Size = new System.Drawing.Size(865, 116);
+            this.doF1.TabIndex = 139;
+            // 
             // tabBento
             // 
             this.tabBento.Controls.Add(this.AutoLevellingBox);
+            this.tabBento.Controls.Add(this.groupBox19);
             this.tabBento.Controls.Add(this.BentoEnvLimitsBox);
             this.tabBento.Controls.Add(this.BentoAdaptGripBox);
             this.tabBento.Controls.Add(this.SimBox);
@@ -8653,312 +8968,70 @@
             this.tabBento.Controls.Add(this.readFeedback);
             this.tabBento.Controls.Add(this.label118);
             this.tabBento.Location = new System.Drawing.Point(4, 25);
-            this.tabBento.Margin = new System.Windows.Forms.Padding(4);
+            this.tabBento.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabBento.Name = "tabBento";
             this.tabBento.Size = new System.Drawing.Size(1552, 793);
             this.tabBento.TabIndex = 2;
             this.tabBento.Text = "Bento Arm";
             this.tabBento.UseVisualStyleBackColor = true;
             // 
-            // AutoLevellingBox
+            // groupBox19
             // 
-            this.AutoLevellingBox.Controls.Add(this.FlexionPIDBox);
-            this.AutoLevellingBox.Controls.Add(this.RotationPIDBox);
-            this.AutoLevellingBox.Controls.Add(this.AL_Enabled);
-            this.AutoLevellingBox.Enabled = false;
-            this.AutoLevellingBox.Location = new System.Drawing.Point(4, 354);
-            this.AutoLevellingBox.Margin = new System.Windows.Forms.Padding(4);
-            this.AutoLevellingBox.Name = "AutoLevellingBox";
-            this.AutoLevellingBox.Padding = new System.Windows.Forms.Padding(4);
-            this.AutoLevellingBox.Size = new System.Drawing.Size(365, 181);
-            this.AutoLevellingBox.TabIndex = 210;
-            this.AutoLevellingBox.TabStop = false;
-            this.AutoLevellingBox.Text = "Auto-Levelling";
+            this.groupBox19.Controls.Add(this.BentoProfileOpen);
+            this.groupBox19.Controls.Add(this.BentoProfileBox);
+            this.groupBox19.Controls.Add(this.BentoProfileSave);
+            this.groupBox19.Location = new System.Drawing.Point(501, 354);
+            this.groupBox19.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox19.Name = "groupBox19";
+            this.groupBox19.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox19.Size = new System.Drawing.Size(303, 96);
+            this.groupBox19.TabIndex = 210;
+            this.groupBox19.TabStop = false;
+            this.groupBox19.Text = "Joint Limit Profiles";
             // 
-            // FlexionPIDBox
+            // BentoProfileOpen
             // 
-            this.FlexionPIDBox.Controls.Add(this.CurrentFlexion);
-            this.FlexionPIDBox.Controls.Add(this.label224);
-            this.FlexionPIDBox.Controls.Add(this.label223);
-            this.FlexionPIDBox.Controls.Add(this.SetpointFlexion);
-            this.FlexionPIDBox.Controls.Add(this.Kd_theta_ctrl);
-            this.FlexionPIDBox.Controls.Add(this.label210);
-            this.FlexionPIDBox.Controls.Add(this.Ki_theta_ctrl);
-            this.FlexionPIDBox.Controls.Add(this.label211);
-            this.FlexionPIDBox.Controls.Add(this.Kp_theta_ctrl);
-            this.FlexionPIDBox.Controls.Add(this.label212);
-            this.FlexionPIDBox.Enabled = false;
-            this.FlexionPIDBox.Location = new System.Drawing.Point(235, 13);
-            this.FlexionPIDBox.Margin = new System.Windows.Forms.Padding(4);
-            this.FlexionPIDBox.Name = "FlexionPIDBox";
-            this.FlexionPIDBox.Padding = new System.Windows.Forms.Padding(4);
-            this.FlexionPIDBox.Size = new System.Drawing.Size(119, 156);
-            this.FlexionPIDBox.TabIndex = 212;
-            this.FlexionPIDBox.TabStop = false;
-            this.FlexionPIDBox.Text = "Flexion PID";
+            this.BentoProfileOpen.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.BentoProfileOpen.Location = new System.Drawing.Point(224, 36);
+            this.BentoProfileOpen.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.BentoProfileOpen.Name = "BentoProfileOpen";
+            this.BentoProfileOpen.Size = new System.Drawing.Size(59, 28);
+            this.BentoProfileOpen.TabIndex = 13;
+            this.BentoProfileOpen.Text = "Open";
+            this.BentoProfileOpen.Click += new System.EventHandler(this.BentoProfileOpen_Click);
             // 
-            // CurrentFlexion
+            // BentoProfileBox
             // 
-            this.CurrentFlexion.AutoSize = true;
-            this.CurrentFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.CurrentFlexion.Location = new System.Drawing.Point(65, 134);
-            this.CurrentFlexion.Name = "CurrentFlexion";
-            this.CurrentFlexion.Size = new System.Drawing.Size(18, 17);
-            this.CurrentFlexion.TabIndex = 217;
-            this.CurrentFlexion.Text = "--";
+            this.BentoProfileBox.DisplayMember = "1";
+            this.BentoProfileBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.BentoProfileBox.FormattingEnabled = true;
+            this.BentoProfileBox.Items.AddRange(new object[] {
+            "profile0",
+            "profile1",
+            "profile2",
+            "profile3",
+            "profile4",
+            "profile5",
+            "profile6",
+            "profile7",
+            "profile8",
+            "profile9"});
+            this.BentoProfileBox.Location = new System.Drawing.Point(9, 38);
+            this.BentoProfileBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.BentoProfileBox.Name = "BentoProfileBox";
+            this.BentoProfileBox.Size = new System.Drawing.Size(129, 24);
+            this.BentoProfileBox.TabIndex = 189;
             // 
-            // label224
+            // BentoProfileSave
             // 
-            this.label224.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label224.Location = new System.Drawing.Point(5, 134);
-            this.label224.Name = "label224";
-            this.label224.Size = new System.Drawing.Size(58, 22);
-            this.label224.TabIndex = 216;
-            this.label224.Text = "Current";
-            // 
-            // label223
-            // 
-            this.label223.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label223.Location = new System.Drawing.Point(5, 107);
-            this.label223.Name = "label223";
-            this.label223.Size = new System.Drawing.Size(60, 22);
-            this.label223.TabIndex = 215;
-            this.label223.Text = "Setpoint";
-            // 
-            // SetpointFlexion
-            // 
-            this.SetpointFlexion.AutoSize = true;
-            this.SetpointFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.SetpointFlexion.Location = new System.Drawing.Point(65, 107);
-            this.SetpointFlexion.Name = "SetpointFlexion";
-            this.SetpointFlexion.Size = new System.Drawing.Size(18, 17);
-            this.SetpointFlexion.TabIndex = 214;
-            this.SetpointFlexion.Text = "--";
-            // 
-            // Kd_theta_ctrl
-            // 
-            this.Kd_theta_ctrl.DecimalPlaces = 2;
-            this.Kd_theta_ctrl.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.Kd_theta_ctrl.Location = new System.Drawing.Point(42, 73);
-            this.Kd_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Kd_theta_ctrl.Name = "Kd_theta_ctrl";
-            this.Kd_theta_ctrl.Size = new System.Drawing.Size(64, 22);
-            this.Kd_theta_ctrl.TabIndex = 153;
-            this.Kd_theta_ctrl.ValueChanged += new System.EventHandler(this.Kd_theta_ctrl_ValueChanged);
-            // 
-            // label210
-            // 
-            this.label210.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label210.Location = new System.Drawing.Point(5, 73);
-            this.label210.Name = "label210";
-            this.label210.Size = new System.Drawing.Size(31, 22);
-            this.label210.TabIndex = 154;
-            this.label210.Text = "Kd";
-            // 
-            // Ki_theta_ctrl
-            // 
-            this.Ki_theta_ctrl.DecimalPlaces = 2;
-            this.Ki_theta_ctrl.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.Ki_theta_ctrl.Location = new System.Drawing.Point(42, 47);
-            this.Ki_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Ki_theta_ctrl.Name = "Ki_theta_ctrl";
-            this.Ki_theta_ctrl.Size = new System.Drawing.Size(64, 22);
-            this.Ki_theta_ctrl.TabIndex = 151;
-            this.Ki_theta_ctrl.ValueChanged += new System.EventHandler(this.Ki_theta_ctrl_ValueChanged);
-            // 
-            // label211
-            // 
-            this.label211.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label211.Location = new System.Drawing.Point(5, 47);
-            this.label211.Name = "label211";
-            this.label211.Size = new System.Drawing.Size(31, 22);
-            this.label211.TabIndex = 152;
-            this.label211.Text = "Ki";
-            // 
-            // Kp_theta_ctrl
-            // 
-            this.Kp_theta_ctrl.DecimalPlaces = 2;
-            this.Kp_theta_ctrl.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.Kp_theta_ctrl.Location = new System.Drawing.Point(42, 21);
-            this.Kp_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Kp_theta_ctrl.Name = "Kp_theta_ctrl";
-            this.Kp_theta_ctrl.Size = new System.Drawing.Size(64, 22);
-            this.Kp_theta_ctrl.TabIndex = 150;
-            this.Kp_theta_ctrl.Value = new decimal(new int[] {
-            45,
-            0,
-            0,
-            131072});
-            this.Kp_theta_ctrl.ValueChanged += new System.EventHandler(this.Kp_theta_ctrl_ValueChanged);
-            // 
-            // label212
-            // 
-            this.label212.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label212.Location = new System.Drawing.Point(5, 21);
-            this.label212.Name = "label212";
-            this.label212.Size = new System.Drawing.Size(31, 22);
-            this.label212.TabIndex = 150;
-            this.label212.Text = "Kp";
-            // 
-            // RotationPIDBox
-            // 
-            this.RotationPIDBox.Controls.Add(this.CurrentRotation);
-            this.RotationPIDBox.Controls.Add(this.label222);
-            this.RotationPIDBox.Controls.Add(this.label221);
-            this.RotationPIDBox.Controls.Add(this.Kd_phi_ctrl);
-            this.RotationPIDBox.Controls.Add(this.SetpointRotation);
-            this.RotationPIDBox.Controls.Add(this.label209);
-            this.RotationPIDBox.Controls.Add(this.Ki_phi_ctrl);
-            this.RotationPIDBox.Controls.Add(this.label205);
-            this.RotationPIDBox.Controls.Add(this.Kp_phi_ctrl);
-            this.RotationPIDBox.Controls.Add(this.label206);
-            this.RotationPIDBox.Enabled = false;
-            this.RotationPIDBox.Location = new System.Drawing.Point(108, 13);
-            this.RotationPIDBox.Margin = new System.Windows.Forms.Padding(4);
-            this.RotationPIDBox.Name = "RotationPIDBox";
-            this.RotationPIDBox.Padding = new System.Windows.Forms.Padding(4);
-            this.RotationPIDBox.Size = new System.Drawing.Size(119, 156);
-            this.RotationPIDBox.TabIndex = 211;
-            this.RotationPIDBox.TabStop = false;
-            this.RotationPIDBox.Text = "Rotation PID";
-            // 
-            // CurrentRotation
-            // 
-            this.CurrentRotation.AutoSize = true;
-            this.CurrentRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.CurrentRotation.Location = new System.Drawing.Point(65, 134);
-            this.CurrentRotation.Name = "CurrentRotation";
-            this.CurrentRotation.Size = new System.Drawing.Size(18, 17);
-            this.CurrentRotation.TabIndex = 216;
-            this.CurrentRotation.Text = "--";
-            // 
-            // label222
-            // 
-            this.label222.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label222.Location = new System.Drawing.Point(7, 132);
-            this.label222.Name = "label222";
-            this.label222.Size = new System.Drawing.Size(63, 22);
-            this.label222.TabIndex = 215;
-            this.label222.Text = "Current";
-            // 
-            // label221
-            // 
-            this.label221.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label221.Location = new System.Drawing.Point(7, 107);
-            this.label221.Name = "label221";
-            this.label221.Size = new System.Drawing.Size(63, 22);
-            this.label221.TabIndex = 214;
-            this.label221.Text = "Setpoint";
-            // 
-            // Kd_phi_ctrl
-            // 
-            this.Kd_phi_ctrl.DecimalPlaces = 2;
-            this.Kd_phi_ctrl.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.Kd_phi_ctrl.Location = new System.Drawing.Point(42, 73);
-            this.Kd_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Kd_phi_ctrl.Name = "Kd_phi_ctrl";
-            this.Kd_phi_ctrl.Size = new System.Drawing.Size(64, 22);
-            this.Kd_phi_ctrl.TabIndex = 153;
-            this.Kd_phi_ctrl.ValueChanged += new System.EventHandler(this.Kd_phi_ctrl_ValueChanged);
-            // 
-            // SetpointRotation
-            // 
-            this.SetpointRotation.AutoSize = true;
-            this.SetpointRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.SetpointRotation.Location = new System.Drawing.Point(65, 107);
-            this.SetpointRotation.Name = "SetpointRotation";
-            this.SetpointRotation.Size = new System.Drawing.Size(18, 17);
-            this.SetpointRotation.TabIndex = 213;
-            this.SetpointRotation.Text = "--";
-            // 
-            // label209
-            // 
-            this.label209.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label209.Location = new System.Drawing.Point(5, 73);
-            this.label209.Name = "label209";
-            this.label209.Size = new System.Drawing.Size(31, 22);
-            this.label209.TabIndex = 154;
-            this.label209.Text = "Kd";
-            // 
-            // Ki_phi_ctrl
-            // 
-            this.Ki_phi_ctrl.DecimalPlaces = 2;
-            this.Ki_phi_ctrl.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.Ki_phi_ctrl.Location = new System.Drawing.Point(42, 47);
-            this.Ki_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Ki_phi_ctrl.Name = "Ki_phi_ctrl";
-            this.Ki_phi_ctrl.Size = new System.Drawing.Size(64, 22);
-            this.Ki_phi_ctrl.TabIndex = 151;
-            this.Ki_phi_ctrl.ValueChanged += new System.EventHandler(this.Ki_phi_ctrl_ValueChanged);
-            // 
-            // label205
-            // 
-            this.label205.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label205.Location = new System.Drawing.Point(5, 47);
-            this.label205.Name = "label205";
-            this.label205.Size = new System.Drawing.Size(31, 22);
-            this.label205.TabIndex = 152;
-            this.label205.Text = "Ki";
-            // 
-            // Kp_phi_ctrl
-            // 
-            this.Kp_phi_ctrl.DecimalPlaces = 2;
-            this.Kp_phi_ctrl.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.Kp_phi_ctrl.Location = new System.Drawing.Point(42, 21);
-            this.Kp_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Kp_phi_ctrl.Name = "Kp_phi_ctrl";
-            this.Kp_phi_ctrl.Size = new System.Drawing.Size(64, 22);
-            this.Kp_phi_ctrl.TabIndex = 150;
-            this.Kp_phi_ctrl.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            131072});
-            this.Kp_phi_ctrl.ValueChanged += new System.EventHandler(this.Kp_phi_ctrl_ValueChanged);
-            // 
-            // label206
-            // 
-            this.label206.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label206.Location = new System.Drawing.Point(5, 21);
-            this.label206.Name = "label206";
-            this.label206.Size = new System.Drawing.Size(31, 22);
-            this.label206.TabIndex = 150;
-            this.label206.Text = "Kp";
-            // 
-            // AL_Enabled
-            // 
-            this.AL_Enabled.AutoSize = true;
-            this.AL_Enabled.Location = new System.Drawing.Point(11, 25);
-            this.AL_Enabled.Margin = new System.Windows.Forms.Padding(4);
-            this.AL_Enabled.Name = "AL_Enabled";
-            this.AL_Enabled.Size = new System.Drawing.Size(82, 21);
-            this.AL_Enabled.TabIndex = 202;
-            this.AL_Enabled.Text = "Enabled";
-            this.AL_Enabled.UseVisualStyleBackColor = true;
+            this.BentoProfileSave.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.BentoProfileSave.Location = new System.Drawing.Point(160, 36);
+            this.BentoProfileSave.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.BentoProfileSave.Name = "BentoProfileSave";
+            this.BentoProfileSave.Size = new System.Drawing.Size(59, 28);
+            this.BentoProfileSave.TabIndex = 14;
+            this.BentoProfileSave.Text = "Save";
+            this.BentoProfileSave.Click += new System.EventHandler(this.BentoProfileSave_Click);
             // 
             // BentoEnvLimitsBox
             // 
@@ -8971,9 +9044,9 @@
             this.BentoEnvLimitsBox.Controls.Add(this.label154);
             this.BentoEnvLimitsBox.Enabled = false;
             this.BentoEnvLimitsBox.Location = new System.Drawing.Point(1035, 393);
-            this.BentoEnvLimitsBox.Margin = new System.Windows.Forms.Padding(4);
+            this.BentoEnvLimitsBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoEnvLimitsBox.Name = "BentoEnvLimitsBox";
-            this.BentoEnvLimitsBox.Padding = new System.Windows.Forms.Padding(4);
+            this.BentoEnvLimitsBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoEnvLimitsBox.Size = new System.Drawing.Size(492, 187);
             this.BentoEnvLimitsBox.TabIndex = 209;
             this.BentoEnvLimitsBox.TabStop = false;
@@ -9026,7 +9099,7 @@
             // 
             this.environCheck.AutoSize = true;
             this.environCheck.Location = new System.Drawing.Point(11, 25);
-            this.environCheck.Margin = new System.Windows.Forms.Padding(4);
+            this.environCheck.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.environCheck.Name = "environCheck";
             this.environCheck.Size = new System.Drawing.Size(149, 21);
             this.environCheck.TabIndex = 202;
@@ -9063,9 +9136,9 @@
             this.BentoAdaptGripBox.Controls.Add(this.label151);
             this.BentoAdaptGripBox.Enabled = false;
             this.BentoAdaptGripBox.Location = new System.Drawing.Point(501, 6);
-            this.BentoAdaptGripBox.Margin = new System.Windows.Forms.Padding(4);
+            this.BentoAdaptGripBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoAdaptGripBox.Name = "BentoAdaptGripBox";
-            this.BentoAdaptGripBox.Padding = new System.Windows.Forms.Padding(4);
+            this.BentoAdaptGripBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoAdaptGripBox.Size = new System.Drawing.Size(303, 149);
             this.BentoAdaptGripBox.TabIndex = 208;
             this.BentoAdaptGripBox.TabStop = false;
@@ -9075,7 +9148,7 @@
             // 
             this.BentoAdaptGripCheck.AutoSize = true;
             this.BentoAdaptGripCheck.Location = new System.Drawing.Point(11, 25);
-            this.BentoAdaptGripCheck.Margin = new System.Windows.Forms.Padding(4);
+            this.BentoAdaptGripCheck.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoAdaptGripCheck.Name = "BentoAdaptGripCheck";
             this.BentoAdaptGripCheck.Size = new System.Drawing.Size(130, 21);
             this.BentoAdaptGripCheck.TabIndex = 202;
@@ -9135,7 +9208,7 @@
             this.tabXPC.Controls.Add(this.RobotBox);
             this.tabXPC.Controls.Add(this.MLBox);
             this.tabXPC.Location = new System.Drawing.Point(4, 25);
-            this.tabXPC.Margin = new System.Windows.Forms.Padding(4);
+            this.tabXPC.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabXPC.Name = "tabXPC";
             this.tabXPC.Size = new System.Drawing.Size(1552, 793);
             this.tabXPC.TabIndex = 3;
@@ -9151,7 +9224,7 @@
             this.tabViz.Controls.Add(this.xBoxGroupBox);
             this.tabViz.Controls.Add(this.MYOgroupBox);
             this.tabViz.Location = new System.Drawing.Point(4, 25);
-            this.tabViz.Margin = new System.Windows.Forms.Padding(4);
+            this.tabViz.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabViz.Name = "tabViz";
             this.tabViz.Size = new System.Drawing.Size(1552, 793);
             this.tabViz.TabIndex = 4;
@@ -9178,9 +9251,9 @@
             this.ArduinoInputGroupBox.Controls.Add(this.label220);
             this.ArduinoInputGroupBox.Enabled = false;
             this.ArduinoInputGroupBox.Location = new System.Drawing.Point(361, 282);
-            this.ArduinoInputGroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.ArduinoInputGroupBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.ArduinoInputGroupBox.Name = "ArduinoInputGroupBox";
-            this.ArduinoInputGroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.ArduinoInputGroupBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.ArduinoInputGroupBox.Size = new System.Drawing.Size(349, 202);
             this.ArduinoInputGroupBox.TabIndex = 211;
             this.ArduinoInputGroupBox.TabStop = false;
@@ -9417,9 +9490,9 @@
             this.biopatrecGroupBox.Controls.Add(this.label199);
             this.biopatrecGroupBox.Enabled = false;
             this.biopatrecGroupBox.Location = new System.Drawing.Point(361, 4);
-            this.biopatrecGroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.biopatrecGroupBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.biopatrecGroupBox.Name = "biopatrecGroupBox";
-            this.biopatrecGroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.biopatrecGroupBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.biopatrecGroupBox.Size = new System.Drawing.Size(349, 271);
             this.biopatrecGroupBox.TabIndex = 211;
             this.biopatrecGroupBox.TabStop = false;
@@ -9451,7 +9524,7 @@
             this.BPRclass12.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass12.Enabled = false;
             this.BPRclass12.Location = new System.Drawing.Point(120, 239);
-            this.BPRclass12.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass12.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass12.Name = "BPRclass12";
             this.BPRclass12.Size = new System.Drawing.Size(18, 17);
             this.BPRclass12.TabIndex = 203;
@@ -9473,7 +9546,7 @@
             this.BPRclass24.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass24.Enabled = false;
             this.BPRclass24.Location = new System.Drawing.Point(293, 220);
-            this.BPRclass24.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass24.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass24.Name = "BPRclass24";
             this.BPRclass24.Size = new System.Drawing.Size(18, 17);
             this.BPRclass24.TabIndex = 201;
@@ -9495,7 +9568,7 @@
             this.BPRclass23.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass23.Enabled = false;
             this.BPRclass23.Location = new System.Drawing.Point(293, 202);
-            this.BPRclass23.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass23.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass23.Name = "BPRclass23";
             this.BPRclass23.Size = new System.Drawing.Size(18, 17);
             this.BPRclass23.TabIndex = 187;
@@ -9507,7 +9580,7 @@
             this.BPRclass17.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass17.Enabled = false;
             this.BPRclass17.Location = new System.Drawing.Point(293, 86);
-            this.BPRclass17.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass17.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass17.Name = "BPRclass17";
             this.BPRclass17.Size = new System.Drawing.Size(18, 17);
             this.BPRclass17.TabIndex = 188;
@@ -9519,7 +9592,7 @@
             this.BPRclass18.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass18.Enabled = false;
             this.BPRclass18.Location = new System.Drawing.Point(293, 106);
-            this.BPRclass18.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass18.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass18.Name = "BPRclass18";
             this.BPRclass18.Size = new System.Drawing.Size(18, 17);
             this.BPRclass18.TabIndex = 189;
@@ -9531,7 +9604,7 @@
             this.BPRclass21.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass21.Enabled = false;
             this.BPRclass21.Location = new System.Drawing.Point(293, 164);
-            this.BPRclass21.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass21.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass21.Name = "BPRclass21";
             this.BPRclass21.Size = new System.Drawing.Size(18, 17);
             this.BPRclass21.TabIndex = 190;
@@ -9543,7 +9616,7 @@
             this.BPRclass20.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass20.Enabled = false;
             this.BPRclass20.Location = new System.Drawing.Point(293, 145);
-            this.BPRclass20.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass20.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass20.Name = "BPRclass20";
             this.BPRclass20.Size = new System.Drawing.Size(18, 17);
             this.BPRclass20.TabIndex = 191;
@@ -9555,7 +9628,7 @@
             this.BPRclass19.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass19.Enabled = false;
             this.BPRclass19.Location = new System.Drawing.Point(293, 124);
-            this.BPRclass19.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass19.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass19.Name = "BPRclass19";
             this.BPRclass19.Size = new System.Drawing.Size(18, 17);
             this.BPRclass19.TabIndex = 192;
@@ -9568,7 +9641,7 @@
             this.BPRclass22.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.BPRclass22.Enabled = false;
             this.BPRclass22.Location = new System.Drawing.Point(292, 183);
-            this.BPRclass22.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass22.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass22.Name = "BPRclass22";
             this.BPRclass22.Size = new System.Drawing.Size(18, 17);
             this.BPRclass22.TabIndex = 200;
@@ -9650,7 +9723,7 @@
             this.BPRclass11.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass11.Enabled = false;
             this.BPRclass11.Location = new System.Drawing.Point(120, 220);
-            this.BPRclass11.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass11.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass11.Name = "BPRclass11";
             this.BPRclass11.Size = new System.Drawing.Size(18, 17);
             this.BPRclass11.TabIndex = 185;
@@ -9672,7 +9745,7 @@
             this.BPRclass10.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass10.Enabled = false;
             this.BPRclass10.Location = new System.Drawing.Point(120, 202);
-            this.BPRclass10.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass10.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass10.Name = "BPRclass10";
             this.BPRclass10.Size = new System.Drawing.Size(18, 17);
             this.BPRclass10.TabIndex = 144;
@@ -9684,7 +9757,7 @@
             this.BPRclass3.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass3.Enabled = false;
             this.BPRclass3.Location = new System.Drawing.Point(120, 68);
-            this.BPRclass3.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass3.Name = "BPRclass3";
             this.BPRclass3.Size = new System.Drawing.Size(18, 17);
             this.BPRclass3.TabIndex = 145;
@@ -9696,7 +9769,7 @@
             this.BPRclass2.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass2.Enabled = false;
             this.BPRclass2.Location = new System.Drawing.Point(120, 49);
-            this.BPRclass2.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass2.Name = "BPRclass2";
             this.BPRclass2.Size = new System.Drawing.Size(18, 17);
             this.BPRclass2.TabIndex = 146;
@@ -9708,7 +9781,7 @@
             this.BPRclass1.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass1.Enabled = false;
             this.BPRclass1.Location = new System.Drawing.Point(120, 32);
-            this.BPRclass1.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass1.Name = "BPRclass1";
             this.BPRclass1.Size = new System.Drawing.Size(18, 17);
             this.BPRclass1.TabIndex = 147;
@@ -9720,7 +9793,7 @@
             this.BPRclass0.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass0.Enabled = false;
             this.BPRclass0.Location = new System.Drawing.Point(120, 15);
-            this.BPRclass0.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass0.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass0.Name = "BPRclass0";
             this.BPRclass0.Size = new System.Drawing.Size(18, 17);
             this.BPRclass0.TabIndex = 148;
@@ -9732,7 +9805,7 @@
             this.BPRclass4.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass4.Enabled = false;
             this.BPRclass4.Location = new System.Drawing.Point(120, 86);
-            this.BPRclass4.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass4.Name = "BPRclass4";
             this.BPRclass4.Size = new System.Drawing.Size(18, 17);
             this.BPRclass4.TabIndex = 149;
@@ -9744,7 +9817,7 @@
             this.BPRclass5.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass5.Enabled = false;
             this.BPRclass5.Location = new System.Drawing.Point(120, 106);
-            this.BPRclass5.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass5.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass5.Name = "BPRclass5";
             this.BPRclass5.Size = new System.Drawing.Size(18, 17);
             this.BPRclass5.TabIndex = 150;
@@ -9756,7 +9829,7 @@
             this.BPRclass8.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass8.Enabled = false;
             this.BPRclass8.Location = new System.Drawing.Point(120, 164);
-            this.BPRclass8.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass8.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass8.Name = "BPRclass8";
             this.BPRclass8.Size = new System.Drawing.Size(18, 17);
             this.BPRclass8.TabIndex = 151;
@@ -9768,7 +9841,7 @@
             this.BPRclass7.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass7.Enabled = false;
             this.BPRclass7.Location = new System.Drawing.Point(120, 145);
-            this.BPRclass7.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass7.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass7.Name = "BPRclass7";
             this.BPRclass7.Size = new System.Drawing.Size(18, 17);
             this.BPRclass7.TabIndex = 152;
@@ -9780,7 +9853,7 @@
             this.BPRclass13.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass13.Enabled = false;
             this.BPRclass13.Location = new System.Drawing.Point(293, 15);
-            this.BPRclass13.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass13.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass13.Name = "BPRclass13";
             this.BPRclass13.Size = new System.Drawing.Size(18, 17);
             this.BPRclass13.TabIndex = 153;
@@ -9792,7 +9865,7 @@
             this.BPRclass14.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass14.Enabled = false;
             this.BPRclass14.Location = new System.Drawing.Point(293, 32);
-            this.BPRclass14.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass14.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass14.Name = "BPRclass14";
             this.BPRclass14.Size = new System.Drawing.Size(18, 17);
             this.BPRclass14.TabIndex = 154;
@@ -9804,7 +9877,7 @@
             this.BPRclass15.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass15.Enabled = false;
             this.BPRclass15.Location = new System.Drawing.Point(293, 49);
-            this.BPRclass15.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass15.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass15.Name = "BPRclass15";
             this.BPRclass15.Size = new System.Drawing.Size(18, 17);
             this.BPRclass15.TabIndex = 155;
@@ -9816,7 +9889,7 @@
             this.BPRclass16.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass16.Enabled = false;
             this.BPRclass16.Location = new System.Drawing.Point(293, 68);
-            this.BPRclass16.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass16.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass16.Name = "BPRclass16";
             this.BPRclass16.Size = new System.Drawing.Size(18, 17);
             this.BPRclass16.TabIndex = 156;
@@ -9828,7 +9901,7 @@
             this.BPRclass6.BackColor = System.Drawing.Color.Transparent;
             this.BPRclass6.Enabled = false;
             this.BPRclass6.Location = new System.Drawing.Point(120, 124);
-            this.BPRclass6.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass6.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass6.Name = "BPRclass6";
             this.BPRclass6.Size = new System.Drawing.Size(18, 17);
             this.BPRclass6.TabIndex = 163;
@@ -9881,7 +9954,7 @@
             this.BPRclass9.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.BPRclass9.Enabled = false;
             this.BPRclass9.Location = new System.Drawing.Point(119, 183);
-            this.BPRclass9.Margin = new System.Windows.Forms.Padding(4);
+            this.BPRclass9.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BPRclass9.Name = "BPRclass9";
             this.BPRclass9.Size = new System.Drawing.Size(18, 17);
             this.BPRclass9.TabIndex = 178;
@@ -10006,9 +10079,9 @@
             this.SLRTgroupBox.Controls.Add(this.label180);
             this.SLRTgroupBox.Enabled = false;
             this.SLRTgroupBox.Location = new System.Drawing.Point(361, 491);
-            this.SLRTgroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.SLRTgroupBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.SLRTgroupBox.Name = "SLRTgroupBox";
-            this.SLRTgroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.SLRTgroupBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.SLRTgroupBox.Size = new System.Drawing.Size(349, 202);
             this.SLRTgroupBox.TabIndex = 210;
             this.SLRTgroupBox.TabStop = false;
@@ -10203,7 +10276,7 @@
             this.statusPanel1.Controls.Add(this.label149);
             this.statusPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.statusPanel1.Location = new System.Drawing.Point(0, 812);
-            this.statusPanel1.Margin = new System.Windows.Forms.Padding(4);
+            this.statusPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.statusPanel1.Name = "statusPanel1";
             this.statusPanel1.Size = new System.Drawing.Size(1576, 27);
             this.statusPanel1.TabIndex = 223;
@@ -10252,7 +10325,7 @@
             // 
             this.BentoRunStatus.Enabled = false;
             this.BentoRunStatus.Location = new System.Drawing.Point(269, 0);
-            this.BentoRunStatus.Margin = new System.Windows.Forms.Padding(4);
+            this.BentoRunStatus.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.BentoRunStatus.Name = "BentoRunStatus";
             this.BentoRunStatus.Size = new System.Drawing.Size(76, 25);
             this.BentoRunStatus.TabIndex = 223;
@@ -10285,53 +10358,305 @@
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
             // 
-            // doF6
+            // AutoLevellingBox
             // 
-            this.doF6.Location = new System.Drawing.Point(8, 630);
-            this.doF6.Margin = new System.Windows.Forms.Padding(5);
-            this.doF6.Name = "doF6";
-            this.doF6.Size = new System.Drawing.Size(865, 116);
-            this.doF6.TabIndex = 144;
+            this.AutoLevellingBox.Controls.Add(this.FlexionPIDBox);
+            this.AutoLevellingBox.Controls.Add(this.RotationPIDBox);
+            this.AutoLevellingBox.Controls.Add(this.AL_Enabled);
+            this.AutoLevellingBox.Enabled = false;
+            this.AutoLevellingBox.Location = new System.Drawing.Point(4, 354);
+            this.AutoLevellingBox.Margin = new System.Windows.Forms.Padding(4);
+            this.AutoLevellingBox.Name = "AutoLevellingBox";
+            this.AutoLevellingBox.Padding = new System.Windows.Forms.Padding(4);
+            this.AutoLevellingBox.Size = new System.Drawing.Size(365, 181);
+            this.AutoLevellingBox.TabIndex = 211;
+            this.AutoLevellingBox.TabStop = false;
+            this.AutoLevellingBox.Text = "Auto-Levelling";
             // 
-            // doF5
+            // FlexionPIDBox
             // 
-            this.doF5.Location = new System.Drawing.Point(8, 507);
-            this.doF5.Margin = new System.Windows.Forms.Padding(5);
-            this.doF5.Name = "doF5";
-            this.doF5.Size = new System.Drawing.Size(865, 116);
-            this.doF5.TabIndex = 143;
+            this.FlexionPIDBox.Controls.Add(this.CurrentFlexion);
+            this.FlexionPIDBox.Controls.Add(this.label224);
+            this.FlexionPIDBox.Controls.Add(this.label223);
+            this.FlexionPIDBox.Controls.Add(this.SetpointFlexion);
+            this.FlexionPIDBox.Controls.Add(this.Kd_theta_ctrl);
+            this.FlexionPIDBox.Controls.Add(this.label210);
+            this.FlexionPIDBox.Controls.Add(this.Ki_theta_ctrl);
+            this.FlexionPIDBox.Controls.Add(this.label206);
+            this.FlexionPIDBox.Controls.Add(this.Kp_theta_ctrl);
+            this.FlexionPIDBox.Controls.Add(this.label212);
+            this.FlexionPIDBox.Enabled = false;
+            this.FlexionPIDBox.Location = new System.Drawing.Point(235, 13);
+            this.FlexionPIDBox.Margin = new System.Windows.Forms.Padding(4);
+            this.FlexionPIDBox.Name = "FlexionPIDBox";
+            this.FlexionPIDBox.Padding = new System.Windows.Forms.Padding(4);
+            this.FlexionPIDBox.Size = new System.Drawing.Size(119, 156);
+            this.FlexionPIDBox.TabIndex = 212;
+            this.FlexionPIDBox.TabStop = false;
+            this.FlexionPIDBox.Text = "Flexion PID";
             // 
-            // doF4
+            // CurrentFlexion
             // 
-            this.doF4.Location = new System.Drawing.Point(8, 384);
-            this.doF4.Margin = new System.Windows.Forms.Padding(5);
-            this.doF4.Name = "doF4";
-            this.doF4.Size = new System.Drawing.Size(865, 116);
-            this.doF4.TabIndex = 142;
+            this.CurrentFlexion.AutoSize = true;
+            this.CurrentFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.CurrentFlexion.Location = new System.Drawing.Point(65, 134);
+            this.CurrentFlexion.Name = "CurrentFlexion";
+            this.CurrentFlexion.Size = new System.Drawing.Size(18, 17);
+            this.CurrentFlexion.TabIndex = 217;
+            this.CurrentFlexion.Text = "--";
             // 
-            // doF3
+            // label224
             // 
-            this.doF3.Location = new System.Drawing.Point(8, 261);
-            this.doF3.Margin = new System.Windows.Forms.Padding(5);
-            this.doF3.Name = "doF3";
-            this.doF3.Size = new System.Drawing.Size(865, 116);
-            this.doF3.TabIndex = 141;
+            this.label224.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label224.Location = new System.Drawing.Point(5, 134);
+            this.label224.Name = "label224";
+            this.label224.Size = new System.Drawing.Size(58, 22);
+            this.label224.TabIndex = 216;
+            this.label224.Text = "Current";
             // 
-            // doF2
+            // label223
             // 
-            this.doF2.Location = new System.Drawing.Point(8, 142);
-            this.doF2.Margin = new System.Windows.Forms.Padding(5);
-            this.doF2.Name = "doF2";
-            this.doF2.Size = new System.Drawing.Size(865, 116);
-            this.doF2.TabIndex = 140;
+            this.label223.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label223.Location = new System.Drawing.Point(5, 107);
+            this.label223.Name = "label223";
+            this.label223.Size = new System.Drawing.Size(60, 22);
+            this.label223.TabIndex = 215;
+            this.label223.Text = "Setpoint";
             // 
-            // doF1
+            // SetpointFlexion
             // 
-            this.doF1.Location = new System.Drawing.Point(8, 22);
-            this.doF1.Margin = new System.Windows.Forms.Padding(5);
-            this.doF1.Name = "doF1";
-            this.doF1.Size = new System.Drawing.Size(865, 116);
-            this.doF1.TabIndex = 139;
+            this.SetpointFlexion.AutoSize = true;
+            this.SetpointFlexion.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.SetpointFlexion.Location = new System.Drawing.Point(65, 107);
+            this.SetpointFlexion.Name = "SetpointFlexion";
+            this.SetpointFlexion.Size = new System.Drawing.Size(18, 17);
+            this.SetpointFlexion.TabIndex = 214;
+            this.SetpointFlexion.Text = "--";
+            // 
+            // Kd_theta_ctrl
+            // 
+            this.Kd_theta_ctrl.DecimalPlaces = 2;
+            this.Kd_theta_ctrl.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.Kd_theta_ctrl.Location = new System.Drawing.Point(42, 73);
+            this.Kd_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Kd_theta_ctrl.Name = "Kd_theta_ctrl";
+            this.Kd_theta_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Kd_theta_ctrl.TabIndex = 153;
+            this.Kd_theta_ctrl.ValueChanged += new System.EventHandler(this.Kd_theta_ctrl_ValueChanged);
+            // 
+            // label210
+            // 
+            this.label210.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label210.Location = new System.Drawing.Point(5, 73);
+            this.label210.Name = "label210";
+            this.label210.Size = new System.Drawing.Size(31, 22);
+            this.label210.TabIndex = 154;
+            this.label210.Text = "Kd";
+            // 
+            // Ki_theta_ctrl
+            // 
+            this.Ki_theta_ctrl.DecimalPlaces = 2;
+            this.Ki_theta_ctrl.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.Ki_theta_ctrl.Location = new System.Drawing.Point(42, 47);
+            this.Ki_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Ki_theta_ctrl.Name = "Ki_theta_ctrl";
+            this.Ki_theta_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Ki_theta_ctrl.TabIndex = 151;
+            this.Ki_theta_ctrl.ValueChanged += new System.EventHandler(this.Ki_theta_ctrl_ValueChanged);
+            // 
+            // label206
+            // 
+            this.label206.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label206.Location = new System.Drawing.Point(5, 47);
+            this.label206.Name = "label206";
+            this.label206.Size = new System.Drawing.Size(31, 22);
+            this.label206.TabIndex = 152;
+            this.label206.Text = "Ki";
+            // 
+            // Kp_theta_ctrl
+            // 
+            this.Kp_theta_ctrl.DecimalPlaces = 2;
+            this.Kp_theta_ctrl.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.Kp_theta_ctrl.Location = new System.Drawing.Point(42, 21);
+            this.Kp_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Kp_theta_ctrl.Name = "Kp_theta_ctrl";
+            this.Kp_theta_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Kp_theta_ctrl.TabIndex = 150;
+            this.Kp_theta_ctrl.Value = new decimal(new int[] {
+            45,
+            0,
+            0,
+            131072});
+            this.Kp_theta_ctrl.ValueChanged += new System.EventHandler(this.Kp_theta_ctrl_ValueChanged);
+            // 
+            // label212
+            // 
+            this.label212.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label212.Location = new System.Drawing.Point(5, 21);
+            this.label212.Name = "label212";
+            this.label212.Size = new System.Drawing.Size(31, 22);
+            this.label212.TabIndex = 150;
+            this.label212.Text = "Kp";
+            // 
+            // RotationPIDBox
+            // 
+            this.RotationPIDBox.Controls.Add(this.CurrentRotation);
+            this.RotationPIDBox.Controls.Add(this.label222);
+            this.RotationPIDBox.Controls.Add(this.label221);
+            this.RotationPIDBox.Controls.Add(this.Kd_phi_ctrl);
+            this.RotationPIDBox.Controls.Add(this.SetpointRotation);
+            this.RotationPIDBox.Controls.Add(this.label215);
+            this.RotationPIDBox.Controls.Add(this.Ki_phi_ctrl);
+            this.RotationPIDBox.Controls.Add(this.label225);
+            this.RotationPIDBox.Controls.Add(this.Kp_phi_ctrl);
+            this.RotationPIDBox.Controls.Add(this.label226);
+            this.RotationPIDBox.Enabled = false;
+            this.RotationPIDBox.Location = new System.Drawing.Point(108, 13);
+            this.RotationPIDBox.Margin = new System.Windows.Forms.Padding(4);
+            this.RotationPIDBox.Name = "RotationPIDBox";
+            this.RotationPIDBox.Padding = new System.Windows.Forms.Padding(4);
+            this.RotationPIDBox.Size = new System.Drawing.Size(119, 156);
+            this.RotationPIDBox.TabIndex = 211;
+            this.RotationPIDBox.TabStop = false;
+            this.RotationPIDBox.Text = "Rotation PID";
+            // 
+            // CurrentRotation
+            // 
+            this.CurrentRotation.AutoSize = true;
+            this.CurrentRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.CurrentRotation.Location = new System.Drawing.Point(65, 134);
+            this.CurrentRotation.Name = "CurrentRotation";
+            this.CurrentRotation.Size = new System.Drawing.Size(18, 17);
+            this.CurrentRotation.TabIndex = 216;
+            this.CurrentRotation.Text = "--";
+            // 
+            // label222
+            // 
+            this.label222.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label222.Location = new System.Drawing.Point(7, 132);
+            this.label222.Name = "label222";
+            this.label222.Size = new System.Drawing.Size(63, 22);
+            this.label222.TabIndex = 215;
+            this.label222.Text = "Current";
+            // 
+            // label221
+            // 
+            this.label221.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label221.Location = new System.Drawing.Point(7, 107);
+            this.label221.Name = "label221";
+            this.label221.Size = new System.Drawing.Size(63, 22);
+            this.label221.TabIndex = 214;
+            this.label221.Text = "Setpoint";
+            // 
+            // Kd_phi_ctrl
+            // 
+            this.Kd_phi_ctrl.DecimalPlaces = 2;
+            this.Kd_phi_ctrl.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.Kd_phi_ctrl.Location = new System.Drawing.Point(42, 73);
+            this.Kd_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Kd_phi_ctrl.Name = "Kd_phi_ctrl";
+            this.Kd_phi_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Kd_phi_ctrl.TabIndex = 153;
+            this.Kd_phi_ctrl.ValueChanged += new System.EventHandler(this.Kd_phi_ctrl_ValueChanged);
+            // 
+            // SetpointRotation
+            // 
+            this.SetpointRotation.AutoSize = true;
+            this.SetpointRotation.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.SetpointRotation.Location = new System.Drawing.Point(65, 107);
+            this.SetpointRotation.Name = "SetpointRotation";
+            this.SetpointRotation.Size = new System.Drawing.Size(18, 17);
+            this.SetpointRotation.TabIndex = 213;
+            this.SetpointRotation.Text = "--";
+            // 
+            // label215
+            // 
+            this.label215.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label215.Location = new System.Drawing.Point(5, 73);
+            this.label215.Name = "label215";
+            this.label215.Size = new System.Drawing.Size(31, 22);
+            this.label215.TabIndex = 154;
+            this.label215.Text = "Kd";
+            // 
+            // Ki_phi_ctrl
+            // 
+            this.Ki_phi_ctrl.DecimalPlaces = 2;
+            this.Ki_phi_ctrl.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.Ki_phi_ctrl.Location = new System.Drawing.Point(42, 47);
+            this.Ki_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Ki_phi_ctrl.Name = "Ki_phi_ctrl";
+            this.Ki_phi_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Ki_phi_ctrl.TabIndex = 151;
+            this.Ki_phi_ctrl.ValueChanged += new System.EventHandler(this.Ki_phi_ctrl_ValueChanged);
+            // 
+            // label225
+            // 
+            this.label225.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label225.Location = new System.Drawing.Point(5, 47);
+            this.label225.Name = "label225";
+            this.label225.Size = new System.Drawing.Size(31, 22);
+            this.label225.TabIndex = 152;
+            this.label225.Text = "Ki";
+            // 
+            // Kp_phi_ctrl
+            // 
+            this.Kp_phi_ctrl.DecimalPlaces = 2;
+            this.Kp_phi_ctrl.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.Kp_phi_ctrl.Location = new System.Drawing.Point(42, 21);
+            this.Kp_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Kp_phi_ctrl.Name = "Kp_phi_ctrl";
+            this.Kp_phi_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Kp_phi_ctrl.TabIndex = 150;
+            this.Kp_phi_ctrl.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            131072});
+            this.Kp_phi_ctrl.ValueChanged += new System.EventHandler(this.Kp_phi_ctrl_ValueChanged);
+            // 
+            // label226
+            // 
+            this.label226.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label226.Location = new System.Drawing.Point(5, 21);
+            this.label226.Name = "label226";
+            this.label226.Size = new System.Drawing.Size(31, 22);
+            this.label226.TabIndex = 150;
+            this.label226.Text = "Kp";
+            // 
+            // AL_Enabled
+            // 
+            this.AL_Enabled.AutoSize = true;
+            this.AL_Enabled.Location = new System.Drawing.Point(11, 25);
+            this.AL_Enabled.Margin = new System.Windows.Forms.Padding(4);
+            this.AL_Enabled.Name = "AL_Enabled";
+            this.AL_Enabled.Size = new System.Drawing.Size(82, 21);
+            this.AL_Enabled.TabIndex = 202;
+            this.AL_Enabled.Text = "Enabled";
+            this.AL_Enabled.UseVisualStyleBackColor = true;
             // 
             // mainForm
             // 
@@ -10344,7 +10669,7 @@
             this.Controls.Add(this.MenuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
-            this.Margin = new System.Windows.Forms.Padding(4);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximumSize = new System.Drawing.Size(1594, 884);
             this.Name = "mainForm";
             this.Text = "brachI/Oplexus - V1.0";
@@ -10472,6 +10797,10 @@
             this.tabMapping.ResumeLayout(false);
             this.groupBox16.ResumeLayout(false);
             this.groupBox16.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.switchSmaxCtrl2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchSminCtrl2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchGainCtrl2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl2)).EndInit();
             this.groupBox11.ResumeLayout(false);
             this.groupBox14.ResumeLayout(false);
             this.groupBox14.PerformLayout();
@@ -10481,24 +10810,13 @@
             this.groupBox12.PerformLayout();
             this.groupBox10.ResumeLayout(false);
             this.groupBox10.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.switchSmaxCtrl)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.switchSminCtrl)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.switchGainCtrl)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchSmaxCtrl1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchSminCtrl1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchGainCtrl1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl1)).EndInit();
             this.tabBento.ResumeLayout(false);
             this.tabBento.PerformLayout();
-            this.AutoLevellingBox.ResumeLayout(false);
-            this.AutoLevellingBox.PerformLayout();
-            this.FlexionPIDBox.ResumeLayout(false);
-            this.FlexionPIDBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.Kd_theta_ctrl)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Ki_theta_ctrl)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Kp_theta_ctrl)).EndInit();
-            this.RotationPIDBox.ResumeLayout(false);
-            this.RotationPIDBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.Kd_phi_ctrl)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Ki_phi_ctrl)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Kp_phi_ctrl)).EndInit();
+            this.groupBox19.ResumeLayout(false);
             this.BentoEnvLimitsBox.ResumeLayout(false);
             this.BentoEnvLimitsBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
@@ -10514,6 +10832,18 @@
             this.SLRTgroupBox.ResumeLayout(false);
             this.statusPanel1.ResumeLayout(false);
             this.statusPanel1.PerformLayout();
+            this.AutoLevellingBox.ResumeLayout(false);
+            this.AutoLevellingBox.PerformLayout();
+            this.FlexionPIDBox.ResumeLayout(false);
+            this.FlexionPIDBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Kd_theta_ctrl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ki_theta_ctrl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Kp_theta_ctrl)).EndInit();
+            this.RotationPIDBox.ResumeLayout(false);
+            this.RotationPIDBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.Kd_phi_ctrl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Ki_phi_ctrl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Kp_phi_ctrl)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -11023,7 +11353,7 @@
         internal System.Windows.Forms.Label label240;
         internal System.Windows.Forms.ComboBox switch2MappingBox;
         internal System.Windows.Forms.Label label241;
-        internal System.Windows.Forms.NumericUpDown switchTimeCtrl;
+        internal System.Windows.Forms.NumericUpDown switchTimeCtrl1;
         internal System.Windows.Forms.ComboBox switch1MappingBox;
         internal System.Windows.Forms.Label label242;
         private System.Windows.Forms.CheckBox vocalBox;
@@ -11071,14 +11401,14 @@
         internal System.Windows.Forms.Label label104;
         internal System.Windows.Forms.Label label145;
         internal System.Windows.Forms.Label label147;
-        private System.Windows.Forms.Label switchSmaxLabel;
-        private System.Windows.Forms.Label switchSminLabel;
-        private System.Windows.Forms.Label switchSminTick;
-        private System.Windows.Forms.Label switchSmaxTick;
-        public System.Windows.Forms.NumericUpDown switchSmaxCtrl;
-        public System.Windows.Forms.NumericUpDown switchSminCtrl;
-        public System.Windows.Forms.ProgressBar switchSignalBar;
-        public System.Windows.Forms.NumericUpDown switchGainCtrl;
+        private System.Windows.Forms.Label switchSmaxLabel1;
+        private System.Windows.Forms.Label switchSminLabel1;
+        private System.Windows.Forms.Label switchSminTick1;
+        private System.Windows.Forms.Label switchSmaxTick1;
+        public System.Windows.Forms.NumericUpDown switchSmaxCtrl1;
+        public System.Windows.Forms.NumericUpDown switchSminCtrl1;
+        public System.Windows.Forms.ProgressBar switchSignalBar1;
+        public System.Windows.Forms.NumericUpDown switchGainCtrl1;
         private System.Windows.Forms.CheckBox myoBuzzBox;
         internal System.Windows.Forms.Label ID2_state;
         internal System.Windows.Forms.Label label148;
@@ -11231,30 +11561,51 @@
         internal System.Windows.Forms.Label label218;
         internal System.Windows.Forms.Label label219;
         internal System.Windows.Forms.Label label220;
+        private System.Windows.Forms.Label switchSmaxLabel2;
+        private System.Windows.Forms.Label switchSminLabel2;
+        private System.Windows.Forms.Label switchSminTick2;
+        private System.Windows.Forms.Label switchSmaxTick2;
+        public System.Windows.Forms.NumericUpDown switchSmaxCtrl2;
+        public System.Windows.Forms.NumericUpDown switchSminCtrl2;
+        public System.Windows.Forms.ProgressBar switchSignalBar2;
+        public System.Windows.Forms.NumericUpDown switchGainCtrl2;
+        internal System.Windows.Forms.NumericUpDown switchTimeCtrl2;
+        internal System.Windows.Forms.Label label205;
+        internal System.Windows.Forms.Label switchState_label;
+        internal System.Windows.Forms.Label label213;
+        internal System.Windows.Forms.Label flag2_label;
+        internal System.Windows.Forms.Label label211;
+        internal System.Windows.Forms.Label flag1_label;
+        internal System.Windows.Forms.Label label209;
+        internal System.Windows.Forms.Label timer1_label;
+        private System.Windows.Forms.GroupBox groupBox19;
+        internal System.Windows.Forms.Button BentoProfileOpen;
+        internal System.Windows.Forms.ComboBox BentoProfileBox;
+        internal System.Windows.Forms.Button BentoProfileSave;
         private System.Windows.Forms.GroupBox AutoLevellingBox;
         private System.Windows.Forms.GroupBox FlexionPIDBox;
-        internal System.Windows.Forms.NumericUpDown Kd_theta_ctrl;
-        internal System.Windows.Forms.Label label210;
-        internal System.Windows.Forms.NumericUpDown Ki_theta_ctrl;
-        internal System.Windows.Forms.Label label211;
-        internal System.Windows.Forms.NumericUpDown Kp_theta_ctrl;
-        internal System.Windows.Forms.Label label212;
-        private System.Windows.Forms.GroupBox RotationPIDBox;
-        internal System.Windows.Forms.NumericUpDown Kd_phi_ctrl;
-        internal System.Windows.Forms.Label label209;
-        internal System.Windows.Forms.NumericUpDown Ki_phi_ctrl;
-        internal System.Windows.Forms.Label label205;
-        internal System.Windows.Forms.NumericUpDown Kp_phi_ctrl;
-        internal System.Windows.Forms.Label label206;
-        private System.Windows.Forms.CheckBox AL_Enabled;
         internal System.Windows.Forms.Label CurrentFlexion;
         internal System.Windows.Forms.Label label224;
         internal System.Windows.Forms.Label label223;
         internal System.Windows.Forms.Label SetpointFlexion;
+        internal System.Windows.Forms.NumericUpDown Kd_theta_ctrl;
+        internal System.Windows.Forms.Label label210;
+        internal System.Windows.Forms.NumericUpDown Ki_theta_ctrl;
+        internal System.Windows.Forms.Label label206;
+        internal System.Windows.Forms.NumericUpDown Kp_theta_ctrl;
+        internal System.Windows.Forms.Label label212;
+        private System.Windows.Forms.GroupBox RotationPIDBox;
         internal System.Windows.Forms.Label CurrentRotation;
         internal System.Windows.Forms.Label label222;
         internal System.Windows.Forms.Label label221;
+        internal System.Windows.Forms.NumericUpDown Kd_phi_ctrl;
         internal System.Windows.Forms.Label SetpointRotation;
+        internal System.Windows.Forms.Label label215;
+        internal System.Windows.Forms.NumericUpDown Ki_phi_ctrl;
+        internal System.Windows.Forms.Label label225;
+        internal System.Windows.Forms.NumericUpDown Kp_phi_ctrl;
+        internal System.Windows.Forms.Label label226;
+        private System.Windows.Forms.CheckBox AL_Enabled;
     }
 }
 
