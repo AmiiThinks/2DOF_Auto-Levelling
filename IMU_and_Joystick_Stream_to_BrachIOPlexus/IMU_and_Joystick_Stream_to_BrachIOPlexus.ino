@@ -181,10 +181,10 @@ int splitAxis512(int axisValue, bool upperAxis)
             }
             else if ((axisValue >= 512) && (upperAxis == true))
             {
-                return axisValue = axisValue - 512;
+                return axisValue = (axisValue - 512)*2;
             }
             else
             {
-                return axisValue = 512 - axisValue;
+                return axisValue = (512 - axisValue)*2;
             }
         }
