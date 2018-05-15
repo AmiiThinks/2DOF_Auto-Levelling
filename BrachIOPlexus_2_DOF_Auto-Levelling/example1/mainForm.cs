@@ -236,13 +236,6 @@ namespace brachIOplexus
         #region "Auto-Levelling Initialization"
         //Variable initialization for auto-levelling functionality - db
 
-        // add stopwatches for tracking PID loop time
-        Stopwatch stopWatch_phi = new Stopwatch();
-        long milliSec_phi;             // the timestep of the PID loop in milliseconds
-
-        Stopwatch stopWatch_theta = new Stopwatch();
-        long milliSec_theta;             // the timestep of the PID loop in milliseconds
-
         //PID variables
         double errSum_phi = 0;              //sum of error accumulated for integral component of PID
         double lastErr_phi = 0;             //error on last timestep of PID
@@ -255,12 +248,12 @@ namespace brachIOplexus
         double theta = 180;             //flexion angle of wrist
         double setpoint_phi = 180;      //target roll angle of wrist
         double setpoint_theta = 180;    //target flexion angle of wrist
-        double Kp_phi = 0.65;           //PID proportional constant for phi
-        double Ki_phi = 0;              //PID integral constant for phi
-        double Kd_phi = 0;              //PID derivative constant for phi
-        double Kp_theta = 0.45;         //PID proportional constant for theta
-        double Ki_theta = 0;            //PID integral constant for theta
-        double Kd_theta = 0;            //PID derivative constant for theta
+        double Kp_phi = 0.32;           //PID proportional constant for phi
+        double Ki_phi = 0.06;              //PID integral constant for phi
+        double Kd_phi = 8.79;              //PID derivative constant for phi
+        double Kp_theta = 0.29;         //PID proportional constant for theta
+        double Ki_theta = 0.42;            //PID integral constant for theta
+        double Kd_theta = 8.00;            //PID derivative constant for theta
         double output_phi = 0;          //output from PID controller for phi
         double output_theta = 0;        //output from PID controller for phi
         int RotAdjustment = 0;          //initial adjustment for rotation
@@ -5094,7 +5087,7 @@ namespace brachIOplexus
                 ID4_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
                 robotObj.Motor[3].p_prev = ID4_present_position;
                 Pos4.Text = Convert.ToString(ID4_present_position);
-                Vel4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
+                //Vel4.Text = Convert.ToString(milliSec_phi);//parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
                 Load4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
                 Volt4.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
                 Temp4.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
@@ -6859,46 +6852,33 @@ namespace brachIOplexus
         }
 
         // PID Controller function for autolevelling phi - db
-        private double PID_phi(double measured_value, double setpoint, double Kp, double Ki, double Kd, double errSum, double lastErr)
+        private double PID_phi(double measured_value, double setpoint, double Kp, double Ki, double Kd)
         {
-            //how long since we last calculated?
-            //stopWatch_phi.Stop();
-            milliSec_phi = stopWatch_phi.ElapsedMilliseconds;
-            stopWatch_phi.Reset();
-            stopWatch_phi.Start();
-
             //compute working variables:
             double error = setpoint - measured_value;
-            errSum += (error * (milliSec_phi + 1)); // +1 to avoid problems when milliSec_phi = 0
-            double dErr = (error - lastErr) / (milliSec_phi + 1); // +1 to avoid problems when milliSec_phi = 0
+            errSum_phi += (error * milliSec1/1000);
+            double dErr = (error - lastErr_phi) / (milliSec1);
 
             //update variables for next loop
-            lastErr = error;
+            lastErr_phi = error;
 
             //compute PID output
-            return Kp * error + Kd * dErr + Ki * errSum;// + Kd * dErr;
+            return Kp * error + Kd * dErr + Ki * errSum_phi;
         }
 
         // PID Controller function for autolevelling theta - db
-        private double PID_theta(double measured_value, double setpoint, double Kp, double Ki, double Kd, double errSum, double lastErr)
+        private double PID_theta(double measured_value, double setpoint, double Kp, double Ki, double Kd)
         {
-
-            //how long since we last calculated?
-            //stopWatch_theta.Stop();
-            milliSec_theta = stopWatch_theta.ElapsedMilliseconds;
-            stopWatch_theta.Reset();
-            stopWatch_theta.Start();
-
             //compute working variables:
             double error = setpoint - measured_value;
-            errSum += (error * (milliSec_theta + 1)); // +1 to avoid problems when milliSec_theta = 0
-            double dErr = (error - lastErr) / (milliSec_theta + 1); // +1 to avoid problems when milliSec_theta = 0
+            errSum_phi += (error * milliSec1/1000);
+            double dErr = (error - lastErr_theta) / (milliSec1);
 
             //update variables for next loop
-            lastErr = error;
+            lastErr_theta = error;
 
             //compute PID output
-            return Kp * error + Kd * dErr + Ki * errSum;// + Kd * dErr;
+            return Kp * error + Kd * dErr + Ki * errSum_theta;// + Kd * dErr;
         }
 
         //Function to convert IMU values from 0-1023 to -512 to 512 - db
@@ -6931,8 +6911,8 @@ namespace brachIOplexus
         void Get_GoalPos()
         {
             //get output from PID controller (amount servo needs to move in degrees)
-            output_phi = PID_phi(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi, errSum_phi, lastErr_phi);
-            output_theta = PID_theta(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta, errSum_theta, lastErr_theta);
+            output_phi = PID_phi(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi);
+            output_theta = PID_theta(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
             //convert to encoder ticks
             RotAdjustment = Deg_to_Ticks(output_phi);
             FlxAdjustment = Deg_to_Ticks(output_theta);
