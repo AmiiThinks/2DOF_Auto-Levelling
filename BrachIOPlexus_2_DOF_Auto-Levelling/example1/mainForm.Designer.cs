@@ -641,6 +641,10 @@
             this.label157 = new System.Windows.Forms.Label();
             this.label156 = new System.Windows.Forms.Label();
             this.tabBento = new System.Windows.Forms.TabPage();
+            this.LoggingGroupBox = new System.Windows.Forms.GroupBox();
+            this.label227 = new System.Windows.Forms.Label();
+            this.StartLogging = new System.Windows.Forms.Button();
+            this.StopLogging = new System.Windows.Forms.Button();
             this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
             this.FlexionPIDBox = new System.Windows.Forms.GroupBox();
             this.CurrentFlexion = new System.Windows.Forms.Label();
@@ -901,6 +905,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.switchGainCtrl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl1)).BeginInit();
             this.tabBento.SuspendLayout();
+            this.LoggingGroupBox.SuspendLayout();
             this.AutoLevellingBox.SuspendLayout();
             this.FlexionPIDBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Kd_theta_ctrl)).BeginInit();
@@ -8902,6 +8907,7 @@
             // 
             // tabBento
             // 
+            this.tabBento.Controls.Add(this.LoggingGroupBox);
             this.tabBento.Controls.Add(this.AutoLevellingBox);
             this.tabBento.Controls.Add(this.groupBox19);
             this.tabBento.Controls.Add(this.BentoEnvLimitsBox);
@@ -8926,6 +8932,56 @@
             this.tabBento.TabIndex = 2;
             this.tabBento.Text = "Bento Arm";
             this.tabBento.UseVisualStyleBackColor = true;
+            // 
+            // LoggingGroupBox
+            // 
+            this.LoggingGroupBox.Controls.Add(this.label227);
+            this.LoggingGroupBox.Controls.Add(this.StartLogging);
+            this.LoggingGroupBox.Controls.Add(this.StopLogging);
+            this.LoggingGroupBox.Enabled = false;
+            this.LoggingGroupBox.Location = new System.Drawing.Point(4, 536);
+            this.LoggingGroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.LoggingGroupBox.Name = "LoggingGroupBox";
+            this.LoggingGroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.LoggingGroupBox.Size = new System.Drawing.Size(365, 92);
+            this.LoggingGroupBox.TabIndex = 212;
+            this.LoggingGroupBox.TabStop = false;
+            this.LoggingGroupBox.Text = "Data Logging";
+            // 
+            // label227
+            // 
+            this.label227.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label227.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label227.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label227.Location = new System.Drawing.Point(128, 15);
+            this.label227.Name = "label227";
+            this.label227.Size = new System.Drawing.Size(213, 71);
+            this.label227.TabIndex = 205;
+            this.label227.Text = "Check the filepath in the initialization region of the code before logging to det" +
+    "ermine write location.";
+            // 
+            // StartLogging
+            // 
+            this.StartLogging.Location = new System.Drawing.Point(11, 25);
+            this.StartLogging.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.StartLogging.Name = "StartLogging";
+            this.StartLogging.Size = new System.Drawing.Size(105, 26);
+            this.StartLogging.TabIndex = 187;
+            this.StartLogging.Text = "START";
+            this.StartLogging.UseVisualStyleBackColor = true;
+            this.StartLogging.Click += new System.EventHandler(this.StartLogging_Click);
+            // 
+            // StopLogging
+            // 
+            this.StopLogging.Enabled = false;
+            this.StopLogging.Location = new System.Drawing.Point(11, 55);
+            this.StopLogging.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.StopLogging.Name = "StopLogging";
+            this.StopLogging.Size = new System.Drawing.Size(105, 26);
+            this.StopLogging.TabIndex = 188;
+            this.StopLogging.Text = "STOP";
+            this.StopLogging.UseVisualStyleBackColor = true;
+            this.StopLogging.Click += new System.EventHandler(this.StopLogging_Click);
             // 
             // AutoLevellingBox
             // 
@@ -10836,6 +10892,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl1)).EndInit();
             this.tabBento.ResumeLayout(false);
             this.tabBento.PerformLayout();
+            this.LoggingGroupBox.ResumeLayout(false);
             this.AutoLevellingBox.ResumeLayout(false);
             this.AutoLevellingBox.PerformLayout();
             this.FlexionPIDBox.ResumeLayout(false);
@@ -11626,6 +11683,10 @@
         internal System.Windows.Forms.NumericUpDown Kp_phi_ctrl;
         internal System.Windows.Forms.Label label226;
         private System.Windows.Forms.CheckBox AL_Enabled;
+        private System.Windows.Forms.GroupBox LoggingGroupBox;
+        internal System.Windows.Forms.Label label227;
+        private System.Windows.Forms.Button StartLogging;
+        private System.Windows.Forms.Button StopLogging;
     }
 }
 

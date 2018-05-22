@@ -264,7 +264,18 @@ namespace brachIOplexus
 
         #endregion
 
+        // Initialization for data logging - ja
+        // Logging parameters and variables
+        Stopwatch stopwatchLogging = new Stopwatch();
+        int logFilesCount = 0;
+        string loggingFilePath = "C:\\Users\\Dylan\\Dropbox\\School\\Projects\\Adaptive Wrist\\Comp Movements Study\\BrachIOPlexus Logs";
+        bool firstCallToLog = true;
+        List<string> logPosition = new List<String>();
+        bool logging = false;
+        bool loggingtrigger = false;
+        double startTime = 0;
         #region "Mapping Classes"
+
         // Classes for storing information about mapping and robot data
 
         // Class DoF_ stores all the information about each degree of freedom (DoF).
@@ -413,7 +424,7 @@ namespace brachIOplexus
         Switching switchObj = new Switching();
         DoF_[] dofObj = new DoF_[DOF_NUM];
 
-        #endregion
+        #endregion+
 
         public mainForm()
         {
@@ -4583,6 +4594,8 @@ namespace brachIOplexus
                     AutoLevellingBox.Enabled = true; // - db
                     RotationPIDBox.Enabled = true; // - db
                     FlexionPIDBox.Enabled = true;  // - db
+                    LoggingGroupBox.Enabled = true; // - db
+                    StopLogging.Enabled = false; // - db
                     BentoStatus.Text = "Connected / Torque Off";
                     BentoList.Enabled = true;
                     BentoSelectAll.Enabled = true;
@@ -4628,6 +4641,7 @@ namespace brachIOplexus
             AutoLevellingBox.Enabled = false; // - db
             RotationPIDBox.Enabled = false; // - db
             FlexionPIDBox.Enabled = false;  // - db
+            LoggingGroupBox.Enabled = false; // - db
             BentoStatus.Text = "Disconnected";
             BentoRunStatus.Text = "Suspend";
             BentoRunStatus.Enabled = false;
@@ -6064,7 +6078,60 @@ namespace brachIOplexus
                         }
                     }
                 }
-                
+
+                //Data Logging, start and stop- ja
+                #region Logging Starting and Stopping
+
+                if ((loggingtrigger == true) && (logging == false))
+                {
+                    logging = true;
+                    loggingtrigger = false;
+                    stopwatchLogging.Start();
+                    startTime = stopwatchLogging.ElapsedMilliseconds / 1000.0;
+
+                    if (firstCallToLog)
+                    {
+                        logFilesCount = Directory.GetFiles(loggingFilePath, "*.*", SearchOption.AllDirectories).Length;
+                        if (logFilesCount == 0)
+                        {
+                            logFilesCount = 0;
+                        }
+                        firstCallToLog = false;
+                    }
+                }
+                else if ((loggingtrigger == true) && (logging == true))
+                {
+
+                    logging = false;
+                    loggingtrigger = false;
+                    stopwatchLogging.Stop();
+                    firstCallToLog = true;
+
+                    string nameOffile = "log";
+                    var csv = new StringBuilder();
+
+                    for (int j = 0; j < logPosition.Count; j++)
+                    {
+                        csv.AppendLine(logPosition[j]);
+                    }
+
+                    logFilesCount = logFilesCount + 1;
+                    string updatedfilePath = loggingFilePath + '\\' + nameOffile + '_' + logFilesCount.ToString() + ".txt";
+                    File.AppendAllText(updatedfilePath, csv.ToString());
+
+                    logPosition.Clear();
+                }
+                #endregion
+
+                //Data logging, action - ja
+                #region Logging Action
+                if (logging == true)
+                {
+                    var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", DateTime.Now.ToString("HH:mm:ss.fff"), stopwatchLogging.ElapsedMilliseconds.ToString(), Convert.ToString(ID5_present_load), Convert.ToString(ID1_present_position), Convert.ToString(ID2_present_position), Convert.ToString(ID3_present_position), Convert.ToString(ID4_present_position), Convert.ToString(ID5_present_position));
+                    logPosition.Add(newLine);
+                }
+                #endregion
+
                 if (BentoGroupBox.Enabled == true)
                 {
                     // Update feedback
@@ -8061,8 +8128,22 @@ namespace brachIOplexus
 
 
 
+
         #endregion
 
- 
+        private void StartLogging_Click(object sender, EventArgs e)
+        {
+            loggingtrigger = true;            
+            StartLogging.Enabled = false;
+            StopLogging.Enabled = true;
+        }
+
+        private void StopLogging_Click(object sender, EventArgs e)
+        {
+            loggingtrigger = true;                       
+            StartLogging.Enabled = true;
+            StopLogging.Enabled = false;
+
+        }
     }
 }
