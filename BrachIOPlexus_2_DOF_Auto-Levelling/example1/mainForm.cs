@@ -5101,7 +5101,7 @@ namespace brachIOplexus
                 ID4_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
                 robotObj.Motor[3].p_prev = ID4_present_position;
                 Pos4.Text = Convert.ToString(ID4_present_position);
-                //Vel4.Text = Convert.ToString(milliSec_phi);//parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
+                Vel4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
                 Load4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
                 Volt4.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
                 Temp4.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
@@ -6127,7 +6127,7 @@ namespace brachIOplexus
                 #region Logging Action
                 if (logging == true)
                 {
-                    var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7}", DateTime.Now.ToString("HH:mm:ss.fff"), stopwatchLogging.ElapsedMilliseconds.ToString(), Convert.ToString(ID5_present_load), Convert.ToString(ID1_present_position), Convert.ToString(ID2_present_position), Convert.ToString(ID3_present_position), Convert.ToString(ID4_present_position), Convert.ToString(ID5_present_position));
+                    var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}", DateTime.Now.ToString("HH:mm:ss.fff"), stopwatchLogging.ElapsedMilliseconds.ToString(), arduino_A0.Text, arduino_A1.Text, arduino_A2.Text, arduino_A3.Text, arduino_A4.Text, arduino_A5.Text, arduino_A6.Text, arduino_A7.Text, Pos3.Text, Vel3.Text, Load3.Text, Pos4.Text, Vel4.Text, Load4.Text, Pos5.Text, Vel5.Text, Load5.Text);
                     logPosition.Add(newLine);
                 }
                 #endregion
