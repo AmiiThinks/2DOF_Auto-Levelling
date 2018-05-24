@@ -38,10 +38,19 @@ String concat_message;
 // for reading in analog voltages
 int current_value;
 
-// for reading in joystick values
+// for reading in joystick values and writing to LEDs
 const int VERT = A0;
 const int HORIZ = A1;
 const int SEL = 4;
+const int LED1 = 12;
+const int LED2 = 13;
+const int buttonPin = 11;
+int buttonState = 0;
+
+// for singling out buttonpresses and switching LEDs
+bool newpress = true;
+bool LED1on = true;
+bool newpress2 = true;
 
 // Define global array of structs to hold the parameters for each sensor
 struct sensorParam {
@@ -57,6 +66,11 @@ void setup()
   pinMode(SEL,INPUT_PULLUP);
   // turn on the pull-up resistor for the SEL line (see http://arduino.cc/en/Tutorial/DigitalPins)
   digitalWrite(SEL,HIGH);
+  
+  //set up the LED pins
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(buttonPin, INPUT);
   
   // Define sensor 0 parameters  
   sensor[1].value = 0;          // the analog input pin that will be assigned to this sensor channel                
@@ -110,6 +124,9 @@ void setup()
   delay(1000);
     
   bno.setExtCrystalUse(true);
+  
+  digitalWrite(LED1, HIGH);
+  //Serial.println("1");
 
 }
 
@@ -130,6 +147,12 @@ void loop()
   
   //get digital values from joystick
   int select = digitalRead(SEL); // will be HIGH (1) if not pressed, and LOW (0) if pressed
+  buttonState = digitalRead(buttonPin);
+  //Serial.println(buttonState);
+  if(buttonState == 0)
+  {
+    newpress2 = true;
+  }
   
   // Send back voltage feedback from analog sensors every 40ms
   if (timer1 == 0)
@@ -147,9 +170,33 @@ void loop()
     sensor[6].value = splitAxis512(analogRead(HORIZ), true);
     sensor[7].value = splitAxis512(analogRead(HORIZ), false);
     if(select == HIGH)
+    {
         sensor[8].value = 1; 
+        newpress = true;
+    }
     else
-        sensor[8].value = 1023;  
+    {
+        sensor[8].value = 1023;
+        //switch which LED is lit if the button is freshly pressed
+        if(newpress)
+        {
+            newpress = false;  
+            if(LED1on)
+            {
+              digitalWrite(LED1, LOW);
+              digitalWrite(LED2, HIGH);
+              LED1on = false;
+              //Serial.println("2");
+            }
+            else
+            {
+              digitalWrite(LED1, HIGH);
+              digitalWrite(LED2, LOW);
+              LED1on = true;
+              //Serial.println("1");
+            } 
+        }
+    }        
     
     for(int m=1; m <= ch_num; m++)
     {  
@@ -164,6 +211,25 @@ void loop()
     }
       timer1 = 0;
       Serial.println(concat_message);
+      
+      if(buttonState == 1 && newpress2)
+        {
+            newpress2 = false;  
+            if(LED1on)
+            {
+              digitalWrite(LED1, LOW);
+              digitalWrite(LED2, HIGH);
+              LED1on = false;
+              //Serial.println("2");
+            }
+            else
+            {
+              digitalWrite(LED1, HIGH);
+              digitalWrite(LED2, LOW);
+              LED1on = true;
+              //Serial.println("1");
+            } 
+        }
   }
   
 }
