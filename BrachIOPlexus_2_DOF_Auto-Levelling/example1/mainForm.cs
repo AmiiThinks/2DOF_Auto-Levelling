@@ -6802,7 +6802,7 @@ namespace brachIOplexus
             //Get goal position
             Get_GoalPos();
 
-            //First level the hand in terms of rotation. Then set setpoint for flexion levelling, if wrist flexion is not being directly controlled.
+            
             //Once setpoint is set, level both rotation and flexion.            
             if (!wristFlexControl)
             {
@@ -6923,7 +6923,10 @@ namespace brachIOplexus
         {
             //compute working variables:
             double error = setpoint - measured_value;
-            errSum_phi += (error * milliSec1/1000);
+            if (robotObj.Motor[3].p_prev < 2890 && robotObj.Motor[3].p_prev > 60) //Only increase integral if within joint limits to prevent windup
+            {
+                errSum_phi += (error * milliSec1 / 1000);
+            }
             double dErr = (error - lastErr_phi) / (milliSec1);
 
             //update variables for next loop
@@ -6938,7 +6941,10 @@ namespace brachIOplexus
         {
             //compute working variables:
             double error = setpoint - measured_value;
-            errSum_phi += (error * milliSec1/1000);
+            if (robotObj.Motor[4].p_prev < 3320 && robotObj.Motor[4].p_prev > 780) //Only increase integral if within joint limits to prevent windup
+            {
+                errSum_phi += (error * milliSec1 / 1000);
+            }
             double dErr = (error - lastErr_theta) / (milliSec1);
 
             //update variables for next loop
@@ -6965,10 +6971,10 @@ namespace brachIOplexus
         private void Get_Grav()
         {
             sign();
-            double g_mag = magnitude(x_component, y_component, z_component);
-            double a = normalize(x_component, g_mag);
-            double b = normalize(y_component, g_mag);
-            double c = normalize(z_component, g_mag);
+            //double g_mag = magnitude(x_component, y_component, z_component);
+            double a = x_component;//normalize(x_component, g_mag);
+            double b = y_component;//normalize(y_component, g_mag);
+            double c = z_component;//normalize(z_component, g_mag);
             phi = Get_phi(a, b, phi);
             theta = Get_theta(b, c, theta);
 
@@ -7014,7 +7020,7 @@ namespace brachIOplexus
         {
             if (theta > 90 && theta < 270)
             {
-                return Convert.ToInt16((90 - Math.Abs(180 - theta)) / 90 * adjustment_val);
+                    return Convert.ToInt16((90 - Math.Abs(180 - theta)) / 90 * adjustment_val);                
             }
             else
             {
