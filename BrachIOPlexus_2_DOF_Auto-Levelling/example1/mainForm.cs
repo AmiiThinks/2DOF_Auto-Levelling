@@ -261,6 +261,13 @@ namespace brachIOplexus
         bool newvalues = true;          //true if arduino input values haven't been remapped yet, false if they have
         bool reset_setpoints = true;    //true if time to reset setpoints (not currently autolevelling), false if currently autolevelling to some setpoint 
         bool wristFlexControl = false;  //true if wrist flexion is being directly controlled (disallows autolevelling), false if it is not (allows autolevelling)       
+        int switched = 0;               //1 if switching signal has been given. Used just for logging purposes.
+        int joint_controlled = 5;       //5 if controlling the hand currently; 4 if controlling the wrist flexion. Used for logging purposes.
+        bool synchro_sequence = false;  //Flag indicating the synchronization sequence is currently underway.
+        int initial_TD_pos = 0;         //Initial TD position prior to the synchronization sequence
+        bool opened = false;            //false until the synchro sequence has completely opened
+        bool closed = false;            //false until the syhchro sequence has completely closed
+        bool done = true;               //true if this is the first time through the loop doing synchro (and between sequences); false if in mid-sequence.
 
         #endregion
 
@@ -5811,100 +5818,37 @@ namespace brachIOplexus
                 //ID2_state.Text = Convert.ToString(switchObj.List[stateObj.listPos].output - 1); //Convert.ToString(stateObj.motorState[1]);
                 //ID2_state.Text = Convert.ToString(stateObj.motorState[1]);
                 //ID2_state.Text = Convert.ToString(robotObj.Motor[4].w);
-
-                // Calculate joint positions and velocities and update states for active degrees of freedom
-                for (int i = 0; i < DOF_NUM; i++)
+                if (!synchro_sequence)
                 {
-                    // update k and m if they haven't already been assigned on a previous iteration through this loop
-                    int k = OutputMap[dofObj[i].ChA.output.Type, dofObj[i].ChA.output.ID];
-                    int m = OutputMap[dofObj[i].ChB.output.Type, dofObj[i].ChB.output.ID];
 
-                    #region "Sequential Switch"
 
-                    if (i == switchObj.DoF - 1)
+                    // Calculate joint positions and velocities and update states for active degrees of freedom
+                    for (int i = 0; i < DOF_NUM; i++)
                     {
-                        // If no switching has occured then set current mapping to previous mapping
-                        k = switchObj.List[stateObj.listPos].output - 1;
-                        dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
+                        // update k and m if they haven't already been assigned on a previous iteration through this loop
+                        int k = OutputMap[dofObj[i].ChA.output.Type, dofObj[i].ChA.output.ID];
+                        int m = OutputMap[dofObj[i].ChB.output.Type, dofObj[i].ChB.output.ID];
 
-                        // Check for switching events
-                        switch (switchObj.mode)
+                        #region "Sequential Switch"
+
+                        if (i == switchObj.DoF - 1)
                         {
-                            // Use button press
-                            case 0:
-                                if (switchObj.signal > switchObj.smin1 && stateObj.switchState == 0)
-                                {
-                                    // Grab last position feedback and STOP! (added in to prevent state variable from staying high if active during a switching event)
-                                    if (k >= 0)
+                            // If no switching has occured then set current mapping to previous mapping
+                            k = switchObj.List[stateObj.listPos].output - 1;
+                            dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
+
+                            // Check for switching events
+                            switch (switchObj.mode)
+                            {
+                                // Use button press
+                                case 0:
+                                    if (switchObj.signal > switchObj.smin1 && stateObj.switchState == 0)
                                     {
-                                        robotObj.Motor[k].p = robotObj.Motor[k].p_prev;
-                                        robotObj.Motor[k].w = robotObj.Motor[k].wmax;
-                                        stateObj.motorState[k] = 0;
-                                    }
-
-                                    // Update list position
-                                    stateObj.listPos = updateList(stateObj.listPos);
-
-                                    if (k >= -1)
-                                    {
-                                        while (switchObj.List[stateObj.listPos].output <= 0)
-                                        {
-                                            stateObj.listPos = updateList(stateObj.listPos);
-                                        }
-                                    }
-
-                                    k = switchObj.List[stateObj.listPos].output - 1;
-                                    dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
-
-                                    stateObj.switchState = 1;
-
-                                    // Update switch feedback with current item in switching list
-                                    updateSwitchFeedback();
-                                    myoBuzzFlag = true;
-                                    XboxBuzzFlag = true;
-                                }
-                                else if (switchObj.signal < switchObj.smin1)
-                                {
-                                    stateObj.switchState = 0;
-                                }
-                                break;
-                            // Use co-contraction switching
-                            case 1:
-                                if ((dofObj[i].ChA.signal >= switchObj.smin1 || dofObj[i].ChB.signal >= switchObj.smin2) && stateObj.switchState == 0)
-                                {
-                                    // Start the co-contraction timer
-                                    stateObj.timer1 = 0;
-                                    stateObj.switchState = 1;
-                                }
-                                if (stateObj.switchState == 1)
-                                {
-                                    // Increment the timer
-                                    stateObj.timer1 = stateObj.timer1 + milliSec1;
-
-                                    // Turn off the dof while checking that the co-contraction were met for the duration of cctimer
-                                    if (k >= 0)
-                                    {
-                                        stateObj.motorState[k] = 3;
-                                    }
-
-                                    // Check to see if signals are co-contracted above threshold
-                                    if (dofObj[i].ChA.signal >= switchObj.smax1)
-                                    {
-                                        switchObj.flag1 = true;
-                                    }
-
-                                    if (dofObj[i].ChB.signal >= switchObj.smax2)
-                                    {
-                                        switchObj.flag2 = true;
-                                    }
-
-                                    if (switchObj.flag1 == true && switchObj.flag2 == true)
-                                    {
-                                        // Co-contract conditions were met, so initiate switching event. 
-
-                                        // Reset previous joint so it can't move anymore
+                                        // Grab last position feedback and STOP! (added in to prevent state variable from staying high if active during a switching event)
                                         if (k >= 0)
                                         {
+                                            robotObj.Motor[k].p = robotObj.Motor[k].p_prev;
+                                            robotObj.Motor[k].w = robotObj.Motor[k].wmax;
                                             stateObj.motorState[k] = 0;
                                         }
 
@@ -5917,168 +5861,254 @@ namespace brachIOplexus
                                             {
                                                 stateObj.listPos = updateList(stateObj.listPos);
                                             }
-
                                         }
 
                                         k = switchObj.List[stateObj.listPos].output - 1;
                                         dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
 
-                                        // Set switched to joint so it can't move until drop below threshold
-                                        if (k >= 0)
-                                        {
-                                            stateObj.motorState[k] = 3;
-                                        }
-
-                                        // Reset co-contraction flags for each channel
-                                        switchObj.flag1 = false;
-                                        switchObj.flag2 = false;
+                                        stateObj.switchState = 1;
 
                                         // Update switch feedback with current item in switching list
                                         updateSwitchFeedback();
                                         myoBuzzFlag = true;
                                         XboxBuzzFlag = true;
-
-                                        // Do not allow the arm to move until both signals have dropped below threshold
-                                        stateObj.switchState = 2;
+                                        switched = 1; //For logging - db
+                                                      // Switch the marker for the joint being controlled (only works if hand and wrist flexion are the only joints in the list) - db
+                                        if (joint_controlled == 5)
+                                        {
+                                            joint_controlled = 4;
+                                        }
+                                        else
+                                        {
+                                            joint_controlled = 5;
+                                        }
                                     }
-                                    else if (stateObj.timer1 >= switchObj.cctime)
+                                    else if (switchObj.signal < switchObj.smin1)
                                     {
-                                        // Co-contract conditions were not met, so allow the arm to move
-                                        k = switchObj.List[stateObj.listPos].output - 1;
-                                        dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
+                                        stateObj.switchState = 0;
+                                    }
+                                    break;
+                                // Use co-contraction switching
+                                case 1:
+                                    if ((dofObj[i].ChA.signal >= switchObj.smin1 || dofObj[i].ChB.signal >= switchObj.smin2) && stateObj.switchState == 0)
+                                    {
+                                        // Start the co-contraction timer
+                                        stateObj.timer1 = 0;
+                                        stateObj.switchState = 1;
+                                    }
+                                    if (stateObj.switchState == 1)
+                                    {
+                                        // Increment the timer
+                                        stateObj.timer1 = stateObj.timer1 + milliSec1;
+
+                                        // Turn off the dof while checking that the co-contraction were met for the duration of cctimer
                                         if (k >= 0)
                                         {
-                                            stateObj.motorState[k] = 0;
+                                            stateObj.motorState[k] = 3;
                                         }
+
+                                        // Check to see if signals are co-contracted above threshold
+                                        if (dofObj[i].ChA.signal >= switchObj.smax1)
+                                        {
+                                            switchObj.flag1 = true;
+                                        }
+
+                                        if (dofObj[i].ChB.signal >= switchObj.smax2)
+                                        {
+                                            switchObj.flag2 = true;
+                                        }
+
+                                        if (switchObj.flag1 == true && switchObj.flag2 == true)
+                                        {
+                                            // Co-contract conditions were met, so initiate switching event. 
+
+                                            // Reset previous joint so it can't move anymore
+                                            if (k >= 0)
+                                            {
+                                                stateObj.motorState[k] = 0;
+                                            }
+
+                                            // Update list position
+                                            stateObj.listPos = updateList(stateObj.listPos);
+
+                                            if (k >= -1)
+                                            {
+                                                while (switchObj.List[stateObj.listPos].output <= 0)
+                                                {
+                                                    stateObj.listPos = updateList(stateObj.listPos);
+                                                }
+
+                                            }
+
+                                            k = switchObj.List[stateObj.listPos].output - 1;
+                                            dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
+
+                                            // Set switched to joint so it can't move until drop below threshold
+                                            if (k >= 0)
+                                            {
+                                                stateObj.motorState[k] = 3;
+                                            }
+
+                                            // Reset co-contraction flags for each channel
+                                            switchObj.flag1 = false;
+                                            switchObj.flag2 = false;
+
+                                            // Update switch feedback with current item in switching list
+                                            updateSwitchFeedback();
+                                            myoBuzzFlag = true;
+                                            XboxBuzzFlag = true;
+                                            switched = 1; //For logging - db
+                                                          // Switch the marker for the joint being controlled (only works if hand and wrist flexion are the only joints in the list) - db
+                                            if (joint_controlled == 5)
+                                            {
+                                                joint_controlled = 4;
+                                            }
+                                            else
+                                            {
+                                                joint_controlled = 5;
+                                            }
+
+                                            // Do not allow the arm to move until both signals have dropped below threshold
+                                            stateObj.switchState = 2;
+                                        }
+                                        else if (stateObj.timer1 >= switchObj.cctime)
+                                        {
+                                            // Co-contract conditions were not met, so allow the arm to move
+                                            k = switchObj.List[stateObj.listPos].output - 1;
+                                            dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
+                                            if (k >= 0)
+                                            {
+                                                stateObj.motorState[k] = 0;
+                                            }
+
+                                            // Reset co-contraction flags for each channel
+                                            switchObj.flag1 = false;
+                                            switchObj.flag2 = false;
+
+                                            // Don't allow another switching event until both of the channels drops below threshold
+                                            stateObj.switchState = 2;
+                                        }
+
+                                    }
+                                    else if (dofObj[i].ChA.signal < switchObj.smin1 && dofObj[i].ChB.signal < switchObj.smin2)
+                                    {
+                                        // reset the co-contraction state variable and timer
+                                        stateObj.switchState = 0;
+                                        stateObj.timer1 = 0;
 
                                         // Reset co-contraction flags for each channel
                                         switchObj.flag1 = false;
                                         switchObj.flag2 = false;
 
-                                        // Don't allow another switching event until both of the channels drops below threshold
-                                        stateObj.switchState = 2;
-                                    }
+                                        // Allow the arm to move
+                                        k = switchObj.List[stateObj.listPos].output - 1;
+                                        dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
 
-                                }
-                                else if (dofObj[i].ChA.signal < switchObj.smin1 && dofObj[i].ChB.signal < switchObj.smin2)
-                                {
-                                    // reset the co-contraction state variable and timer
-                                    stateObj.switchState = 0;
-                                    stateObj.timer1 = 0;
-
-                                    // Reset co-contraction flags for each channel
-                                    switchObj.flag1 = false;
-                                    switchObj.flag2 = false;
-
-                                    // Allow the arm to move
-                                    k = switchObj.List[stateObj.listPos].output - 1;
-                                    dofObj[i].ChA.mapping = switchObj.List[stateObj.listPos].mapping;
-
-                                }
-                                break;
-                        }
-
-
-                    }
-                    else if (switchObj.DoF == 0)
-                    {
-                        stateObj.switchState = 0;
-                        k = OutputMap[dofObj[i].ChA.output.Type, dofObj[i].ChA.output.ID];
-                    }
-                    #endregion
-
-                    // Test output for co-contraction debugging
-                    timer1_label.Text = Convert.ToString(stateObj.timer1);
-                    flag1_label.Text = Convert.ToString(switchObj.flag1);
-                    flag2_label.Text = Convert.ToString(switchObj.flag2);
-                    switchState_label.Text = Convert.ToString(stateObj.switchState);
-
-                    if (dofObj[i].Enabled)
-                    {
-                        if (bentoSuspend == false || biopatrecMode.SelectedIndex == 1)  // only connect inputs to outputs if Bento is in 'Run' mode
-                        {
-                            switch (dofObj[i].ChA.mapping)
-                            {
-                                // Use first past the post control option
-                                case 0:
-                                    if (k >= 0)
-                                    {
-                                        // if controlling the wrist flexion, set the flag so that the autolevelling is disallowed. 
-                                        //Otherwise, set the flag as false to allow AL. - db
-                                        if (k == 3)
-                                        {
-                                            wristFlexControl = true;
-                                            reset_setpoints = true;
-                                        }
-                                        else
-                                        {
-                                            wristFlexControl = false;
-                                        }
-                                        post(dofObj[i], k, i);
-                                    }
-                                    break;
-                                // Use Joint Position2 Mapping (map from the analog signals of two channels to the position of one of the joints on the robot)
-                                case 1:
-
-                                    if (k >= 0)
-                                    {
-                                        joint_position2(dofObj[i], k, i);
-                                    }
-                                    break;
-                                // Use Joint Position1 Mapping (map from the analog signal of a single channel to the position of one of the joints on the robot)
-                                case 2:
-
-                                    if (k >= 0 && dofObj[i].ChA.Enabled)
-                                    {
-                                        joint_position1(dofObj[i].ChA, k, check_flip(i, dofObj[i].flipA));
                                     }
                                     break;
                             }
 
-                            // Process second channel if using mappings that only use 1 channel (i.e. so you could control a DoF with each channel)
-                            if (dofObj[i].ChA.mapping == 2 || k < -1 || m < -1)
+
+                        }
+                        else if (switchObj.DoF == 0)
+                        {
+                            stateObj.switchState = 0;
+                            k = OutputMap[dofObj[i].ChA.output.Type, dofObj[i].ChA.output.ID];
+                        }
+                        #endregion
+
+                        // Test output for co-contraction debugging
+                        timer1_label.Text = Convert.ToString(stateObj.timer1);
+                        flag1_label.Text = Convert.ToString(switchObj.flag1);
+                        flag2_label.Text = Convert.ToString(switchObj.flag2);
+                        switchState_label.Text = Convert.ToString(stateObj.switchState);
+
+                        if (dofObj[i].Enabled)
+                        {
+                            if (bentoSuspend == false || biopatrecMode.SelectedIndex == 1)  // only connect inputs to outputs if Bento is in 'Run' mode
                             {
-                                switch (dofObj[i].ChB.mapping)
+                                switch (dofObj[i].ChA.mapping)
                                 {
+                                    // Use first past the post control option
+                                    case 0:
+                                        if (k >= 0)
+                                        {
+                                            // if controlling the wrist flexion, set the flag so that the autolevelling is disallowed. 
+                                            //Otherwise, set the flag as false to allow AL. - db
+                                            if (k == 3)
+                                            {
+                                                wristFlexControl = true;
+                                                reset_setpoints = true;
+                                            }
+                                            else
+                                            {
+                                                wristFlexControl = false;
+                                            }
+                                            post(dofObj[i], k, i);
+                                        }
+                                        break;
+                                    // Use Joint Position2 Mapping (map from the analog signals of two channels to the position of one of the joints on the robot)
+                                    case 1:
+
+                                        if (k >= 0)
+                                        {
+                                            joint_position2(dofObj[i], k, i);
+                                        }
+                                        break;
                                     // Use Joint Position1 Mapping (map from the analog signal of a single channel to the position of one of the joints on the robot)
                                     case 2:
-                                        if (m >= 0 && dofObj[i].ChB.Enabled)
+
+                                        if (k >= 0 && dofObj[i].ChA.Enabled)
                                         {
-                                            joint_position1(dofObj[i].ChB, m, check_flip(i, dofObj[i].flipB));
+                                            joint_position1(dofObj[i].ChA, k, check_flip(i, dofObj[i].flipA));
                                         }
+                                        break;
+                                }
+
+                                // Process second channel if using mappings that only use 1 channel (i.e. so you could control a DoF with each channel)
+                                if (dofObj[i].ChA.mapping == 2 || k < -1 || m < -1)
+                                {
+                                    switch (dofObj[i].ChB.mapping)
+                                    {
+                                        // Use Joint Position1 Mapping (map from the analog signal of a single channel to the position of one of the joints on the robot)
+                                        case 2:
+                                            if (m >= 0 && dofObj[i].ChB.Enabled)
+                                            {
+                                                joint_position1(dofObj[i].ChB, m, check_flip(i, dofObj[i].flipB));
+                                            }
+                                            break;
+                                    }
+                                }
+                            }
+
+                            // Check if additional Bento functions such as torque on/off or suspend/run are selected
+                            if (k < -1)
+                            {
+                                switch (k)
+                                {
+                                    case -2:
+                                        robotObj.torque = toggle(dofObj[i].ChA, robotObj.torque, TorqueOn, TorqueOff);
+                                        break;
+                                    case -3:
+                                        robotObj.suspend = toggle(dofObj[i].ChA, robotObj.suspend, BentoRun, BentoSuspend);
+                                        break;
+                                }
+                            }
+                            if (m < -1)
+                            {
+                                switch (m)
+                                {
+                                    case -2:
+                                        robotObj.torque = toggle(dofObj[i].ChB, robotObj.torque, TorqueOn, TorqueOff);
+                                        break;
+                                    case -3:
+                                        robotObj.suspend = toggle(dofObj[i].ChB, robotObj.suspend, BentoRun, BentoSuspend);
                                         break;
                                 }
                             }
                         }
-                        
-                        // Check if additional Bento functions such as torque on/off or suspend/run are selected
-                        if (k < -1)
-                        {
-                            switch (k)
-                            {
-                                case -2:
-                                    robotObj.torque = toggle(dofObj[i].ChA, robotObj.torque, TorqueOn, TorqueOff);
-                                    break;
-                                case -3:
-                                    robotObj.suspend = toggle(dofObj[i].ChA, robotObj.suspend, BentoRun, BentoSuspend);
-                                    break;
-                            }
-                        }
-                        if (m < -1)
-                        {
-                            switch (m)
-                            {
-                                case -2:
-                                    robotObj.torque = toggle(dofObj[i].ChB, robotObj.torque, TorqueOn, TorqueOff);
-                                    break;
-                                case -3:
-                                    robotObj.suspend = toggle(dofObj[i].ChB, robotObj.suspend, BentoRun, BentoSuspend);
-                                    break;
-                            }
-                        }
                     }
                 }
-
                 //Data Logging, start and stop- ja
                 #region Logging Starting and Stopping
 
@@ -6127,8 +6157,9 @@ namespace brachIOplexus
                 #region Logging Action
                 if (logging == true)
                 {
-                    var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}", DateTime.Now.ToString("HH:mm:ss.fff"), stopwatchLogging.ElapsedMilliseconds.ToString(), arduino_A0.Text, arduino_A1.Text, arduino_A2.Text, arduino_A3.Text, arduino_A4.Text, arduino_A5.Text, arduino_A6.Text, arduino_A7.Text, Pos3.Text, Vel3.Text, Load3.Text, Pos4.Text, Vel4.Text, Load4.Text, Pos5.Text, Vel5.Text, Load5.Text);
+                    var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17}", DateTime.Now.ToString("HH:mm:ss.fff"), stopwatchLogging.ElapsedMilliseconds.ToString(), Convert.ToString(switched), Convert.ToString(joint_controlled), arduino_A0.Text, arduino_A1.Text, arduino_A2.Text, myo_ch4.Text, myo_ch7.Text, Pos3.Text, Vel3.Text, Load3.Text, Pos4.Text, Vel4.Text, Load4.Text, Pos5.Text, Vel5.Text, Load5.Text);
                     logPosition.Add(newLine);
+                    switched = 0; //reset sequential control switching flag - db
                 }
                 #endregion
 
@@ -6292,49 +6323,91 @@ namespace brachIOplexus
                 reset_setpoints = true;
             }
 
-            // Apply the first past the post algorithm
-            if (dofObj.ChA.signal >= dofObj.ChA.smin && stateObj.motorState[k] != 2 && stateObj.motorState[k] != 3)
+            // Apply the first past the post algorithm (unless in synchronization sequence - db)
+            if (!synchro_sequence)
             {
-                // Move CW 
-                stateObj.motorState[k] = 1;
-                robotObj.Motor[k].w = linear_mapping(dofObj.ChA, robotObj.Motor[k].wmax, robotObj.Motor[k].wmin);
 
-                // Use fake velocity method if grip force lmit is enabled
-                if (k == 4 && BentoAdaptGripCheck.Checked == true)
+
+                if (dofObj.ChA.signal >= dofObj.ChA.smin && stateObj.motorState[k] != 2 && stateObj.motorState[k] != 3)
                 {
-                    MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
+                    // Move CW 
+                    stateObj.motorState[k] = 1;
+                    robotObj.Motor[k].w = linear_mapping(dofObj.ChA, robotObj.Motor[k].wmax, robotObj.Motor[k].wmin);
+
+                    // Use fake velocity method if grip force lmit is enabled
+                    if (k == 4 && BentoAdaptGripCheck.Checked == true)
+                    {
+                        MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
+                    }
+                    // Elsewise use regular velocity method
+                    else
+                    {
+                        MoveVelocity(k, global_flip, stateObj.motorState[k]);
+                    }
                 }
-                // Elsewise use regular velocity method
-                else
+                else if (dofObj.ChB.signal >= dofObj.ChB.smin && stateObj.motorState[k] != 1 && stateObj.motorState[k] != 3)
                 {
-                    MoveVelocity(k, global_flip, stateObj.motorState[k]);
+                    // Move CCW 
+                    stateObj.motorState[k] = 2;
+                    robotObj.Motor[k].w = linear_mapping(dofObj.ChB, robotObj.Motor[k].wmax, robotObj.Motor[k].wmin);
+
+                    if (k == 4 && BentoAdaptGripCheck.Checked == true)
+                    {
+                        MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
+                    }
+                    // Elsewise use regular velocity method
+                    else
+                    {
+                        MoveVelocity(k, global_flip, stateObj.motorState[k]);
+                    }
+                }
+                else if ((dofObj.ChA.signal < dofObj.ChA.smin && stateObj.motorState[k] == 1) || (dofObj.ChB.signal < dofObj.ChB.smin && stateObj.motorState[k] == 2))
+                {
+                    // Stop the motor
+                    stateObj.motorState[k] = 0;
+
+                    if (k != 4 || BentoAdaptGripCheck.Checked == false)
+                    {
+                        StopVelocity(k);
+                    }
                 }
             }
-            else if (dofObj.ChB.signal >= dofObj.ChB.smin && stateObj.motorState[k] != 1 && stateObj.motorState[k] != 3)
+            else //synchronization sequence
             {
-                // Move CCW 
-                stateObj.motorState[k] = 2;
-                robotObj.Motor[k].w = linear_mapping(dofObj.ChB, robotObj.Motor[k].wmax, robotObj.Motor[k].wmin);
-
-                if (k == 4 && BentoAdaptGripCheck.Checked == true)
+                if (done)
                 {
-                    MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
+                    initial_TD_pos = robotObj.Motor[4].p_prev; //store initial position
+                    done = false;
                 }
-                // Elsewise use regular velocity method
+                
+                //Completely open
+                if (ID5_present_position < robotObj.Motor[4].pmax && !opened)
+                {
+                    robotObj.Motor[4].p = robotObj.Motor[4].pmax;
+                    robotObj.Motor[4].w = robotObj.Motor[4].wmax;                    
+                }
+                //Completely close
+                else if(ID5_present_position > robotObj.Motor[4].pmin && !closed)
+                {
+                    opened = true;
+                    robotObj.Motor[4].p = robotObj.Motor[4].pmin;
+                    robotObj.Motor[4].w = robotObj.Motor[4].wmax;                    
+                }
+                //Restore original position
+                else if (!done)
+                {
+                    closed = true;
+                    robotObj.Motor[4].p = initial_TD_pos;
+                    robotObj.Motor[4].w = robotObj.Motor[4].wmax;
+                }
                 else
                 {
-                    MoveVelocity(k, global_flip, stateObj.motorState[k]);
+                    done = true;
+                    opened = false;
+                    closed = false;
+                    synchro_sequence = false;
                 }
-            }
-            else if ((dofObj.ChA.signal < dofObj.ChA.smin && stateObj.motorState[k] == 1) || (dofObj.ChB.signal < dofObj.ChB.smin && stateObj.motorState[k] == 2))
-            {
-                // Stop the motor
-                stateObj.motorState[k] = 0;
-
-                if (k != 4 || BentoAdaptGripCheck.Checked == false)
-                {
-                    StopVelocity(k);
-                }
+                
             }
 
             // Bound the position values
@@ -8142,6 +8215,7 @@ namespace brachIOplexus
             loggingtrigger = true;            
             StartLogging.Enabled = false;
             StopLogging.Enabled = true;
+            synchro_sequence = true;
         }
 
         private void StopLogging_Click(object sender, EventArgs e)
