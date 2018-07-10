@@ -6109,6 +6109,11 @@ namespace brachIOplexus
                         }
                     }
                 }
+                else //synchronization sequence - db
+                {
+                    synchronize();
+                }
+
                 //Data Logging, start and stop- ja
                 #region Logging Starting and Stopping
 
@@ -6323,11 +6328,8 @@ namespace brachIOplexus
                 reset_setpoints = true;
             }
 
-            // Apply the first past the post algorithm (unless in synchronization sequence - db)
-            if (!synchro_sequence)
-            {
-
-
+            // Apply the first past the post algorithm 
+           
                 if (dofObj.ChA.signal >= dofObj.ChA.smin && stateObj.motorState[k] != 2 && stateObj.motorState[k] != 3)
                 {
                     // Move CW 
@@ -6371,44 +6373,8 @@ namespace brachIOplexus
                         StopVelocity(k);
                     }
                 }
-            }
-            else //synchronization sequence
-            {
-                if (done)
-                {
-                    initial_TD_pos = robotObj.Motor[4].p_prev; //store initial position
-                    done = false;
-                }
-                
-                //Completely open
-                if (ID5_present_position < robotObj.Motor[4].pmax && !opened)
-                {
-                    robotObj.Motor[4].p = robotObj.Motor[4].pmax;
-                    robotObj.Motor[4].w = robotObj.Motor[4].wmax;                    
-                }
-                //Completely close
-                else if(ID5_present_position > robotObj.Motor[4].pmin && !closed)
-                {
-                    opened = true;
-                    robotObj.Motor[4].p = robotObj.Motor[4].pmin;
-                    robotObj.Motor[4].w = robotObj.Motor[4].wmax;                    
-                }
-                //Restore original position
-                else if (!done)
-                {
-                    closed = true;
-                    robotObj.Motor[4].p = initial_TD_pos;
-                    robotObj.Motor[4].w = robotObj.Motor[4].wmax;
-                }
-                else
-                {
-                    done = true;
-                    opened = false;
-                    closed = false;
-                    synchro_sequence = false;
-                }
-                
-            }
+            
+            
 
             // Bound the position values
             robotObj.Motor[k].p = bound(robotObj.Motor[k].p, robotObj.Motor[k].pmin, robotObj.Motor[k].pmax);
@@ -8210,6 +8176,7 @@ namespace brachIOplexus
 
         #endregion
 
+        // Function to stop logging - ja
         private void StartLogging_Click(object sender, EventArgs e)
         {
             loggingtrigger = true;            
@@ -8218,12 +8185,52 @@ namespace brachIOplexus
             synchro_sequence = true;
         }
 
+        // Function to stop logging data - ja
         private void StopLogging_Click(object sender, EventArgs e)
         {
             loggingtrigger = true;                       
             StartLogging.Enabled = true;
             StopLogging.Enabled = false;
 
+        }
+
+        // synchronization sequence for use with mo-cap - db
+        private void synchronize()
+        {
+            if (done)
+            {
+                initial_TD_pos = robotObj.Motor[4].p_prev; //store initial position
+                done = false;
+            }
+
+            //Completely open
+            if (ID5_present_position < robotObj.Motor[4].pmax - 50 && !opened)
+            {
+                robotObj.Motor[4].p = robotObj.Motor[4].pmax;
+                robotObj.Motor[4].w = robotObj.Motor[4].wmax;
+            }
+            //Completely close
+            else if (ID5_present_position > robotObj.Motor[4].pmin + 50 && !closed)
+            {
+                opened = true;
+                robotObj.Motor[4].p = robotObj.Motor[4].pmin;
+                robotObj.Motor[4].w = robotObj.Motor[4].wmax;
+            }
+            //Restore original position
+            else if (ID5_present_position < initial_TD_pos && !done)
+            {
+                closed = true;
+                robotObj.Motor[4].p = initial_TD_pos + 50;
+                robotObj.Motor[4].w = robotObj.Motor[4].wmax;
+            }
+            else
+            {
+                done = true;
+                opened = false;
+                closed = false;
+                synchro_sequence = false;
+                StopVelocity(4);
+            }
         }
     }
 }
