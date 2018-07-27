@@ -281,6 +281,8 @@ namespace brachIOplexus
         bool logging = false;
         bool loggingtrigger = false;
         double startTime = 0;
+        bool space_pressed = false;
+
         #region "Mapping Classes"
 
         // Classes for storing information about mapping and robot data
@@ -5600,7 +5602,7 @@ namespace brachIOplexus
 
                     KBcheckLeftAlt.Checked = Keyboard.IsKeyDown(Key.LeftAlt);
                     KBcheckRightAlt.Checked = Keyboard.IsKeyDown(Key.RightAlt);
-                    KBcheckSpace.Checked = Keyboard.IsKeyDown(Key.Space);
+                    KBcheckSpace.Checked = Keyboard.IsKeyDown(Key.Space);                    
 
                     KBrampW.Text = Convert.ToString(InputMap[2, 0]);
                     KBrampA.Text = Convert.ToString(InputMap[2, 1]);
@@ -5873,7 +5875,7 @@ namespace brachIOplexus
                                         myoBuzzFlag = true;
                                         XboxBuzzFlag = true;
                                         switched = 1; //For logging - db
-                                                      // Switch the marker for the joint being controlled (only works if hand and wrist flexion are the only joints in the list) - db
+                                        // Switch the marker for the joint being controlled (only works if hand and wrist flexion are the only joints in the list) - db
                                         if (joint_controlled == 5)
                                         {
                                             joint_controlled = 4;
@@ -6117,12 +6119,35 @@ namespace brachIOplexus
                 //Data Logging, start and stop- ja
                 #region Logging Starting and Stopping
 
+                //start and stop logging with keyboard spacebar - db
+                if (KBcheckSpace.Checked && logging == false && space_pressed == false)
+                {
+                    loggingtrigger = true;
+                    StartLogging.Enabled = false;
+                    StopLogging.Enabled = true;
+                    synchro_sequence = true;
+                    space_pressed = true;
+                }
+                else if (KBcheckSpace.Checked && logging == true && space_pressed == false)
+                {
+                    loggingtrigger = true;
+                    StartLogging.Enabled = true;
+                    StopLogging.Enabled = false;
+                    space_pressed = true;
+                }
+                else if (!KBcheckSpace.Checked)
+                {
+                    space_pressed = false;
+                }
+
                 if ((loggingtrigger == true) && (logging == false))
                 {
                     logging = true;
                     loggingtrigger = false;
                     stopwatchLogging.Start();
                     startTime = stopwatchLogging.ElapsedMilliseconds / 1000.0;
+                    string number = Convert.ToString(log_number.Value);
+                    
 
                     if (firstCallToLog)
                     {
@@ -6140,10 +6165,11 @@ namespace brachIOplexus
                     logging = false;
                     loggingtrigger = false;
                     stopwatchLogging.Stop();
-                    firstCallToLog = true;
+                    firstCallToLog = true;                   
 
-                    string nameOffile = "log";
+                    string nameOffile = "Pro00077893-03-18-1" + ppt_no.Text + "_" + task_type.Text + "_" + intervention.Text + "_" + Convert.ToString(log_number.Value);                    
                     var csv = new StringBuilder();
+                    log_number.Value = log_number.Value + 1;
 
                     for (int j = 0; j < logPosition.Count; j++)
                     {
@@ -6151,7 +6177,7 @@ namespace brachIOplexus
                     }
 
                     logFilesCount = logFilesCount + 1;
-                    string updatedfilePath = loggingFilePath + '\\' + nameOffile + '_' + logFilesCount.ToString() + ".txt";
+                    string updatedfilePath = loggingFilePath + '\\' + nameOffile + ".txt";// + '_' + logFilesCount.ToString() + ".txt";
                     File.AppendAllText(updatedfilePath, csv.ToString());
 
                     logPosition.Clear();
@@ -6341,6 +6367,7 @@ namespace brachIOplexus
                     {
                         MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
                     }
+                    
                     // Elsewise use regular velocity method
                     else
                     {
@@ -8176,24 +8203,7 @@ namespace brachIOplexus
 
         #endregion
 
-        // Function to stop logging - ja
-        private void StartLogging_Click(object sender, EventArgs e)
-        {
-            loggingtrigger = true;            
-            StartLogging.Enabled = false;
-            StopLogging.Enabled = true;
-            synchro_sequence = true;
-        }
-
-        // Function to stop logging data - ja
-        private void StopLogging_Click(object sender, EventArgs e)
-        {
-            loggingtrigger = true;                       
-            StartLogging.Enabled = true;
-            StopLogging.Enabled = false;
-
-        }
-
+        
         // synchronization sequence for use with mo-cap - db
         private void synchronize()
         {
@@ -8231,6 +8241,23 @@ namespace brachIOplexus
                 synchro_sequence = false;
                 StopVelocity(4);
             }
+        }
+
+        //Function to start logging - ja
+        private void StartLogging_Click_1(object sender, EventArgs e)
+        {
+            loggingtrigger = true;
+            StartLogging.Enabled = false;
+            StopLogging.Enabled = true;
+            synchro_sequence = true;
+        }
+
+        //Function to stop logging - ja
+        private void StopLogging_Click_1(object sender, EventArgs e)
+        {
+            loggingtrigger = true;
+            StartLogging.Enabled = true;
+            StopLogging.Enabled = false;
         }
     }
 }

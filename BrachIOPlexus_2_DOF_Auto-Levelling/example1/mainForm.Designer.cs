@@ -558,26 +558,39 @@
             this.labelText = new System.Windows.Forms.Label();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.tabMapping = new System.Windows.Forms.TabPage();
-            this.switchState_label = new System.Windows.Forms.Label();
-            this.label213 = new System.Windows.Forms.Label();
-            this.flag2_label = new System.Windows.Forms.Label();
-            this.label211 = new System.Windows.Forms.Label();
-            this.flag1_label = new System.Windows.Forms.Label();
-            this.label209 = new System.Windows.Forms.Label();
-            this.timer1_label = new System.Windows.Forms.Label();
-            this.label205 = new System.Windows.Forms.Label();
-            this.ID2_state = new System.Windows.Forms.Label();
-            this.label148 = new System.Windows.Forms.Label();
+            this.LoggingGroupBox = new System.Windows.Forms.GroupBox();
+            this.label234 = new System.Windows.Forms.Label();
+            this.label233 = new System.Windows.Forms.Label();
+            this.label232 = new System.Windows.Forms.Label();
+            this.label231 = new System.Windows.Forms.Label();
+            this.label230 = new System.Windows.Forms.Label();
+            this.intervention = new System.Windows.Forms.TextBox();
+            this.label229 = new System.Windows.Forms.Label();
+            this.task_type = new System.Windows.Forms.TextBox();
+            this.label227 = new System.Windows.Forms.Label();
+            this.ppt_no = new System.Windows.Forms.TextBox();
+            this.label_ppt_no = new System.Windows.Forms.Label();
+            this.StartLogging = new System.Windows.Forms.Button();
+            this.label228 = new System.Windows.Forms.Label();
+            this.StopLogging = new System.Windows.Forms.Button();
+            this.log_number = new System.Windows.Forms.NumericUpDown();
             this.groupBox16 = new System.Windows.Forms.GroupBox();
             this.switchSmaxLabel2 = new System.Windows.Forms.Label();
             this.switchSminLabel2 = new System.Windows.Forms.Label();
             this.switchSminTick2 = new System.Windows.Forms.Label();
+            this.switchState_label = new System.Windows.Forms.Label();
             this.switchSmaxTick2 = new System.Windows.Forms.Label();
+            this.label213 = new System.Windows.Forms.Label();
             this.switchSmaxCtrl2 = new System.Windows.Forms.NumericUpDown();
+            this.flag2_label = new System.Windows.Forms.Label();
             this.switchSminCtrl2 = new System.Windows.Forms.NumericUpDown();
+            this.label211 = new System.Windows.Forms.Label();
             this.switchSignalBar2 = new System.Windows.Forms.ProgressBar();
+            this.flag1_label = new System.Windows.Forms.Label();
             this.switchGainCtrl2 = new System.Windows.Forms.NumericUpDown();
+            this.label209 = new System.Windows.Forms.Label();
             this.switchTimeCtrl2 = new System.Windows.Forms.NumericUpDown();
+            this.timer1_label = new System.Windows.Forms.Label();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.groupBox14 = new System.Windows.Forms.GroupBox();
             this.textBox = new System.Windows.Forms.CheckBox();
@@ -587,6 +600,8 @@
             this.groupBox12 = new System.Windows.Forms.GroupBox();
             this.dingBox = new System.Windows.Forms.CheckBox();
             this.vocalBox = new System.Windows.Forms.CheckBox();
+            this.label205 = new System.Windows.Forms.Label();
+            this.ID2_state = new System.Windows.Forms.Label();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
             this.label37 = new System.Windows.Forms.Label();
             this.switch1Flip = new System.Windows.Forms.CheckBox();
@@ -611,6 +626,7 @@
             this.switch5OutputBox = new System.Windows.Forms.ComboBox();
             this.switch2MappingBox = new System.Windows.Forms.ComboBox();
             this.switch4OutputBox = new System.Windows.Forms.ComboBox();
+            this.label148 = new System.Windows.Forms.Label();
             this.label103 = new System.Windows.Forms.Label();
             this.label104 = new System.Windows.Forms.Label();
             this.label145 = new System.Windows.Forms.Label();
@@ -640,11 +656,13 @@
             this.label158 = new System.Windows.Forms.Label();
             this.label157 = new System.Windows.Forms.Label();
             this.label156 = new System.Windows.Forms.Label();
+            this.doF6 = new brachIOplexus.DoF();
+            this.doF5 = new brachIOplexus.DoF();
+            this.doF4 = new brachIOplexus.DoF();
+            this.doF3 = new brachIOplexus.DoF();
+            this.doF2 = new brachIOplexus.DoF();
+            this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
-            this.LoggingGroupBox = new System.Windows.Forms.GroupBox();
-            this.label227 = new System.Windows.Forms.Label();
-            this.StartLogging = new System.Windows.Forms.Button();
-            this.StopLogging = new System.Windows.Forms.Button();
             this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
             this.FlexionPIDBox = new System.Windows.Forms.GroupBox();
             this.CurrentFlexion = new System.Windows.Forms.Label();
@@ -783,12 +801,6 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
-            this.doF6 = new brachIOplexus.DoF();
-            this.doF5 = new brachIOplexus.DoF();
-            this.doF4 = new brachIOplexus.DoF();
-            this.doF3 = new brachIOplexus.DoF();
-            this.doF2 = new brachIOplexus.DoF();
-            this.doF1 = new brachIOplexus.DoF();
             this.MenuStrip1.SuspendLayout();
             this.VoiceCoilCommBox.SuspendLayout();
             this.EMGParamBox.SuspendLayout();
@@ -890,6 +902,8 @@
             this.tabIO.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.tabMapping.SuspendLayout();
+            this.LoggingGroupBox.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.log_number)).BeginInit();
             this.groupBox16.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.switchSmaxCtrl2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.switchSminCtrl2)).BeginInit();
@@ -905,7 +919,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.switchGainCtrl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl1)).BeginInit();
             this.tabBento.SuspendLayout();
-            this.LoggingGroupBox.SuspendLayout();
             this.AutoLevellingBox.SuspendLayout();
             this.FlexionPIDBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Kd_theta_ctrl)).BeginInit();
@@ -4750,7 +4763,7 @@
             this.SimBox.Controls.Add(this.SIMconnectBTN);
             this.SimBox.Controls.Add(this.openSim);
             this.SimBox.Controls.Add(this.sim_flag);
-            this.SimBox.Location = new System.Drawing.Point(1145, 130);
+            this.SimBox.Location = new System.Drawing.Point(376, 456);
             this.SimBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.SimBox.Name = "SimBox";
             this.SimBox.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -5835,7 +5848,7 @@
             // 
             // LEDon
             // 
-            this.LEDon.Location = new System.Drawing.Point(1257, 251);
+            this.LEDon.Location = new System.Drawing.Point(503, 554);
             this.LEDon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.LEDon.Name = "LEDon";
             this.LEDon.Size = new System.Drawing.Size(75, 23);
@@ -5847,7 +5860,7 @@
             // 
             // LEDoff
             // 
-            this.LEDoff.Location = new System.Drawing.Point(1327, 251);
+            this.LEDoff.Location = new System.Drawing.Point(573, 554);
             this.LEDoff.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.LEDoff.Name = "LEDoff";
             this.LEDoff.Size = new System.Drawing.Size(75, 23);
@@ -5860,7 +5873,7 @@
             // moveCW
             // 
             this.moveCW.Enabled = false;
-            this.moveCW.Location = new System.Drawing.Point(1257, 281);
+            this.moveCW.Location = new System.Drawing.Point(503, 584);
             this.moveCW.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.moveCW.Name = "moveCW";
             this.moveCW.Size = new System.Drawing.Size(107, 23);
@@ -5873,7 +5886,7 @@
             // moveCCW
             // 
             this.moveCCW.Enabled = false;
-            this.moveCCW.Location = new System.Drawing.Point(1372, 281);
+            this.moveCCW.Location = new System.Drawing.Point(618, 584);
             this.moveCCW.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.moveCCW.Name = "moveCCW";
             this.moveCCW.Size = new System.Drawing.Size(107, 23);
@@ -5916,7 +5929,7 @@
             // 
             this.label118.AutoSize = true;
             this.label118.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label118.Location = new System.Drawing.Point(1257, 346);
+            this.label118.Location = new System.Drawing.Point(503, 649);
             this.label118.Name = "label118";
             this.label118.Size = new System.Drawing.Size(95, 17);
             this.label118.TabIndex = 195;
@@ -5927,7 +5940,7 @@
             // dynaCommResult
             // 
             this.dynaCommResult.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.dynaCommResult.Location = new System.Drawing.Point(1349, 346);
+            this.dynaCommResult.Location = new System.Drawing.Point(595, 649);
             this.dynaCommResult.Name = "dynaCommResult";
             this.dynaCommResult.Size = new System.Drawing.Size(52, 18);
             this.dynaCommResult.TabIndex = 196;
@@ -5937,7 +5950,7 @@
             // label120
             // 
             this.label120.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label120.Location = new System.Drawing.Point(1301, 366);
+            this.label120.Location = new System.Drawing.Point(547, 669);
             this.label120.Name = "label120";
             this.label120.Size = new System.Drawing.Size(52, 18);
             this.label120.TabIndex = 198;
@@ -5949,7 +5962,7 @@
             // 
             this.dynaError.AutoSize = true;
             this.dynaError.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.dynaError.Location = new System.Drawing.Point(1349, 367);
+            this.dynaError.Location = new System.Drawing.Point(595, 670);
             this.dynaError.Name = "dynaError";
             this.dynaError.Size = new System.Drawing.Size(18, 17);
             this.dynaError.TabIndex = 197;
@@ -5959,7 +5972,7 @@
             // 
             // readFeedback
             // 
-            this.readFeedback.Location = new System.Drawing.Point(1257, 309);
+            this.readFeedback.Location = new System.Drawing.Point(503, 612);
             this.readFeedback.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.readFeedback.Name = "readFeedback";
             this.readFeedback.Size = new System.Drawing.Size(136, 23);
@@ -7793,16 +7806,7 @@
             // 
             // tabMapping
             // 
-            this.tabMapping.Controls.Add(this.switchState_label);
-            this.tabMapping.Controls.Add(this.label213);
-            this.tabMapping.Controls.Add(this.flag2_label);
-            this.tabMapping.Controls.Add(this.label211);
-            this.tabMapping.Controls.Add(this.flag1_label);
-            this.tabMapping.Controls.Add(this.label209);
-            this.tabMapping.Controls.Add(this.timer1_label);
-            this.tabMapping.Controls.Add(this.label205);
-            this.tabMapping.Controls.Add(this.ID2_state);
-            this.tabMapping.Controls.Add(this.label148);
+            this.tabMapping.Controls.Add(this.LoggingGroupBox);
             this.tabMapping.Controls.Add(this.groupBox16);
             this.tabMapping.Controls.Add(this.label162);
             this.tabMapping.Controls.Add(this.label150);
@@ -7826,116 +7830,205 @@
             this.tabMapping.Text = "Mapping";
             this.tabMapping.UseVisualStyleBackColor = true;
             // 
-            // switchState_label
+            // LoggingGroupBox
             // 
-            this.switchState_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.switchState_label.Location = new System.Drawing.Point(1111, 613);
-            this.switchState_label.Name = "switchState_label";
-            this.switchState_label.Size = new System.Drawing.Size(107, 18);
-            this.switchState_label.TabIndex = 232;
-            this.switchState_label.Text = "switchState";
+            this.LoggingGroupBox.Controls.Add(this.label234);
+            this.LoggingGroupBox.Controls.Add(this.label233);
+            this.LoggingGroupBox.Controls.Add(this.label232);
+            this.LoggingGroupBox.Controls.Add(this.label231);
+            this.LoggingGroupBox.Controls.Add(this.label230);
+            this.LoggingGroupBox.Controls.Add(this.intervention);
+            this.LoggingGroupBox.Controls.Add(this.label229);
+            this.LoggingGroupBox.Controls.Add(this.task_type);
+            this.LoggingGroupBox.Controls.Add(this.label227);
+            this.LoggingGroupBox.Controls.Add(this.ppt_no);
+            this.LoggingGroupBox.Controls.Add(this.label_ppt_no);
+            this.LoggingGroupBox.Controls.Add(this.StartLogging);
+            this.LoggingGroupBox.Controls.Add(this.label228);
+            this.LoggingGroupBox.Controls.Add(this.StopLogging);
+            this.LoggingGroupBox.Controls.Add(this.log_number);
+            this.LoggingGroupBox.Enabled = false;
+            this.LoggingGroupBox.Location = new System.Drawing.Point(965, 549);
+            this.LoggingGroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.LoggingGroupBox.Name = "LoggingGroupBox";
+            this.LoggingGroupBox.Padding = new System.Windows.Forms.Padding(4);
+            this.LoggingGroupBox.Size = new System.Drawing.Size(496, 197);
+            this.LoggingGroupBox.TabIndex = 235;
+            this.LoggingGroupBox.TabStop = false;
+            this.LoggingGroupBox.Text = "Data Logging";
             // 
-            // label213
+            // label234
             // 
-            this.label213.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label213.Location = new System.Drawing.Point(999, 613);
-            this.label213.Name = "label213";
-            this.label213.Size = new System.Drawing.Size(107, 18);
-            this.label213.TabIndex = 231;
-            this.label213.Text = "switchState:";
-            this.label213.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label234.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label234.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label234.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label234.Location = new System.Drawing.Point(365, 106);
+            this.label234.Name = "label234";
+            this.label234.Size = new System.Drawing.Size(124, 21);
+            this.label234.TabIndex = 245;
+            this.label234.Text = "F/SS/AL";
             // 
-            // flag2_label
+            // label233
             // 
-            this.flag2_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.flag2_label.Location = new System.Drawing.Point(1111, 594);
-            this.flag2_label.Name = "flag2_label";
-            this.flag2_label.Size = new System.Drawing.Size(107, 18);
-            this.flag2_label.TabIndex = 230;
-            this.flag2_label.Text = "flag2";
+            this.label233.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label233.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label233.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label233.Location = new System.Drawing.Point(365, 79);
+            this.label233.Name = "label233";
+            this.label233.Size = new System.Drawing.Size(124, 21);
+            this.label233.TabIndex = 244;
+            this.label233.Text = "Pasta/Cups";
             // 
-            // label211
+            // label232
             // 
-            this.label211.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label211.Location = new System.Drawing.Point(999, 594);
-            this.label211.Name = "label211";
-            this.label211.Size = new System.Drawing.Size(107, 18);
-            this.label211.TabIndex = 229;
-            this.label211.Text = "flag2:";
-            this.label211.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label232.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label232.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label232.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label232.Location = new System.Drawing.Point(365, 50);
+            this.label232.Name = "label232";
+            this.label232.Size = new System.Drawing.Size(124, 21);
+            this.label232.TabIndex = 243;
+            this.label232.Text = "Random ID#";
             // 
-            // flag1_label
+            // label231
             // 
-            this.flag1_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.flag1_label.Location = new System.Drawing.Point(1111, 576);
-            this.flag1_label.Name = "flag1_label";
-            this.flag1_label.Size = new System.Drawing.Size(107, 18);
-            this.flag1_label.TabIndex = 228;
-            this.flag1_label.Text = "flag1";
+            this.label231.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label231.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label231.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label231.Location = new System.Drawing.Point(321, 26);
+            this.label231.Name = "label231";
+            this.label231.Size = new System.Drawing.Size(167, 20);
+            this.label231.TabIndex = 242;
+            this.label231.Text = "Reset each intervention";
             // 
-            // label209
+            // label230
             // 
-            this.label209.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label209.Location = new System.Drawing.Point(999, 576);
-            this.label209.Name = "label209";
-            this.label209.Size = new System.Drawing.Size(107, 18);
-            this.label209.TabIndex = 227;
-            this.label209.Text = "flag1:";
-            this.label209.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label230.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label230.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label230.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label230.Location = new System.Drawing.Point(7, 139);
+            this.label230.Name = "label230";
+            this.label230.Size = new System.Drawing.Size(481, 54);
+            this.label230.TabIndex = 241;
+            this.label230.Text = "Check filepath for saving in the initialization region of the code before beginni" +
+    "ng trials. Creates a file named Pro00077839-03-18-1xx_TaskType_Intervention_LogN" +
+    "umber";
             // 
-            // timer1_label
+            // intervention
             // 
-            this.timer1_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.timer1_label.Location = new System.Drawing.Point(1111, 558);
-            this.timer1_label.Name = "timer1_label";
-            this.timer1_label.Size = new System.Drawing.Size(107, 18);
-            this.timer1_label.TabIndex = 226;
-            this.timer1_label.Text = "timer1";
+            this.intervention.Location = new System.Drawing.Point(259, 105);
+            this.intervention.Name = "intervention";
+            this.intervention.Size = new System.Drawing.Size(100, 22);
+            this.intervention.TabIndex = 240;
             // 
-            // label205
+            // label229
             // 
-            this.label205.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label205.Location = new System.Drawing.Point(999, 558);
-            this.label205.Name = "label205";
-            this.label205.Size = new System.Drawing.Size(107, 18);
-            this.label205.TabIndex = 225;
-            this.label205.Text = "timer1:";
-            this.label205.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label229.AutoSize = true;
+            this.label229.Location = new System.Drawing.Point(170, 108);
+            this.label229.Name = "label229";
+            this.label229.Size = new System.Drawing.Size(82, 17);
+            this.label229.TabIndex = 239;
+            this.label229.Text = "Intervention";
             // 
-            // ID2_state
+            // task_type
             // 
-            this.ID2_state.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.ID2_state.Location = new System.Drawing.Point(1111, 703);
-            this.ID2_state.Name = "ID2_state";
-            this.ID2_state.Size = new System.Drawing.Size(107, 18);
-            this.ID2_state.TabIndex = 224;
-            this.ID2_state.Text = "ID2 State:";
-            this.ID2_state.Visible = false;
+            this.task_type.Location = new System.Drawing.Point(259, 77);
+            this.task_type.Name = "task_type";
+            this.task_type.Size = new System.Drawing.Size(100, 22);
+            this.task_type.TabIndex = 238;
             // 
-            // label148
+            // label227
             // 
-            this.label148.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label148.Location = new System.Drawing.Point(999, 703);
-            this.label148.Name = "label148";
-            this.label148.Size = new System.Drawing.Size(107, 18);
-            this.label148.TabIndex = 223;
-            this.label148.Text = "ID2 State:";
-            this.label148.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.label148.Visible = false;
+            this.label227.AutoSize = true;
+            this.label227.Location = new System.Drawing.Point(177, 80);
+            this.label227.Name = "label227";
+            this.label227.Size = new System.Drawing.Size(75, 17);
+            this.label227.TabIndex = 237;
+            this.label227.Text = "Task Type";
+            // 
+            // ppt_no
+            // 
+            this.ppt_no.Location = new System.Drawing.Point(259, 49);
+            this.ppt_no.Name = "ppt_no";
+            this.ppt_no.Size = new System.Drawing.Size(100, 22);
+            this.ppt_no.TabIndex = 236;
+            // 
+            // label_ppt_no
+            // 
+            this.label_ppt_no.AutoSize = true;
+            this.label_ppt_no.Location = new System.Drawing.Point(124, 51);
+            this.label_ppt_no.Name = "label_ppt_no";
+            this.label_ppt_no.Size = new System.Drawing.Size(129, 17);
+            this.label_ppt_no.TabIndex = 235;
+            this.label_ppt_no.Text = "Participant Number";
+            // 
+            // StartLogging
+            // 
+            this.StartLogging.Location = new System.Drawing.Point(7, 21);
+            this.StartLogging.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.StartLogging.Name = "StartLogging";
+            this.StartLogging.Size = new System.Drawing.Size(105, 29);
+            this.StartLogging.TabIndex = 187;
+            this.StartLogging.Text = "START";
+            this.StartLogging.UseVisualStyleBackColor = true;
+            this.StartLogging.Click += new System.EventHandler(this.StartLogging_Click_1);
+            // 
+            // label228
+            // 
+            this.label228.AutoSize = true;
+            this.label228.Location = new System.Drawing.Point(170, 21);
+            this.label228.Name = "label228";
+            this.label228.Size = new System.Drawing.Size(83, 17);
+            this.label228.TabIndex = 234;
+            this.label228.Text = "log number:";
+            // 
+            // StopLogging
+            // 
+            this.StopLogging.Enabled = false;
+            this.StopLogging.Location = new System.Drawing.Point(7, 57);
+            this.StopLogging.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.StopLogging.Name = "StopLogging";
+            this.StopLogging.Size = new System.Drawing.Size(105, 27);
+            this.StopLogging.TabIndex = 188;
+            this.StopLogging.Text = "STOP";
+            this.StopLogging.UseVisualStyleBackColor = true;
+            this.StopLogging.Click += new System.EventHandler(this.StopLogging_Click_1);
+            // 
+            // log_number
+            // 
+            this.log_number.Location = new System.Drawing.Point(259, 21);
+            this.log_number.Name = "log_number";
+            this.log_number.Size = new System.Drawing.Size(61, 22);
+            this.log_number.TabIndex = 233;
+            this.log_number.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // groupBox16
             // 
             this.groupBox16.Controls.Add(this.switchSmaxLabel2);
             this.groupBox16.Controls.Add(this.switchSminLabel2);
             this.groupBox16.Controls.Add(this.switchSminTick2);
+            this.groupBox16.Controls.Add(this.switchState_label);
             this.groupBox16.Controls.Add(this.switchSmaxTick2);
+            this.groupBox16.Controls.Add(this.label213);
             this.groupBox16.Controls.Add(this.switchSmaxCtrl2);
+            this.groupBox16.Controls.Add(this.flag2_label);
             this.groupBox16.Controls.Add(this.switchSminCtrl2);
+            this.groupBox16.Controls.Add(this.label211);
             this.groupBox16.Controls.Add(this.switchSignalBar2);
+            this.groupBox16.Controls.Add(this.flag1_label);
             this.groupBox16.Controls.Add(this.switchGainCtrl2);
+            this.groupBox16.Controls.Add(this.label209);
             this.groupBox16.Controls.Add(this.switchTimeCtrl2);
+            this.groupBox16.Controls.Add(this.timer1_label);
             this.groupBox16.Controls.Add(this.groupBox11);
+            this.groupBox16.Controls.Add(this.label205);
+            this.groupBox16.Controls.Add(this.ID2_state);
             this.groupBox16.Controls.Add(this.groupBox10);
+            this.groupBox16.Controls.Add(this.label148);
             this.groupBox16.Controls.Add(this.label103);
             this.groupBox16.Controls.Add(this.label104);
             this.groupBox16.Controls.Add(this.label145);
@@ -7998,6 +8091,15 @@
             this.switchSminTick2.Size = new System.Drawing.Size(3, 30);
             this.switchSminTick2.TabIndex = 210;
             // 
+            // switchState_label
+            // 
+            this.switchState_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.switchState_label.Location = new System.Drawing.Point(368, 490);
+            this.switchState_label.Name = "switchState_label";
+            this.switchState_label.Size = new System.Drawing.Size(107, 18);
+            this.switchState_label.TabIndex = 232;
+            this.switchState_label.Text = "switchState";
+            // 
             // switchSmaxTick2
             // 
             this.switchSmaxTick2.BackColor = System.Drawing.Color.MediumPurple;
@@ -8006,6 +8108,16 @@
             this.switchSmaxTick2.Name = "switchSmaxTick2";
             this.switchSmaxTick2.Size = new System.Drawing.Size(3, 30);
             this.switchSmaxTick2.TabIndex = 209;
+            // 
+            // label213
+            // 
+            this.label213.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label213.Location = new System.Drawing.Point(256, 490);
+            this.label213.Name = "label213";
+            this.label213.Size = new System.Drawing.Size(107, 18);
+            this.label213.TabIndex = 231;
+            this.label213.Text = "switchState:";
+            this.label213.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // switchSmaxCtrl2
             // 
@@ -8032,6 +8144,15 @@
             0});
             this.switchSmaxCtrl2.ValueChanged += new System.EventHandler(this.switchSmaxCtrl2_ValueChanged);
             // 
+            // flag2_label
+            // 
+            this.flag2_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.flag2_label.Location = new System.Drawing.Point(368, 471);
+            this.flag2_label.Name = "flag2_label";
+            this.flag2_label.Size = new System.Drawing.Size(107, 18);
+            this.flag2_label.TabIndex = 230;
+            this.flag2_label.Text = "flag2";
+            // 
             // switchSminCtrl2
             // 
             this.switchSminCtrl2.DecimalPlaces = 1;
@@ -8057,6 +8178,16 @@
             65536});
             this.switchSminCtrl2.ValueChanged += new System.EventHandler(this.switchSminCtrl2_ValueChanged);
             // 
+            // label211
+            // 
+            this.label211.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label211.Location = new System.Drawing.Point(256, 471);
+            this.label211.Name = "label211";
+            this.label211.Size = new System.Drawing.Size(107, 18);
+            this.label211.TabIndex = 229;
+            this.label211.Text = "flag2:";
+            this.label211.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // switchSignalBar2
             // 
             this.switchSignalBar2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
@@ -8068,6 +8199,15 @@
             this.switchSignalBar2.Size = new System.Drawing.Size(179, 27);
             this.switchSignalBar2.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.switchSignalBar2.TabIndex = 206;
+            // 
+            // flag1_label
+            // 
+            this.flag1_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.flag1_label.Location = new System.Drawing.Point(368, 453);
+            this.flag1_label.Name = "flag1_label";
+            this.flag1_label.Size = new System.Drawing.Size(107, 18);
+            this.flag1_label.TabIndex = 228;
+            this.flag1_label.Text = "flag1";
             // 
             // switchGainCtrl2
             // 
@@ -8088,6 +8228,16 @@
             0,
             0});
             // 
+            // label209
+            // 
+            this.label209.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label209.Location = new System.Drawing.Point(256, 453);
+            this.label209.Name = "label209";
+            this.label209.Size = new System.Drawing.Size(107, 18);
+            this.label209.TabIndex = 227;
+            this.label209.Text = "flag1:";
+            this.label209.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // switchTimeCtrl2
             // 
             this.switchTimeCtrl2.Enabled = false;
@@ -8101,6 +8251,15 @@
             this.switchTimeCtrl2.Name = "switchTimeCtrl2";
             this.switchTimeCtrl2.Size = new System.Drawing.Size(61, 22);
             this.switchTimeCtrl2.TabIndex = 204;
+            // 
+            // timer1_label
+            // 
+            this.timer1_label.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.timer1_label.Location = new System.Drawing.Point(368, 435);
+            this.timer1_label.Name = "timer1_label";
+            this.timer1_label.Size = new System.Drawing.Size(107, 18);
+            this.timer1_label.TabIndex = 226;
+            this.timer1_label.Text = "timer1";
             // 
             // groupBox11
             // 
@@ -8209,6 +8368,26 @@
             this.vocalBox.TabIndex = 158;
             this.vocalBox.Text = "Vocal";
             this.vocalBox.UseVisualStyleBackColor = true;
+            // 
+            // label205
+            // 
+            this.label205.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label205.Location = new System.Drawing.Point(256, 435);
+            this.label205.Name = "label205";
+            this.label205.Size = new System.Drawing.Size(107, 18);
+            this.label205.TabIndex = 225;
+            this.label205.Text = "timer1:";
+            this.label205.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // ID2_state
+            // 
+            this.ID2_state.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.ID2_state.Location = new System.Drawing.Point(473, 539);
+            this.ID2_state.Name = "ID2_state";
+            this.ID2_state.Size = new System.Drawing.Size(107, 18);
+            this.ID2_state.TabIndex = 224;
+            this.ID2_state.Text = "ID2 State:";
+            this.ID2_state.Visible = false;
             // 
             // groupBox10
             // 
@@ -8550,6 +8729,17 @@
             this.switch4OutputBox.Size = new System.Drawing.Size(111, 24);
             this.switch4OutputBox.TabIndex = 72;
             this.switch4OutputBox.SelectedIndexChanged += new System.EventHandler(this.switch4OutputBox_SelectedIndexChanged);
+            // 
+            // label148
+            // 
+            this.label148.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.label148.Location = new System.Drawing.Point(361, 539);
+            this.label148.Name = "label148";
+            this.label148.Size = new System.Drawing.Size(107, 18);
+            this.label148.TabIndex = 223;
+            this.label148.Text = "ID2 State:";
+            this.label148.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.label148.Visible = false;
             // 
             // label103
             // 
@@ -8905,9 +9095,56 @@
             this.label156.TabIndex = 29;
             this.label156.Text = "Smax";
             // 
+            // doF6
+            // 
+            this.doF6.Location = new System.Drawing.Point(8, 630);
+            this.doF6.Margin = new System.Windows.Forms.Padding(5);
+            this.doF6.Name = "doF6";
+            this.doF6.Size = new System.Drawing.Size(865, 116);
+            this.doF6.TabIndex = 144;
+            // 
+            // doF5
+            // 
+            this.doF5.Location = new System.Drawing.Point(8, 507);
+            this.doF5.Margin = new System.Windows.Forms.Padding(5);
+            this.doF5.Name = "doF5";
+            this.doF5.Size = new System.Drawing.Size(865, 116);
+            this.doF5.TabIndex = 143;
+            // 
+            // doF4
+            // 
+            this.doF4.Location = new System.Drawing.Point(8, 384);
+            this.doF4.Margin = new System.Windows.Forms.Padding(5);
+            this.doF4.Name = "doF4";
+            this.doF4.Size = new System.Drawing.Size(865, 116);
+            this.doF4.TabIndex = 142;
+            // 
+            // doF3
+            // 
+            this.doF3.Location = new System.Drawing.Point(8, 261);
+            this.doF3.Margin = new System.Windows.Forms.Padding(5);
+            this.doF3.Name = "doF3";
+            this.doF3.Size = new System.Drawing.Size(865, 116);
+            this.doF3.TabIndex = 141;
+            // 
+            // doF2
+            // 
+            this.doF2.Location = new System.Drawing.Point(8, 142);
+            this.doF2.Margin = new System.Windows.Forms.Padding(5);
+            this.doF2.Name = "doF2";
+            this.doF2.Size = new System.Drawing.Size(865, 116);
+            this.doF2.TabIndex = 140;
+            // 
+            // doF1
+            // 
+            this.doF1.Location = new System.Drawing.Point(8, 22);
+            this.doF1.Margin = new System.Windows.Forms.Padding(5);
+            this.doF1.Name = "doF1";
+            this.doF1.Size = new System.Drawing.Size(865, 116);
+            this.doF1.TabIndex = 139;
+            // 
             // tabBento
             // 
-            this.tabBento.Controls.Add(this.LoggingGroupBox);
             this.tabBento.Controls.Add(this.AutoLevellingBox);
             this.tabBento.Controls.Add(this.groupBox19);
             this.tabBento.Controls.Add(this.BentoEnvLimitsBox);
@@ -8932,56 +9169,6 @@
             this.tabBento.TabIndex = 2;
             this.tabBento.Text = "Bento Arm";
             this.tabBento.UseVisualStyleBackColor = true;
-            // 
-            // LoggingGroupBox
-            // 
-            this.LoggingGroupBox.Controls.Add(this.label227);
-            this.LoggingGroupBox.Controls.Add(this.StartLogging);
-            this.LoggingGroupBox.Controls.Add(this.StopLogging);
-            this.LoggingGroupBox.Enabled = false;
-            this.LoggingGroupBox.Location = new System.Drawing.Point(4, 536);
-            this.LoggingGroupBox.Margin = new System.Windows.Forms.Padding(4);
-            this.LoggingGroupBox.Name = "LoggingGroupBox";
-            this.LoggingGroupBox.Padding = new System.Windows.Forms.Padding(4);
-            this.LoggingGroupBox.Size = new System.Drawing.Size(365, 92);
-            this.LoggingGroupBox.TabIndex = 212;
-            this.LoggingGroupBox.TabStop = false;
-            this.LoggingGroupBox.Text = "Data Logging";
-            // 
-            // label227
-            // 
-            this.label227.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label227.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label227.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label227.Location = new System.Drawing.Point(128, 15);
-            this.label227.Name = "label227";
-            this.label227.Size = new System.Drawing.Size(213, 71);
-            this.label227.TabIndex = 205;
-            this.label227.Text = "Check the filepath in the initialization region of the code before logging to det" +
-    "ermine write location.";
-            // 
-            // StartLogging
-            // 
-            this.StartLogging.Location = new System.Drawing.Point(11, 25);
-            this.StartLogging.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.StartLogging.Name = "StartLogging";
-            this.StartLogging.Size = new System.Drawing.Size(105, 26);
-            this.StartLogging.TabIndex = 187;
-            this.StartLogging.Text = "START";
-            this.StartLogging.UseVisualStyleBackColor = true;
-            this.StartLogging.Click += new System.EventHandler(this.StartLogging_Click);
-            // 
-            // StopLogging
-            // 
-            this.StopLogging.Enabled = false;
-            this.StopLogging.Location = new System.Drawing.Point(11, 55);
-            this.StopLogging.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.StopLogging.Name = "StopLogging";
-            this.StopLogging.Size = new System.Drawing.Size(105, 26);
-            this.StopLogging.TabIndex = 188;
-            this.StopLogging.Text = "STOP";
-            this.StopLogging.UseVisualStyleBackColor = true;
-            this.StopLogging.Click += new System.EventHandler(this.StopLogging_Click);
             // 
             // AutoLevellingBox
             // 
@@ -9371,7 +9558,7 @@
             this.BentoEnvLimitsBox.Controls.Add(this.numericUpDown2);
             this.BentoEnvLimitsBox.Controls.Add(this.label154);
             this.BentoEnvLimitsBox.Enabled = false;
-            this.BentoEnvLimitsBox.Location = new System.Drawing.Point(1035, 393);
+            this.BentoEnvLimitsBox.Location = new System.Drawing.Point(4, 543);
             this.BentoEnvLimitsBox.Margin = new System.Windows.Forms.Padding(4);
             this.BentoEnvLimitsBox.Name = "BentoEnvLimitsBox";
             this.BentoEnvLimitsBox.Padding = new System.Windows.Forms.Padding(4);
@@ -10686,54 +10873,6 @@
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
             // 
-            // doF6
-            // 
-            this.doF6.Location = new System.Drawing.Point(8, 630);
-            this.doF6.Margin = new System.Windows.Forms.Padding(5);
-            this.doF6.Name = "doF6";
-            this.doF6.Size = new System.Drawing.Size(865, 116);
-            this.doF6.TabIndex = 144;
-            // 
-            // doF5
-            // 
-            this.doF5.Location = new System.Drawing.Point(8, 507);
-            this.doF5.Margin = new System.Windows.Forms.Padding(5);
-            this.doF5.Name = "doF5";
-            this.doF5.Size = new System.Drawing.Size(865, 116);
-            this.doF5.TabIndex = 143;
-            // 
-            // doF4
-            // 
-            this.doF4.Location = new System.Drawing.Point(8, 384);
-            this.doF4.Margin = new System.Windows.Forms.Padding(5);
-            this.doF4.Name = "doF4";
-            this.doF4.Size = new System.Drawing.Size(865, 116);
-            this.doF4.TabIndex = 142;
-            // 
-            // doF3
-            // 
-            this.doF3.Location = new System.Drawing.Point(8, 261);
-            this.doF3.Margin = new System.Windows.Forms.Padding(5);
-            this.doF3.Name = "doF3";
-            this.doF3.Size = new System.Drawing.Size(865, 116);
-            this.doF3.TabIndex = 141;
-            // 
-            // doF2
-            // 
-            this.doF2.Location = new System.Drawing.Point(8, 142);
-            this.doF2.Margin = new System.Windows.Forms.Padding(5);
-            this.doF2.Name = "doF2";
-            this.doF2.Size = new System.Drawing.Size(865, 116);
-            this.doF2.TabIndex = 140;
-            // 
-            // doF1
-            // 
-            this.doF1.Location = new System.Drawing.Point(8, 22);
-            this.doF1.Margin = new System.Windows.Forms.Padding(5);
-            this.doF1.Name = "doF1";
-            this.doF1.Size = new System.Drawing.Size(865, 116);
-            this.doF1.TabIndex = 139;
-            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -10871,6 +11010,9 @@
             this.tabIO.PerformLayout();
             this.groupBox9.ResumeLayout(false);
             this.tabMapping.ResumeLayout(false);
+            this.LoggingGroupBox.ResumeLayout(false);
+            this.LoggingGroupBox.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.log_number)).EndInit();
             this.groupBox16.ResumeLayout(false);
             this.groupBox16.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.switchSmaxCtrl2)).EndInit();
@@ -10892,7 +11034,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.switchTimeCtrl1)).EndInit();
             this.tabBento.ResumeLayout(false);
             this.tabBento.PerformLayout();
-            this.LoggingGroupBox.ResumeLayout(false);
             this.AutoLevellingBox.ResumeLayout(false);
             this.AutoLevellingBox.PerformLayout();
             this.FlexionPIDBox.ResumeLayout(false);
@@ -11683,10 +11824,22 @@
         internal System.Windows.Forms.NumericUpDown Kp_phi_ctrl;
         internal System.Windows.Forms.Label label226;
         private System.Windows.Forms.CheckBox AL_Enabled;
+        private System.Windows.Forms.Label label228;
+        private System.Windows.Forms.NumericUpDown log_number;
         private System.Windows.Forms.GroupBox LoggingGroupBox;
-        internal System.Windows.Forms.Label label227;
         private System.Windows.Forms.Button StartLogging;
         private System.Windows.Forms.Button StopLogging;
+        private System.Windows.Forms.TextBox intervention;
+        private System.Windows.Forms.Label label229;
+        private System.Windows.Forms.TextBox task_type;
+        private System.Windows.Forms.Label label227;
+        private System.Windows.Forms.TextBox ppt_no;
+        private System.Windows.Forms.Label label_ppt_no;
+        internal System.Windows.Forms.Label label234;
+        internal System.Windows.Forms.Label label233;
+        internal System.Windows.Forms.Label label232;
+        internal System.Windows.Forms.Label label231;
+        internal System.Windows.Forms.Label label230;
     }
 }
 
