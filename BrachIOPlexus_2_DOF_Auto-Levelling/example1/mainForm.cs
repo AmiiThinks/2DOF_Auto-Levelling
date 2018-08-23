@@ -268,6 +268,7 @@ namespace brachIOplexus
         bool opened = false;            //false until the synchro sequence has completely opened
         bool closed = false;            //false until the syhchro sequence has completely closed
         bool done = true;               //true if this is the first time through the loop doing synchro (and between sequences); false if in mid-sequence.
+        int button_timer = 0;           //time that the button to turn on AL was last pressed
 
         #endregion
 
@@ -6115,6 +6116,26 @@ namespace brachIOplexus
                 {
                     synchronize();
                 }
+
+                //Turn on/off autolevelling using Arduino button - db
+                if (arduino_A6.Text == "0" && button_timer > 50)
+                {
+                    button_timer = 0;
+
+                    if (AL_Enabled.Checked)
+                    {
+                        AL_Enabled.Checked = false;                      
+                    }
+                    else
+                    {
+                        AL_Enabled.Checked = true;                       
+                    }
+                }
+                if (button_timer < 100)
+                {
+                    button_timer = button_timer + 1;
+                }
+                
 
                 //Data Logging, start and stop- ja
                 #region Logging Starting and Stopping
