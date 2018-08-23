@@ -6905,7 +6905,7 @@ namespace brachIOplexus
                     //Autolevel rotation
                     MoveLevelRot();
                     //Autolevel flexion
-                    MoveLevelFlx();
+                    MoveLevelFlx();                    
                 }
             }
             else
