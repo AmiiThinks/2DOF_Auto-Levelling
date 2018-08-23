@@ -275,7 +275,7 @@ namespace brachIOplexus
         // Logging parameters and variables
         Stopwatch stopwatchLogging = new Stopwatch();
         int logFilesCount = 0;
-        string loggingFilePath = "C:\\Users\\Dylan\\Dropbox\\School\\Projects\\Adaptive Wrist\\Comp Movements Study\\BrachIOPlexus Logs";
+        string loggingFilePath = "C:\\Users\\Dylan\\Dropbox\\School\\Projects\\Adaptive Wrist\\Comp Movements Study\\BrachIOPlexus Logs\\Pro00077893-03-18-145";
         bool firstCallToLog = true;
         List<string> logPosition = new List<String>();
         bool logging = false;
