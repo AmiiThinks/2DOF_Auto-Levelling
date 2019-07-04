@@ -96,6 +96,11 @@ void loop()
   sensors_event_t event; 
   bno.getEvent(&event);
   imu::Vector<3> imu = bno.getVector(Adafruit_BNO055::VECTOR_GRAVITY);
+  Serial.print(imu.x());
+  Serial.print(",");
+  Serial.print(imu.y());
+  Serial.print(",");
+  Serial.println(imu.z());
   
 //  // Map gravity values from 0 to 1023 for BrachI/Oplexus:
   imu.x() = max(min(map(imu.x()*1000,-9810,9810,0,1023),1023),0);
@@ -126,7 +131,8 @@ void loop()
       }
     }
       timer1 = 0;
-      Serial.println(concat_message);
+
+//      Serial.println(concat_message);
   }
   
 }

@@ -1,0 +1,1220 @@
+﻿#region "Meta Data"
+/*  
+'   File....... mainForm.CS
+'   Purpose.... Provide a GUI for mapping EMG and joystick signals to the Bento Arm
+'   Author..... Michael Dawson
+'   Help....... mrd1@ualberta.ca
+'   Started.... 09/12/2009
+'   Updated.... 
+'   Version.... 1.0.0.0
+'
+'   xPC Target (aka Simulink Realtime) .NET API Copyright Mathworks (see matlab R2014a documentation for help)
+
+*/
+#endregion
+//New adaptive switching AL arm
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using System.IO;                // For save/open parameters functionality
+using System.IO.Ports;          // For communicating with the simulator
+using System.Diagnostics;       // For processing simulator object
+using System.Net;               // For simulator communication
+using System.Net.Sockets;       // For simulator communication
+using System.Threading;
+using System.Management;
+using MathWorks.xPCTarget.FrameWork;    // for SLRT (xPC Target)
+using XInputDotNetPure;                 // for xbox controller
+using dynamixel_sdk;                    // for dynamixel
+using MyoSharp.Communication;           // for MyoSharp
+using MyoSharp.Device;                  // for MyoSharp
+using MyoSharp.Exceptions;              // for MyoSharp
+using Clifton.Collections.Generic;      // For simple moving average
+using Clifton.Tools.Data;               // For simple moving average
+using System.Windows.Input;
+
+namespace brachIOplexus
+{
+    public partial class mainForm : Form
+    {
+
+        #region "Initialization"
+        // Create xPC Target parameter object for xPC Target/SLRT interface
+        xPCParameter param;
+        int[] SLRT_ch = new int[8];
+
+        // Create TCP listener/client for biopatrec communication and initalize related variables
+        TcpListener listener;
+        TcpClient client;
+        NetworkStream netStream;
+        Thread t = null;
+        Int32 biopatrec_ID = 0;
+        Int32 biopatrec_vel = 0;
+        const int CLASS_NUM = 25;                        // Number of classes that are available for mapping
+        Stopwatch stopWatch2 = new Stopwatch();
+        long milliSec2;     // the timestep of the biopatrec loop in milliseconds
+
+        // Create a socket client object for legacy simulator
+        System.Net.Sockets.TcpClient socketClient = new System.Net.Sockets.TcpClient();
+
+        // Process variable for legacy simulator
+        private Process myProcess = new Process();
+        // Properties for running the process are stored here
+        private ProcessStartInfo procInfo = new ProcessStartInfo();
+
+        // Absolute path to the profiles used as part of the 'Open/Save Profiles' functionality
+        string ProfilesPath = @"Resources\Profiles";
+
+        // Create a sound player for sequential switching feedback
+        System.Media.SoundPlayer player = new System.Media.SoundPlayer();
+
+        // XInputDotNet - Initialize ReporterState for XBOX controller
+        private ReporterState reporterState = new ReporterState();
+        bool XboxBuzzFlag = false;
+        Stopwatch XboxTimer = new Stopwatch();
+
+        // SimpleMovingAverage - Initialize variables used for simple moving average filter for MYO EMG channels
+        static int window = 40;     // The window size for the averaging filters i.e. the number of samples it averages over
+        static IMovingAverage avg1 = new SimpleMovingAverage(window);    // for simplemovingaverage filter
+        static IMovingAverage avg2 = new SimpleMovingAverage(window);    // for simplemovingaverage filter
+        static IMovingAverage avg3 = new SimpleMovingAverage(window);    // for simplemovingaverage filter
+        static IMovingAverage avg4 = new SimpleMovingAverage(window);    // for simplemovingaverage filter
+        static IMovingAverage avg5 = new SimpleMovingAverage(window);    // for simplemovingaverage filter
+        static IMovingAverage avg6 = new SimpleMovingAverage(window);    // for simplemovingaverage filter
+        static IMovingAverage avg7 = new SimpleMovingAverage(window);    // for simplemovingaverage filter
+        static IMovingAverage avg8 = new SimpleMovingAverage(window);    // for simplemovingaverage filter
+
+        // MyoSharp - Initialize variables
+        private IChannel channel;
+        private IHub hub;
+        float ch1_value;
+        float ch2_value;
+        float ch3_value;
+        float ch4_value;
+        float ch5_value;
+        float ch6_value;
+        float ch7_value;
+        float ch8_value;
+        bool myoBuzzFlag = false;
+
+        // Keyboard - Initialize variables
+        const int KB_NUM = 15;                        // Number of keyboard keys that are available for mapping
+        double[] KBvel = new double[KB_NUM];
+
+        // add stopwatch for tracking main loop delay
+        Stopwatch stopWatch1 = new Stopwatch();
+        long milliSec1;     // the timestep of the main loop in milliseconds -> will vary depending on how many dynamixel servos are connected
+
+        // Quick Profiles - Initialize variables
+        bool QuickProfileFlag = false;
+        int QuickProfileState = 0;
+
+        // Auto-suspend - Initialize variables
+        bool autosuspend_flag = false;
+
+        // serialArduinoInput - initialize variables for reading in strings over serial or bluetooth
+        string RxString;
+        char[] separatingChars = { 'A', 'B', 'C', 'D' };
+        Stopwatch ArduinoStartTimer = new Stopwatch();
+        long ArduinoStartDelay = 1000;     // the timestep of the main loop in milliseconds -> will vary depending on how many dynamixel servos are connected
+
+        // Adaptive Switching UPD Communication - Initialize Variables
+        //UdpClient udpClient2 = new UdpClient();
+        static System.Threading.Timer timerPython;
+        static Int32 portPythonTX = 30002;                                   // Set the UDP ports
+        static Int32 portPythonRX = 30003;                                   // Set the UDP ports
+        static IPAddress localAddrPython = IPAddress.Parse("127.0.0.1");     // address for localhost
+        UdpClient udpClientPythonTX;
+        IPEndPoint ipEndPointPythonTX;
+        UdpClient udpClientPythonRX;
+        IPEndPoint ipEndPointPythonRX;
+        Stopwatch stopWatchPython = new Stopwatch();
+        long milliSecPythonUDPLoop;     // the timestep of the UDP loop in milliseconds
+        bool UDPFlagPython = false;   // Flag used to used to track whether the demoSurpriseButton has been clicked and whether it is in the launch or close state
+        double[] AdaptivePred = new double[5];
+        int[] AdaptiveIndex = new int[] { 0, 1, 2, 3, 4 };
+        bool adaptiveFreeze = false;        // the state variable for controlling whether the switching list is frozen under certain conditions (i.e. adaptiveFreeze = true -> freeze the list, adaptiveFreeze = false -> allow the list to be re-ordered)
+
+
+        #region "Dynamixel SDK Initilization"
+        // DynamixelSDK
+        // Control table address
+        public const int ADDR_MX_TORQUE_ENABLE = 24;                  // Control table address is different in Dynamixel model
+        public const int ADDR_MX_LED = 25;
+        public const int ADDR_MX_GOAL_POSITION = 30;
+        public const int ADDR_MX_MOVING_SPEED = 32;
+        public const int ADDR_MX_TORQUE_LIMIT = 34;
+        public const int ADDR_MX_PRESENT_POSITION = 36;
+        public const int ADDR_MX_PRESENT_SPEED = 38;
+        public const int ADDR_MX_PRESENT_LOAD = 40;
+        public const int ADDR_MX_PRESENT_VOLTAGE = 42;
+        public const int ADDR_MX_PRESENT_TEMP = 43;
+        public const int ADDR_MX_MOVING = 46;
+
+        // Data Byte Length
+        public const int LEN_MX_GOAL_POSITION = 2;
+        public const int LEN_MX_MOVING_SPEED = 2;
+        public const int LEN_MX_GOAL_POS_SPEED = 4;
+        public const int LEN_MX_TORQUE_LIMIT = 2;
+        public const int LEN_MX_PRESENT_POSITION = 2;
+        public const int LEN_MX_PRESENT_SPEED = 2;
+        public const int LEN_MX_PRESENT_LOAD = 2;
+        public const int LEN_MX_PRESENT_VOLTAGE = 1;
+        public const int LEN_MX_PRESENT_TEMP = 1;
+        public const int LEN_MX_MOVING = 1;
+
+        // Protocol version
+        public const int PROTOCOL_VERSION = 1;                   // See which protocol version is used in the Dynamixel
+
+        // Default setting
+        public const int BENTO_NUM = 5;                 // Number of Servos on the bus
+        public const int DXL1_ID = 1;                   // Dynamixel ID: 1 (shoulder)
+        public const int DXL2_ID = 2;                   // Dynamixel ID: 2 (elbow)
+        public const int DXL3_ID = 3;                   // Dynamixel ID: 3 (wrist rot)
+        public const int DXL4_ID = 4;                   // Dynamixel ID: 4 (wrist flex)
+        public const int DXL5_ID = 5;                   // Dynamixel ID: 5 (hand open/close)
+        public const int BAUDRATE = 1000000;
+        public const string DEVICENAME = "COM14";      // Check which port is being used on your controller
+
+        public const int TORQUE_ENABLE = 1;                   // Value for enabling the torque
+        public const int TORQUE_DISABLE = 0;                   // Value for disabling the torque
+        public const int LED_ON = 1;                            // Value for turning on LED
+        public const int LED_OFF = 0;                           // Value for turning of LED
+        public const int DXL_MINIMUM_POSITION_VALUE = 1100;                 // Dynamixel will rotate between this value
+        public const int DXL_MAXIMUM_POSITION_VALUE = 3000;                // and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
+        public const int DXL_MOVING_STATUS_THRESHOLD = 10;                  // Dynamixel moving status threshold
+
+        public const byte ESC_ASCII_VALUE = 0x1b;
+
+        public const int COMM_SUCCESS = 0;                   // Communication Success result value
+        public const int COMM_TX_FAIL = -1001;               // Communication Tx Failed
+
+        // Initialize PortHandler Structs
+        int port_num = 0;
+
+        // Initialize Groupbulkread group
+        int read_group_num = 0;
+        public const int read_length = 10;                   // The number of bytes to read in the group bulk read packet
+
+        // Initialize Groupsyncwrite group
+        int write_group_num = 0;
+
+        int dxl_comm_result = COMM_TX_FAIL;                                   // Communication result
+        byte dxl_error = 0;                                                   // Dynamixel error
+
+        bool dxl_addparam_result = false;                                     // AddParam result
+        bool dxl_getdata_result = false;                                      // GetParam result
+
+        // Dynamixel servo parameters
+        UInt16 ID1_present_position = 0;
+        UInt16 ID1_prev_state = 0;   // 0 = stopped, 1 = moving CW, 2 = moving CCW
+        UInt16 ID1_goal_position = 0;
+        UInt16 ID1_moving_speed = 1;
+        UInt16 ID1_connected = 0;      // Is the dynamixel connected (0 = no, 1 = yes)
+
+        UInt16 ID2_present_position = 0;
+        UInt16 ID2_prev_state = 0;   // 0 = stopped, 1 = moving CW, 2 = moving CCW
+        UInt16 ID2_goal_position = 0;
+        UInt16 ID2_moving_speed = 1;
+        UInt16 ID2_connected = 0;      // Is the dynamixel connected (0 = no, 1 = yes)
+
+        UInt16 ID3_present_position = 0;
+        UInt16 ID3_prev_state = 0;   // 0 = stopped, 1 = moving CW, 2 = moving CCW
+        UInt16 ID3_goal_position = 0;
+        UInt16 ID3_moving_speed = 1;
+        UInt16 ID3_connected = 0;      // Is the dynamixel connected (0 = no, 1 = yes)
+
+        UInt16 ID4_present_position = 0;
+        UInt16 ID4_prev_state = 0;   // 0 = stopped, 1 = moving CW, 2 = moving CCW
+        UInt16 ID4_goal_position = 0;
+        UInt16 ID4_moving_speed = 1;
+        UInt16 ID4_connected = 0;      // Is the dynamixel connected (0 = no, 1 = yes)
+
+        UInt16 ID5_present_position = 0;
+        int ID5_present_load = 0;
+        UInt16 ID5_prev_state = 0;   // 0 = stopped, 1 = moving CW, 2 = moving CCW
+        UInt16 ID5_goal_position = 0;
+        UInt16 ID5_moving_speed = 1;
+        UInt16 ID5_connected = 0;      // Is the dynamixel connected (0 = no, 1 = yes)
+
+        UInt16 BentoOverloadError = 0;    // This stores the status of whether there are any overload errors detected with the dynamixel servos. 0 - no errors, 1 - warnings, 2 - errors
+        UInt16 BentoOverheatError = 0;    // This stores the status of whether there are any overload errors detected with the dynamixel servos. 0 - no errors, 1 - warnings, 2 - errors
+
+        // Used as part of the auto suspend functionality (i.e. see run/suspend buttons on bento tab)
+        bool bentoSuspend = false;
+
+        #endregion
+
+        #region "Auto-Levelling Initialization"
+        //Variable initialization for auto-levelling functionality - db
+
+        //PID variables
+        double errSum_phi = 0;              //sum of error accumulated for integral component of PID
+        double lastErr_phi = 0;             //error on last timestep of PID
+        double errSum_theta = 0;              //sum of error accumulated for integral component of PID
+        double lastErr_theta = 0;             //error on last timestep of PID
+        int x_component = 0;            //x component of IMU reading of gravity acceleration 
+        int y_component = 0;            //y component of IMU reading of gravity acceleration 
+        int z_component = 0;            //x component of IMU reading of gravity acceleration 
+        double phi = 180;               //roll angle of wrist
+        double theta = 180;             //flexion angle of wrist
+        double setpoint_phi = 180;      //target roll angle of wrist
+        double setpoint_theta = 180;    //target flexion angle of wrist
+        double Kp_phi = 0.32;           //PID proportional constant for phi
+        double Ki_phi = 0.06;              //PID integral constant for phi
+        double Kd_phi = 8.79;              //PID derivative constant for phi
+        double Kp_theta = 0.29;         //PID proportional constant for theta
+        double Ki_theta = 0.42;            //PID integral constant for theta
+        double Kd_theta = 8.00;            //PID derivative constant for theta
+        double output_phi = 0;          //output from PID controller for phi
+        double output_theta = 0;        //output from PID controller for phi
+        int RotAdjustment = 0;          //initial adjustment for rotation
+        int FlxAdjustment = 0;          //initial adjustment for flexion
+        bool newvalues = true;          //true if arduino input values haven't been remapped yet, false if they have
+        bool reset_setpoints = true;    //true if time to reset setpoints (not currently autolevelling), false if currently autolevelling to some setpoint.
+        bool autoLevelWristFlex = true;  //true if wrist flexion is being directly controlled (disallows autolevelling), false if it is not (allows autolevelling)  
+        bool autoLevelWristRot = false;  //true if wrist rotation is locked (disallows autolevelling), false if it is not (allows autolevelling)  
+        int switched = 0;               //1 if switching signal has been given. Used just for logging purposes.
+        int joint_controlled = 5;       //5 if controlling the hand currently; 4 if controlling the wrist flexion. Used for logging purposes.
+        bool synchro_sequence = false;  //Flag indicating the synchronization sequence is currently underway.
+        int initial_TD_pos = 0;         //Initial TD position prior to the synchronization sequence
+        bool opened = false;            //false until the synchro sequence has completely opened
+        bool closed = false;            //false until the syhchro sequence has completely closed
+        bool done = true;               //true if this is the first time through the loop doing synchro (and between sequences); false if in mid-sequence.
+        int button_timer = 0;           //time that the button to turn on AL was last pressed
+
+        #endregion
+
+
+        // Initialization for data logging - ja
+        // Logging parameters and variables
+        Stopwatch stopwatchLogging = new Stopwatch();
+        int logFilesCount = 0;
+        string loggingFilePath = "C:\\Users\\Dylan\\Dropbox\\School\\Projects\\Adaptive Wrist\\Comp Movements Study\\BrachIOPlexus Logs\\Pro00077893-03-18-145";
+        bool firstCallToLog = true;
+        List<string> logPosition = new List<String>();
+        bool logging = false;
+        bool loggingtrigger = false;
+        double startTime = 0;
+        bool space_pressed = false;
+
+        #region "Mapping Classes"
+
+        // Classes for storing information about mapping and robot data
+
+        // Class DoF_ stores all the information about each degree of freedom (DoF).
+        public class DoF_
+        {
+            public bool Enabled { get; set; }   // Whether the DoF is enabled or not
+            public int flipA { get; set; }       // This value is used to keep track of whether the output order for a given DoF has been flipped from how they are ordered by default in the output list 
+            public int flipB { get; set; }       // This value is used to keep track of whether the output order for a given DoF has been flipped from how they are ordered by default in the output list
+            public Ch ChA { get; set; }         // Each DoF has two channels by default. This is the first channel.
+            public Ch ChB { get; set; }         // This is the second channel.
+
+            public DoF_()
+            {
+                ChA = new Ch();
+                ChB = new Ch();
+            }
+
+        }
+
+        // Class Ch stores all the properties of a single channel
+        public class Ch
+        {
+            public Put input { get; set; }    // The input device that the channel is mapped to
+            public Put output { get; set; }   // The output device that the channel is mapped to
+            public int mapping { get; set; }  // The mapping method used for driving the output device from the input signal. The default method is 'first past smin'
+            public int signal { get; set; }   // The signal strength of the input device on the current time step.
+            public decimal gain { get; set; }     // The gain that is being applied to the signal strength. Can be used to 'zoom' in on the signal
+            public decimal smin { get; set; }     // The minimum threshold below which the motor does not move and above which the motor moves
+            public decimal smax { get; set; }     // The maximum threshold above which the motor just continues to move at its maximum velocity
+            public bool Enabled { get; set; }   // Whether the channel is enabled or not
+
+            public Ch()
+            {
+                input = new Put();
+                output = new Put();
+            }
+        }
+
+        // Class Put stores the type and ID of each input device
+        public class Put
+        {
+            public int Type { get; set; }    // The type of device (i.e. 1 = XBox, 2 = Myo, 3 = Keyboard) 
+            public int ID { get; set; }      // The index of the device in the CheckedList in the Input/Output tab
+        }
+
+        // Class Switching stores all of the properties related to sequential switching
+        public class Switching
+        {
+            public int DoF { get; set; }          // The DoF that will utilize sequential switching
+            public int mode { get; set; }         // The switching mode (i.e. 0 = button press, 1 = co-contraction)
+            public int input { get; set; }        // The button to use as a trigger if switching mode is set to button press
+            public int signal { get; set; }       // The signal strength of the input device on the current time step.
+            public decimal gain { get; set; }     // The gain that is being applied to the signal strength. Can be used to 'zoom' in on the signal
+            public decimal smin1 { get; set; }     // The minimum threshold below which the motor does not move and above which the motor moves
+            public decimal smax1 { get; set; }     // The maximum threshold above which the motor just continues to move at its maximum velocity
+            public decimal cctime { get; set; }   // The time lockout where the algorithm neither moves or switches after a signal has crosses threshold
+            public decimal smin2 { get; set; }     // The minimum threshold below which the motor does not move and above which the motor moves
+            public decimal smax2 { get; set; }     // The maximum threshold above which the motor just continues to move at its maximum velocity
+            public bool flag1 { get; set; }        // The flag used to track whether the max threshold of channel 1 was crossed during co-contraction switching (false = not crossed, true = crossed)
+            public bool flag2 { get; set; }        // The flag used to track whether the max threshold of channel 2 was crossed during co-contraction switching (false = not crossed, true = crossed)
+            public List[] List = new List[SWITCH_NUM];      // The actual switching list
+
+            public Switching()
+            {
+                List = new List[SWITCH_NUM];
+                for (int i = 0; i < SWITCH_NUM; i++)
+                {
+                    List[i] = new List();
+                }
+            }
+        }
+
+        // Class List stores all the properties for each item in the sequential switching list
+        public class List
+        {
+            public int output { get; set; }     // The output device that the channel is mapped to
+            public int flip { get; set; }       // This value is used to keep track of whether the output order for a given DoF has been flipped from how they are ordered by default in the output list 
+            public int mapping { get; set; }    // The mapping method used for driving the output device from the input signal. The default method is 'first past smin'
+        }
+
+        // Class Robot stores all the properties for controlling a robot
+        public class Robot
+        {
+            public int type { get; set; }       // The type of robot. (i.e. 0 = dynamixel, 1 = RC servo)
+            public int torque { get; set; }     // Used for turning the torque on/off
+            public int suspend { get; set; }    // Used for connecting or disconnecting the input devices from the output joints
+            public int counter = 0;             // Used for counting the instances of the class https://stackoverflow.com/questions/12276641/count-instances-of-the-class
+            public Motor[] Motor = new Motor[BENTO_NUM];    // The list of motors
+            public Robot()
+            {
+                Interlocked.Increment(ref counter);
+
+                Motor = new Motor[BENTO_NUM];
+                for (int i = 0; i < BENTO_NUM; i++)
+                {
+                    Motor[i] = new Motor();
+                }
+            }
+            ~Robot()
+            {
+                Interlocked.Decrement(ref counter);
+            }
+
+        }
+
+        // Class Motor stores the properties for each motor
+        public struct Motor
+        {
+            public int pmin { get; set; }       // the CW angle limit of the motor
+            public int pmax { get; set; }       // the CCW angle limit of the motor
+            public int p { get; set; }       // the goal position
+            public int p_prev { get; set; }     // the previous position of the motor (used for stopping dynamixel motors)
+            public int wmin { get; set; }       // the minimum velocity of the motor
+            public int wmax { get; set; }       // the maximum velocity of the motor
+            public int w { get; set; }       // the goal velocity
+            public int w_prev { get; set; }     // the previous velocity of the motor (not currently being used)
+
+
+        }
+
+        public class State
+        {
+            public int dofState { get; set; }       // The state of the DoF from the previous timestep. (not currently being used)
+            public int switchState { get; set; }    // The state of the sequential switch (i.e. 0 = below threshold, 1 = above threshold -> switch to next item on list, 2 = Don't allow another switching event until both of the channels drops below threshold)                  
+            public int listPos { get; set; }        // The position of the sequential switch in the switching order (i.e. cycles between 0 and 5 as)
+
+            public long timer1 { get; set; }        // Counter used for co-contracting switching.
+            public long timer2 { get; set; }        // 2nd counter used for co-contracting switching
+            public int[] motorState = new int[BENTO_NUM];   // The state of each motor (i.e. 0 = off, 1 = moving in cw direction, 2 = moving in ccw direction, 3 = hanging until co-contraction is finished)
+            public State()
+            {
+                motorState = new int[BENTO_NUM];
+                for (int i = 0; i < BENTO_NUM; i++)
+                {
+                    motorState[i] = new int();
+                }
+            }
+        }
+
+        // Class RobotSensors stores the feedback values from a robot's sensors to be used for logging or streaming over UDP to other software
+        public class RobotSensors
+        {
+            public int counter = 0;             // Used for counting the instances of the class https://stackoverflow.com/questions/12276641/count-instances-of-the-class
+            public ID[] ID = new ID[BENTO_NUM];    // The list of motors
+            public RobotSensors()
+            {
+                Interlocked.Increment(ref counter);
+
+                ID = new ID[BENTO_NUM];
+                for (int i = 0; i < BENTO_NUM; i++)
+                {
+                    ID[i] = new ID();
+                }
+            }
+            ~RobotSensors()
+            {
+                Interlocked.Decrement(ref counter);
+            }
+
+        }
+
+        // Class ID stores the sensor values for each motor from the RobotSensors class
+        public class ID
+        {
+            public ushort pos { get; set; }       // the current position of the motor
+            public ushort posf { get; set; }      // the current filtered position of the motor
+            public ushort vel { get; set; }       // the current velocity of the motor
+            public ushort load { get; set; }      // the current load of the motor
+            public ushort loadf { get; set; }      // the current filtered load of the motor
+            public ushort volt { get; set; }      // the voltage of the motor
+            public ushort temp { get; set; }      // the current temperature of the motor
+            public ushort tempf { get; set; }      // the current filtered temperature of the motor
+        }
+
+        // Initialize state, robot, and switching object
+        State stateObj = new State();
+        public const int DOF_NUM = 6;       // the number of DoF in the GUI
+        public const int SWITCH_NUM = 5;    // the number of slots for sequential switching
+
+        Robot robotObj = new Robot();
+        Switching switchObj = new Switching();
+        DoF_[] dofObj = new DoF_[DOF_NUM];
+        RobotSensors BentoSense = new RobotSensors();
+
+        #endregion
+
+        public mainForm()
+        {
+            InitializeComponent();
+        }
+
+        private void mainForm_Load(object sender, EventArgs e)
+        {
+
+            // How to find com ports and populate combobox: http://stackoverflow.com/questions/13794376/combo-box-for-serial-port
+            string[] ports = SerialPort.GetPortNames();
+            cmbSerialPorts.DataSource = ports;
+
+            // Audo-detect com port that is connected to the USB2dynamixel
+            string auto_com_port = Autodetect_Dyna_Port();
+            // How to check index of combobox based on string: http://stackoverflow.com/questions/13459772/how-to-check-index-of-combobox-based-on-string
+            if (auto_com_port != null)
+            {
+                cmbSerialPorts.SelectedIndex = cmbSerialPorts.Items.IndexOf(auto_com_port);
+            }
+            else
+            {
+                cmbSerialPorts.SelectedIndex = cmbSerialPorts.Items.Count - 1;
+            }
+
+            // Auto-detect COM port that is connected to the Arduino/Bluetooth mate
+            // How to sort the COM ports: http://www.prodigyproductionsllc.com/articles/programming/get-and-sort-com-port-names-using-c/
+            // Also need to convert to list: http://stackoverflow.com/questions/9285426/orderby-and-list-vs-iorderedenumerable
+            var sortedList = ports.OrderBy(port => Convert.ToInt32(port.Replace("COM", string.Empty))).ToList();
+            ArduinoInputCOM.DataSource = sortedList;
+
+            // Use this code if you are connecting the arduino via a bluetooth mate
+            if (ArduinoInputCOM.Items.Count < 2)
+            {
+                ArduinoInputCOM.SelectedIndex = ArduinoInputCOM.Items.Count - 1;
+            }
+            else
+            {
+                ArduinoInputCOM.SelectedIndex = ArduinoInputCOM.Items.Count - 2;
+            }
+
+
+            //// Use this code if you are connecting the arduino via a USB cable
+            //// Reference 1: https://stackoverflow.com/questions/3293889/how-to-auto-detect-arduino-com-port
+            //// Reference 2: https://stackoverflow.com/questions/450059/how-do-i-set-the-selected-item-in-a-combobox-to-match-my-string-using-c
+            //ArduinoInputCOM.SelectedIndex = ArduinoInputCOM.FindStringExact(AutodetectArduinoPort());
+
+            // Initialize text for degree of freedom comboboxes
+            doF1.DoFBox.Text = "Degree of Freedom 1";
+            doF2.DoFBox.Text = "Degree of Freedom 2";
+            doF3.DoFBox.Text = "Degree of Freedom 3";
+            doF4.DoFBox.Text = "Degree of Freedom 4";
+            doF5.DoFBox.Text = "Degree of Freedom 5";
+            doF6.DoFBox.Text = "Degree of Freedom 6";
+
+            // Initialize mapping objects
+            for (int i = 0; i < DOF_NUM; i++)
+            {
+                dofObj[i] = new DoF_();
+
+            }
+
+            // hide xPC target / simulink realtime tab page. May be added back in a future release
+            //tabcontrol1.tabpages.remove(tabxpc);
+
+            // Load default parameters
+            try
+            {
+                if (File.Exists(@"Resources\Profiles\default.dat") == true)
+                {
+                    //Load profile parameters from default save file
+                    LoadParameters(@"Resources\Profiles\default.dat");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            // Start pollingWorker! This is the main loop for reading in the keyboard/Xbox inputs and sending packets to the output devices.
+            pollingWorker.RunWorkerAsync();
+
+            // Used to auto deselect when duplicate input/output values are selected and autofill when paired output values are selected in the mapping tab
+            List<DoF> dof_list = this.tabControl1.TabPages[1].Controls.OfType<DoF>().ToList<DoF>();
+
+            foreach (DoF dof in dof_list)
+            {
+                dof.channel1.OutputIndexChanged += filterOutputComboBox;
+                dof.channel2.OutputIndexChanged += filterOutputComboBox;
+                dof.channel1.InputIndexChanged += filterInputComboBox;
+                dof.channel2.InputIndexChanged += filterInputComboBox;
+                dof.channel1.MappingIndexChanged += filterMappingComboBox;
+                dof.channel2.MappingIndexChanged += filterMappingComboBox;
+
+            }
+
+        }
+
+        private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    // Disconnect from the target.
+                    tg.Disconnect();
+                }
+
+                // Close simulator connection
+                socketClient.Close();
+
+                // Dispose of sound player
+                player.Dispose();
+
+                // Turn off serial communication with LED display arduino if it has not been already
+                if (serialPort1.IsOpen)
+                {
+                    // need to disable RtsEnable when closing the port otherwise it slows down the Arduino Leonardo/Micro boards. Not necessary for other arduino boards
+                    serialPort1.RtsEnable = false;
+                    serialPort1.Close();
+                }
+
+                // Turn off serial communication with Robo-limb if it has not been already
+                if (serialArduinoInput.IsOpen)
+                {
+                    // need to disable RtsEnable when closing the port otherwise it slows down the Arduino Leonardo/Micro boards. Not necessary for other arduino boards
+                    serialArduinoInput.RtsEnable = false;
+                    serialArduinoInput.Close();
+                }
+
+                // XInputDotNet - stop pollingWorker
+                pollingWorker.CancelAsync();
+
+                // Close the UDP communication for the adaptive switching demo		
+                // Clean up the client and server objects and close the python scripts		
+                if (UDPFlagPython == true)
+                {
+                    udpClientPythonTX.Close();
+                    udpClientPythonRX.Close();
+                    timerPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
+                }
+
+
+                // Close port
+                if (BentoGroupBox.Enabled == true)
+                {
+                    dynamixel.closePort(port_num);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        // Helper function for figuring out the COM port associated with an Arduino wired to the computer with a USB cable
+        private string AutodetectArduinoPort()
+        {
+            ManagementScope connectionScope = new ManagementScope();
+            SelectQuery serialQuery = new SelectQuery("SELECT * FROM Win32_SerialPort");
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(connectionScope, serialQuery);
+
+            try
+            {
+                foreach (ManagementObject item in searcher.Get())
+                {
+                    string desc = item["Description"].ToString();
+                    string deviceId = item["DeviceID"].ToString();
+
+                    if (desc.Contains("Arduino") || desc.Contains("Genuino"))
+                    {
+                        return deviceId;
+                    }
+                }
+            }
+            catch (ManagementException e)
+            {
+                /* Do Nothing */
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region "Legacy Code"
+        // This code is from an old version of the GUI. We may revive some of it in a future version, but for now these functionalities are disabled
+
+        #region "Communication Settings (xPC Target)"
+        private void loadButton_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                // Load the application (.DLM file).
+                tg.Load();
+                model_name.Text = tg.Application.Name;
+
+                // Set initial channel and mapping parameters
+                SetParameters();
+
+                connectButton.Enabled = false;
+                loadButton.Enabled = true;
+                startButton.Enabled = true;
+                stopButton.Enabled = false;
+                unloadButton.Enabled = true;
+                disconnectButton.Enabled = true;
+            }
+            catch (xPCException me)
+            {
+                MessageBox.Show(me.Message);
+            }
+        }
+
+        private void startButton_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == false)
+                {
+                    MessageBox.Show("Not connected!");
+                }
+
+                // Start the application.
+                xPCApplication app = tg.Application;
+                xPCTargetScopeCollection tScopes = app.Scopes.TargetScopes;
+                tScopes.Refresh();
+                app.StopTime = -1;  // Set stop time to infinity.
+                tScopes.StartAll();
+                app.Start();
+
+                connectButton.Enabled = false;
+                loadButton.Enabled = false;
+                startButton.Enabled = false;
+                stopButton.Enabled = true;
+                unloadButton.Enabled = false;
+                disconnectButton.Enabled = false;
+                //Timer1.Enabled = true;
+
+                // Enable SLRT feedback and reconfigure the GUI
+                SLRTgroupBox.Enabled = true;
+                SLRTdisconnect.Enabled = true;
+                SLRTconnect.Enabled = false;
+                SLRTlist.Enabled = true;
+                SLRTselectAll.Enabled = true;
+                SLRTclearAll.Enabled = true;
+            }
+            catch (xPCException me)
+            {
+                MessageBox.Show(me.Message);
+            }
+        }
+        private void stopButton_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                // Stop the application.
+                tg.Application.Stop();
+
+                connectButton.Enabled = false;
+                loadButton.Enabled = true;
+                startButton.Enabled = true;
+                stopButton.Enabled = false;
+                unloadButton.Enabled = true;
+                disconnectButton.Enabled = true;
+                Timer1.Enabled = false;
+                Timer2.Enabled = false;
+                Timer3.Enabled = false;
+
+            }
+            catch (xPCException me)
+            {
+                MessageBox.Show(me.Message);
+            }
+        }
+
+        private void connectButton_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                // Before trying to connect, make sure we're disconnected first in case we are now connecting to a different target.
+                if (tg.IsConnected == true)
+                {
+                    tg.Disconnect();
+                    if (tg.IsConnected != false)
+                        MessageBox.Show("Could not Disconnect!");
+                }
+
+                // Set the target TCP/IP address and port.
+                tg.TcpIpTargetAddress = ipaddressTB.Text;
+                tg.TcpIpTargetPort = ipportTB.Text;
+
+                // Now connect.
+                tg.Connect();
+                if (tg.IsConnected == true)
+                {
+                    // MessageBox.Show("Connected!");
+                    connectButton.Enabled = false;
+                    loadButton.Enabled = true;
+                    startButton.Enabled = false;
+                    stopButton.Enabled = false;
+                    unloadButton.Enabled = false;
+                    disconnectButton.Enabled = true;
+                }
+                else
+                    MessageBox.Show("Could not Connect!");
+            }
+            catch (xPCException me)
+            {
+                MessageBox.Show(me.Message);
+            }
+
+        }
+
+        private void SetParameters()
+        {
+            // Set the parameters in the xPC target program to the desired initial paramters
+            DoF1_mapping_combobox_SelectedIndexChanged(this, new EventArgs());
+            DoF1_mode_box_SelectedIndexChanged(this, new EventArgs());
+            DoF1_flip_checkBox_CheckedChanged(this, new EventArgs());
+            ch1_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch1_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch1_smax_ctrl_ValueChanged(this, new EventArgs());
+            ch2_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch2_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch2_smax_ctrl_ValueChanged(this, new EventArgs());
+
+            DoF2_mapping_combobox_SelectedIndexChanged(this, new EventArgs());
+            DoF2_mode_box_SelectedIndexChanged(this, new EventArgs());
+            DoF2_flip_checkBox_CheckedChanged(this, new EventArgs());
+            ch3_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch3_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch3_smax_ctrl_ValueChanged(this, new EventArgs());
+            ch4_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch4_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch4_smax_ctrl_ValueChanged(this, new EventArgs());
+
+            DoF3_mapping_combobox_SelectedIndexChanged(this, new EventArgs());
+            DoF3_mode_box_SelectedIndexChanged(this, new EventArgs());
+            DoF3_flip_checkBox_CheckedChanged(this, new EventArgs());
+            ch5_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch5_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch5_smax_ctrl_ValueChanged(this, new EventArgs());
+            ch6_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch6_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch6_smax_ctrl_ValueChanged(this, new EventArgs());
+
+            DoF4_mapping_combobox_SelectedIndexChanged(this, new EventArgs());
+            DoF4_mode_box_SelectedIndexChanged(this, new EventArgs());
+            DoF4_flip_checkBox_CheckedChanged(this, new EventArgs());
+            ch7_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch7_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch7_smax_ctrl_ValueChanged(this, new EventArgs());
+            ch8_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch8_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch8_smax_ctrl_ValueChanged(this, new EventArgs());
+
+            switch_dof_combobox_SelectedIndexChanged(this, new EventArgs());
+            switch_mode_combobox_SelectedIndexChanged(this, new EventArgs());
+            ch9_gain_ctrl_ValueChanged(this, new EventArgs());
+            ch9_smin_ctrl_ValueChanged(this, new EventArgs());
+            ch9_smax_ctrl_ValueChanged(this, new EventArgs());
+            cctime_ctrl_ValueChanged(this, new EventArgs());
+            Switch_cycle1_combobox_SelectedIndexChanged(this, new EventArgs());
+            Switch_cycle2_combobox_SelectedIndexChanged(this, new EventArgs());
+            Switch_cycle3_combobox_SelectedIndexChanged(this, new EventArgs());
+            Switch_cycle4_combobox_SelectedIndexChanged(this, new EventArgs());
+            Switch_cycle5_combobox_SelectedIndexChanged(this, new EventArgs());
+            cycle1_flip_checkBox_CheckedChanged(this, new EventArgs());
+            cycle2_flip_checkBox_CheckedChanged(this, new EventArgs());
+            cycle3_flip_checkBox_CheckedChanged(this, new EventArgs());
+            cycle4_flip_checkBox_CheckedChanged(this, new EventArgs());
+            cycle5_flip_checkBox_CheckedChanged(this, new EventArgs());
+
+            // hand_comboBox_SelectedIndexChanged(this, new EventArgs());
+
+            shoulder_pmin_ctrl_ValueChanged(this, new EventArgs());
+            shoulder_pmax_ctrl_ValueChanged(this, new EventArgs());
+            shoulder_wmin_ctrl_ValueChanged(this, new EventArgs());
+            shoulder_wmax_ctrl_ValueChanged(this, new EventArgs());
+
+            elbow_pmin_ctrl_ValueChanged(this, new EventArgs());
+            elbow_pmax_ctrl_ValueChanged(this, new EventArgs());
+            elbow_wmin_ctrl_ValueChanged(this, new EventArgs());
+            elbow_wmax_ctrl_ValueChanged(this, new EventArgs());
+
+            wristRot_pmin_ctrl_ValueChanged(this, new EventArgs());
+            wristRot_pmax_ctrl_ValueChanged(this, new EventArgs());
+            wristRot_wmin_ctrl_ValueChanged(this, new EventArgs());
+            wristRot_wmax_ctrl_ValueChanged(this, new EventArgs());
+
+            wristFlex_pmin_ctrl_ValueChanged(this, new EventArgs());
+            wristFlex_pmax_ctrl_ValueChanged(this, new EventArgs());
+            wristFlex_wmin_ctrl_ValueChanged(this, new EventArgs());
+            wristFlex_wmax_ctrl_ValueChanged(this, new EventArgs());
+
+            hand_pmin_ctrl_ValueChanged(this, new EventArgs());
+            hand_pmax_ctrl_ValueChanged(this, new EventArgs());
+            hand_wmin_ctrl_ValueChanged(this, new EventArgs());
+            hand_wmax_ctrl_ValueChanged(this, new EventArgs());
+        }
+        private void disconnectButton_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                // Disconnect from the target.
+                tg.Disconnect();
+                if (tg.IsConnected == false)
+                {
+                    // MessageBox.Show("Disconnected!");
+
+                    connectButton.Enabled = true;
+                    loadButton.Enabled = false;
+                    startButton.Enabled = false;
+                    stopButton.Enabled = false;
+                    unloadButton.Enabled = false;
+                    disconnectButton.Enabled = false;
+
+                    // Re-configure the GUI when the simulink realtime is disconnected
+                    SLRTgroupBox.Enabled = false;
+                    SLRTdisconnect.Enabled = false;
+                    SLRTconnect.Enabled = true;
+                    SLRTlist.Enabled = false;
+                    SLRTselectAll.Enabled = false;
+                    SLRTclearAll.Enabled = false;
+                    SLRTconnect.Focus();
+                }
+                else
+                    MessageBox.Show("Could not Disconnect!");
+            }
+            catch (xPCException me)
+            {
+                MessageBox.Show(me.Message);
+            }
+
+        }
+        private void unloadButton_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                // Unload the target application.
+                tg.Unload();
+
+                connectButton.Enabled = false;
+                loadButton.Enabled = true;
+                startButton.Enabled = false;
+                stopButton.Enabled = false;
+                unloadButton.Enabled = false;
+                disconnectButton.Enabled = true;
+            }
+            catch (xPCException me)
+            {
+                MessageBox.Show(me.Message);
+            }
+        }
+
+        private void loadDLMButton_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                // Get the .dlm file to download.
+                OpenFileDialog dialog = new OpenFileDialog();
+                dialog.Filter = "DLM files (*.dlm)|*.dlm";
+                //dialog.InitialDirectory = "C:\\";
+                dialog.Title = "Select a DLM file";
+                dialog.DefaultExt = "dlm";
+                dialog.FileOk += new CancelEventHandler(dialog_FileOk);
+                dialog.ShowDialog();
+            }
+            catch (xPCException me)
+            {
+                MessageBox.Show(me.Message);
+            }
+        }
+
+        void dialog_FileOk(object sender, CancelEventArgs e)
+        {
+            // Set the .dlm file to download.
+            FileDialog fDlg = (FileDialog)sender;
+            tg.DLMFileName = fDlg.FileName;
+            connectButton.Enabled = true;
+        }
+
+        #endregion
+
+        #region "EMG Acquisition - Parameters"
+        #region "Helper Functions"
+        //Control the parameter values and display the signal values using the tagged block parameters from the xPC Target model
+        //Helper function to control position of threshold ticks and labels
+        public int tick_position(double voltage)
+        {
+            return Convert.ToInt32(35.4 * voltage + 52);
+        }
+
+        // Map the flip check boxes to 1 and -1, so that they can be used to flip the channels in a given DoF
+        public double super_check(bool checked_state)
+        {
+            if (checked_state == false)
+            {
+                return -1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+        #endregion
+        #region "Mapping Parameters"
+        private void DoF1_mapping_combobox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = Convert.ToDouble(DoF1_mapping_combobox.SelectedIndex);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof1_joint", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF2_mapping_combobox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = Convert.ToDouble(DoF2_mapping_combobox.SelectedIndex);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof2_joint", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF3_mapping_combobox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = Convert.ToDouble(DoF3_mapping_combobox.SelectedIndex);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof3_joint", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF4_mapping_combobox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = Convert.ToDouble(DoF4_mapping_combobox.SelectedIndex);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof4_joint", "Gain"];
+                    param.SetParam(pValue);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF1_mode_box_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = Convert.ToDouble(DoF1_mode_box.SelectedIndex);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof1_mode", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF2_mode_box_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = Convert.ToDouble(DoF2_mode_box.SelectedIndex);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof2_mode", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF3_mode_box_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = Convert.ToDouble(DoF3_mode_box.SelectedIndex);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof3_mode", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF4_mode_box_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = Convert.ToDouble(DoF4_mode_box.SelectedIndex);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof4_mode", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF1_flip_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = super_check(DoF1_flip_checkBox.Checked);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof1_flip", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF2_flip_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = super_check(DoF2_flip_checkBox.Checked);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof2_flip", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF3_flip_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = super_check(DoF3_flip_checkBox.Checked);
+                    xPCParameters tgparams = tg.Application.Parameters;
+                    param = tgparams["Mapping Parameters/dof3_flip", "Gain"];
+                    param.SetParam(pValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void DoF4_flip_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (tg.IsConnected == true)
+                {
+                    Double[] pValue = new Double[1];
+                    pValue[0] = super_check(DoF4_flip_checkBox.Checked);
+                    xPCParameters tgparams = tg.Application.Parameters;

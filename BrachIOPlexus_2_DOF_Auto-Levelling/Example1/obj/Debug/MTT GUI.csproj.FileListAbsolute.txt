@@ -1,0 +1,55 @@
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\x64\myo.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\x86\myo.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\brachIOplexus_User_Guide.pdf
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\img_4816_brachIOplexusE.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\keyboard_mapping.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\myo_mapping_left.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\myo_mapping_right.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\default.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\kb_multi.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\kb_sequential.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\xbox_multi.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\xbox_sequential.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\empty.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\MYO_sequential_left.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\MYO_sequential_right.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\BentoProfiles\profile0.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\BentoProfiles\profile1.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Profiles\BentoProfiles\profile2.dat
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\DynamixelSDK\dxl_x86_c.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\switching_sounds\elbow001.wav
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\switching_sounds\hand0001.wav
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\switching_sounds\rotate01.wav
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\switching_sounds\should02.wav
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\switching_sounds\wrist001.wav
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\Xbox_Controller_edit.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\xbox_controller_mapping.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\xpcapi.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\myo_edit.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\keyboard_editb.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\XInputInterface.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\blinc_symbol_about2.png
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\blinc_icon_256b.ico
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Resources\blinc_icon_32b.ico
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\brachIOplexus.exe.manifest
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\brachIOplexus.application
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\brachIOplexus.exe
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\brachIOplexus.pdb
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\MyoSharp.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\XInputDotNetPure.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\xPCFramework.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\Microsoft.Contracts.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\Debug\MyoSharp.pdb
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\MTT GUI.csprojAssemblyReference.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.AboutBox1.resources
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.mainForm.resources
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.Properties.Resources.resources
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.Channel.resources
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.DoF.resources
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\MTT GUI.csproj.GenerateResource.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\MTT GUI.csproj.CoreCompileInputs.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.exe.manifest
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.application
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\MTT GUI.csproj.CopyComplete
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.exe
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\Debug\brachIOplexus.pdb

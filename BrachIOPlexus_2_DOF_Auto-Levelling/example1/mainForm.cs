@@ -12,6 +12,7 @@
 
 */
 #endregion
+//New adaptive switching AL arm
 
 using System;
 using System.Collections.Generic;
@@ -124,6 +125,24 @@ namespace brachIOplexus
         Stopwatch ArduinoStartTimer = new Stopwatch();
         long ArduinoStartDelay = 1000;     // the timestep of the main loop in milliseconds -> will vary depending on how many dynamixel servos are connected
 
+        // Adaptive Switching UPD Communication - Initialize Variables
+        //UdpClient udpClient2 = new UdpClient();
+        static System.Threading.Timer timerPython;
+        static Int32 portPythonTX = 30002;                                   // Set the UDP ports
+        static Int32 portPythonRX = 30003;                                   // Set the UDP ports
+        static IPAddress localAddrPython = IPAddress.Parse("127.0.0.1");     // address for localhost
+        UdpClient udpClientPythonTX;
+        IPEndPoint ipEndPointPythonTX;
+        UdpClient udpClientPythonRX;
+        IPEndPoint ipEndPointPythonRX;
+        Stopwatch stopWatchPython = new Stopwatch();
+        long milliSecPythonUDPLoop;     // the timestep of the UDP loop in milliseconds
+        bool UDPFlagPython = false;   // Flag used to used to track whether the demoSurpriseButton has been clicked and whether it is in the launch or close state
+        double[] AdaptivePred = new double[5];
+        int[] AdaptiveIndex = new int[] { 0, 1, 2, 3, 4 };
+        bool adaptiveFreeze = false;        // the state variable for controlling whether the switching list is frozen under certain conditions (i.e. adaptiveFreeze = true -> freeze the list, adaptiveFreeze = false -> allow the list to be re-ordered)
+        int numSwitchItems = 3; //number of items to switch through
+
         #region "Dynamixel SDK Initilization"
         // DynamixelSDK
         // Control table address
@@ -143,7 +162,7 @@ namespace brachIOplexus
         public const int LEN_MX_GOAL_POSITION = 2;
         public const int LEN_MX_MOVING_SPEED = 2;
         public const int LEN_MX_GOAL_POS_SPEED = 4;
-        public const int LEN_MX_TORQUE_LIMIT= 2;
+        public const int LEN_MX_TORQUE_LIMIT = 2;
         public const int LEN_MX_PRESENT_POSITION = 2;
         public const int LEN_MX_PRESENT_SPEED = 2;
         public const int LEN_MX_PRESENT_LOAD = 2;
@@ -259,8 +278,10 @@ namespace brachIOplexus
         int RotAdjustment = 0;          //initial adjustment for rotation
         int FlxAdjustment = 0;          //initial adjustment for flexion
         bool newvalues = true;          //true if arduino input values haven't been remapped yet, false if they have
-        bool reset_setpoints = true;    //true if time to reset setpoints (not currently autolevelling), false if currently autolevelling to some setpoint 
-        bool wristFlexControl = false;  //true if wrist flexion is being directly controlled (disallows autolevelling), false if it is not (allows autolevelling)       
+        bool reset_setpoint_theta = true;    //true if time to reset setpoints (not currently autolevelling), false if currently autolevelling to some setpoint.
+        bool reset_setpoint_phi = true;
+        bool autoLevelWristFlex = false;  //true if wrist flexion is being directly controlled (disallows autolevelling), false if it is not (allows autolevelling)  
+        bool autoLevelWristRot = false;  //true if wrist rotation is locked (disallows autolevelling), false if it is not (allows autolevelling)  
         int switched = 0;               //1 if switching signal has been given. Used just for logging purposes.
         int joint_controlled = 5;       //5 if controlling the hand currently; 4 if controlling the wrist flexion. Used for logging purposes.
         bool synchro_sequence = false;  //Flag indicating the synchronization sequence is currently underway.
@@ -271,6 +292,7 @@ namespace brachIOplexus
         int button_timer = 0;           //time that the button to turn on AL was last pressed
 
         #endregion
+
 
         // Initialization for data logging - ja
         // Logging parameters and variables
@@ -396,11 +418,11 @@ namespace brachIOplexus
         {
             public int pmin { get; set; }       // the CW angle limit of the motor
             public int pmax { get; set; }       // the CCW angle limit of the motor
-            public int p    { get; set; }       // the goal position
+            public int p { get; set; }       // the goal position
             public int p_prev { get; set; }     // the previous position of the motor (used for stopping dynamixel motors)
             public int wmin { get; set; }       // the minimum velocity of the motor
             public int wmax { get; set; }       // the maximum velocity of the motor
-            public int w    { get; set; }       // the goal velocity
+            public int w { get; set; }       // the goal velocity
             public int w_prev { get; set; }     // the previous velocity of the motor (not currently being used)
 
 
@@ -411,7 +433,7 @@ namespace brachIOplexus
             public int dofState { get; set; }       // The state of the DoF from the previous timestep. (not currently being used)
             public int switchState { get; set; }    // The state of the sequential switch (i.e. 0 = below threshold, 1 = above threshold -> switch to next item on list, 2 = Don't allow another switching event until both of the channels drops below threshold)                  
             public int listPos { get; set; }        // The position of the sequential switch in the switching order (i.e. cycles between 0 and 5 as)
-            
+
             public long timer1 { get; set; }        // Counter used for co-contracting switching.
             public long timer2 { get; set; }        // 2nd counter used for co-contracting switching
             public int[] motorState = new int[BENTO_NUM];   // The state of each motor (i.e. 0 = off, 1 = moving in cw direction, 2 = moving in ccw direction, 3 = hanging until co-contraction is finished)
@@ -425,6 +447,41 @@ namespace brachIOplexus
             }
         }
 
+        // Class RobotSensors stores the feedback values from a robot's sensors to be used for logging or streaming over UDP to other software
+        public class RobotSensors
+        {
+            public int counter = 0;             // Used for counting the instances of the class https://stackoverflow.com/questions/12276641/count-instances-of-the-class
+            public ID[] ID = new ID[BENTO_NUM];    // The list of motors
+            public RobotSensors()
+            {
+                Interlocked.Increment(ref counter);
+
+                ID = new ID[BENTO_NUM];
+                for (int i = 0; i < BENTO_NUM; i++)
+                {
+                    ID[i] = new ID();
+                }
+            }
+            ~RobotSensors()
+            {
+                Interlocked.Decrement(ref counter);
+            }
+
+        }
+
+        // Class ID stores the sensor values for each motor from the RobotSensors class
+        public class ID
+        {
+            public ushort pos { get; set; }       // the current position of the motor
+            public ushort posf { get; set; }      // the current filtered position of the motor
+            public ushort vel { get; set; }       // the current velocity of the motor
+            public ushort load { get; set; }      // the current load of the motor
+            public ushort loadf { get; set; }      // the current filtered load of the motor
+            public ushort volt { get; set; }      // the voltage of the motor
+            public ushort temp { get; set; }      // the current temperature of the motor
+            public ushort tempf { get; set; }      // the current filtered temperature of the motor
+        }
+
         // Initialize state, robot, and switching object
         State stateObj = new State();
         public const int DOF_NUM = 6;       // the number of DoF in the GUI
@@ -433,8 +490,9 @@ namespace brachIOplexus
         Robot robotObj = new Robot();
         Switching switchObj = new Switching();
         DoF_[] dofObj = new DoF_[DOF_NUM];
+        RobotSensors BentoSense = new RobotSensors();
 
-        #endregion+
+        #endregion
 
         public mainForm()
         {
@@ -443,11 +501,11 @@ namespace brachIOplexus
 
         private void mainForm_Load(object sender, EventArgs e)
         {
-            
+
             // How to find com ports and populate combobox: http://stackoverflow.com/questions/13794376/combo-box-for-serial-port
             string[] ports = SerialPort.GetPortNames();
             cmbSerialPorts.DataSource = ports;
-            
+
             // Audo-detect com port that is connected to the USB2dynamixel
             string auto_com_port = Autodetect_Dyna_Port();
             // How to check index of combobox based on string: http://stackoverflow.com/questions/13459772/how-to-check-index-of-combobox-based-on-string
@@ -497,8 +555,8 @@ namespace brachIOplexus
 
             }
 
-            //// hide xPC target / simulink realtime tab page. May be added back in a future release
-            //tabControl1.TabPages.Remove(tabXPC);
+            // hide xPC target / simulink realtime tab page. May be added back in a future release
+            //tabcontrol1.tabpages.remove(tabxpc);
 
             // Load default parameters
             try
@@ -567,6 +625,16 @@ namespace brachIOplexus
 
                 // XInputDotNet - stop pollingWorker
                 pollingWorker.CancelAsync();
+
+                // Close the UDP communication for the adaptive switching demo		
+                // Clean up the client and server objects and close the python scripts		
+                if (UDPFlagPython == true)
+                {
+                    udpClientPythonTX.Close();
+                    udpClientPythonRX.Close();
+                    timerPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
+                }
+
 
                 // Close port
                 if (BentoGroupBox.Enabled == true)
@@ -1290,6 +1358,7 @@ namespace brachIOplexus
         #region "Ch3 Parameters"
         private void ch3_gain_ctrl_ValueChanged(object sender, EventArgs e)
         {
+
             try
             {
                 if (tg.IsConnected == true)
@@ -1414,6 +1483,7 @@ namespace brachIOplexus
         #region "Ch5 Parameters"
         private void ch5_gain_ctrl_ValueChanged(object sender, EventArgs e)
         {
+
             try
             {
                 if (tg.IsConnected == true)
@@ -1476,6 +1546,7 @@ namespace brachIOplexus
         #region "Ch6 Parameters"
         private void ch6_gain_ctrl_ValueChanged(object sender, EventArgs e)
         {
+
             try
             {
                 if (tg.IsConnected == true)
@@ -1538,6 +1609,7 @@ namespace brachIOplexus
         #region "Ch7 Parameters"
         private void ch7_gain_ctrl_ValueChanged(object sender, EventArgs e)
         {
+
             try
             {
                 if (tg.IsConnected == true)
@@ -1600,6 +1672,7 @@ namespace brachIOplexus
         #region "Ch8 Parameters"
         private void ch8_gain_ctrl_ValueChanged(object sender, EventArgs e)
         {
+
             try
             {
                 if (tg.IsConnected == true)
@@ -1662,6 +1735,7 @@ namespace brachIOplexus
         #region "Ch9 Parameters"
         private void ch9_gain_ctrl_ValueChanged(object sender, EventArgs e)
         {
+
             try
             {
                 if (tg.IsConnected == true)
@@ -1970,6 +2044,7 @@ namespace brachIOplexus
 
         private void cycle4_flip_checkBox_CheckedChanged(object sender, EventArgs e)
         {
+
             try
             {
                 if (tg.IsConnected == true)
@@ -1989,6 +2064,7 @@ namespace brachIOplexus
 
         private void cycle5_flip_checkBox_CheckedChanged(object sender, EventArgs e)
         {
+
             try
             {
                 if (tg.IsConnected == true)
@@ -3021,7 +3097,7 @@ namespace brachIOplexus
             }
         }
         #endregion
-       
+
         #region "LED Display"
         private void LEDconnect_Click(object sender, EventArgs e)
         {
@@ -3071,7 +3147,7 @@ namespace brachIOplexus
             }
         }
         #endregion
-        
+
         #region "Machine Learning"
         private void MLenable_Click(object sender, EventArgs e)
         {
@@ -3909,7 +3985,7 @@ namespace brachIOplexus
                 }
             }
 
-        
+
             catch (Exception me)
             {
                 MessageBox.Show(me.Message);
@@ -3963,7 +4039,7 @@ namespace brachIOplexus
             e.Myo.SetEmgStreaming(false);
             e.Myo.EmgDataAcquired -= Myo_EmgDataAcquired;
         }
-        
+
         // Event handler for when MYO armband connects 
         private void Hub_MyoConnected(object sender, MyoEventArgs e)
         {
@@ -4120,8 +4196,8 @@ namespace brachIOplexus
                     //serialPort1.StopBits = StopBits.One;
                     //serialPort1.Handshake = Handshake.None;
                     //serialPort1.NewLine = "\r";
-                    // NOTE: for serial communication to work with leonardo or micro over USB to a c# program the RTSenable property for serialport1 needs to be set to "true"
-                    // ref: http://forum.arduino.cc/index.php?topic=119557.0
+                                                        // NOTE: for serial communication to work with leonardo or micro over USB to a c# program the RTSenable property for serialport1 needs to be set to "true"
+                                                        // ref: http://forum.arduino.cc/index.php?topic=119557.0
                     serialArduinoInput.RtsEnable = true;
                     serialArduinoInput.Open();
                     if (serialArduinoInput.IsOpen)
@@ -4231,7 +4307,7 @@ namespace brachIOplexus
             //{
             //    tg.DLMFileName = @"bin\x86\Debug\two_state_controller_8ch_EMG_PC104_rev18c.dlm";
             //}
-            
+
             //InvokeOnClick(connectButton, new EventArgs());      // Programatically click the 'Connect' button in the xPC target tab
 
             //// Check whether the target has connected
@@ -4394,36 +4470,36 @@ namespace brachIOplexus
                 // Initialize Groupbulkread Structs
                 read_group_num = dynamixel.groupBulkRead(port_num, PROTOCOL_VERSION);
 
-                    if (cmbSerialPorts.SelectedIndex > -1)
+                if (cmbSerialPorts.SelectedIndex > -1)
+                {
+                    // MessageBox.Show(String.Format("You selected port '{0}'", cmbSerialPorts.SelectedItem));
+                    // Define the settings for serial communication and open the serial port
+                    // To find the portname search for 'device manager' in windows search and then look under Ports (Com & LPT)
+
+                    try
                     {
-                        // MessageBox.Show(String.Format("You selected port '{0}'", cmbSerialPorts.SelectedItem));
-                        // Define the settings for serial communication and open the serial port
-                        // To find the portname search for 'device manager' in windows search and then look under Ports (Com & LPT)
+                        port_num = dynamixel.portHandler(cmbSerialPorts.SelectedItem.ToString());
+                    }
+                    catch (InvalidCastException ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
 
-                        try
-                        {
-                            port_num = dynamixel.portHandler(cmbSerialPorts.SelectedItem.ToString());
-                        }
-                        catch (InvalidCastException ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
-
-                        // Open port
-                        if (dynamixel.openPort(port_num))
-                        {
-                            dynaStatus.Text = String.Format("Port {0} opened successfully", cmbSerialPorts.SelectedItem.ToString());
-                        }
-                        else
-                        {
-                            dynaStatus.Text = String.Format("Failed to open port {0}", cmbSerialPorts.SelectedItem.ToString());
-                            return;
-                        }
+                    // Open port
+                    if (dynamixel.openPort(port_num))
+                    {
+                        dynaStatus.Text = String.Format("Port {0} opened successfully", cmbSerialPorts.SelectedItem.ToString());
                     }
                     else
                     {
-                        dynaStatus.Text = "Please select a port first";
+                        dynaStatus.Text = String.Format("Failed to open port {0}", cmbSerialPorts.SelectedItem.ToString());
+                        return;
                     }
+                }
+                else
+                {
+                    dynaStatus.Text = "Please select a port first";
+                }
 
                 // Set port baudrate
                 if (dynamixel.setBaudRate(port_num, BAUDRATE))
@@ -4612,6 +4688,8 @@ namespace brachIOplexus
                     BentoClearAll.Enabled = true;
                     dynaDisconnect.Focus();
 
+   
+
                 }
                 else
                 {
@@ -4628,7 +4706,7 @@ namespace brachIOplexus
         private void dynaDisconnect_Click(object sender, EventArgs e)
         {
             // Re-configure the GUI when the disconnecting from the dynamixel bus
-            
+
             // Reset the connection state for each motor
             ID1_connected = 0;
             ID2_connected = 0;
@@ -4691,7 +4769,7 @@ namespace brachIOplexus
         {
             // Read feedback values back from the motors
             readDyna();
-            
+
             // initialize dynamixel positions when first turning on the torque
             robotObj.Motor[0].p = robotObj.Motor[0].p_prev;
             robotObj.Motor[1].p = robotObj.Motor[1].p_prev;
@@ -4829,7 +4907,7 @@ namespace brachIOplexus
 
             // Enable/disable relevant controls
             TorqueOn.Enabled = true;
-            TorqueOff.Enabled = false; 
+            TorqueOff.Enabled = false;
             moveCW.Enabled = false;
             moveCCW.Enabled = false;
             TorqueOn.Focus();
@@ -4861,7 +4939,7 @@ namespace brachIOplexus
 
             if (TorqueOn.Enabled == false && BentoGroupBox.Enabled == true)
             {
-                
+
 
                 BentoRun.Enabled = true;
                 BentoSuspend.Enabled = false;
@@ -5060,14 +5138,23 @@ namespace brachIOplexus
 
             if (ID1_connected == 1)
             {
-                ID1_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[0].pos = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[0].vel = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)) + 1023);
+                BentoSense.ID[0].load = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)) + 1023);
+                BentoSense.ID[0].volt = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE);
+                BentoSense.ID[0].temp = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP);
+
+                ID1_present_position = BentoSense.ID[0].pos;
                 robotObj.Motor[0].p_prev = ID1_present_position;
-                Pos1.Text = Convert.ToString(ID1_present_position);
-                Vel1.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
-                Load1.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
-                Volt1.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
-                Temp1.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
-                check_overheat(DXL1_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                BentoSense.ID[0].posf = FilterSensor2(BentoSense.ID[0].pos, BentoSense.ID[0].posf, 2);
+                BentoSense.ID[0].loadf = FilterSensor2(BentoSense.ID[0].load, BentoSense.ID[0].loadf, 9);
+                BentoSense.ID[0].tempf = FilterSensor2(BentoSense.ID[0].temp, BentoSense.ID[0].tempf, 2);
+                Pos1.Text = Convert.ToString(BentoSense.ID[0].posf);
+                Vel1.Text = Convert.ToString(BentoSense.ID[0].vel - 1023);
+                Load1.Text = Convert.ToString(BentoSense.ID[0].loadf - 1023);
+                Volt1.Text = Convert.ToString(BentoSense.ID[0].volt / 10);
+                Temp1.Text = Convert.ToString(BentoSense.ID[0].tempf);
+                check_overheat(DXL1_ID, BentoSense.ID[0].temp);
                 check_overload(DXL1_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL1_ID, ADDR_MX_TORQUE_LIMIT, LEN_MX_TORQUE_LIMIT));
             }
 
@@ -5076,14 +5163,23 @@ namespace brachIOplexus
             // If move in CCW direction velocity value is positive
             if (ID2_connected == 1)
             {
-                ID2_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[1].pos = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[1].vel = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)) + 1023);
+                BentoSense.ID[1].load = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)) + 1023);
+                BentoSense.ID[1].volt = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE);
+                BentoSense.ID[1].temp = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP);
+
+                ID2_present_position = BentoSense.ID[1].pos;
                 robotObj.Motor[1].p_prev = ID2_present_position;
-                Pos2.Text = Convert.ToString(ID2_present_position);
-                Vel2.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
-                Load2.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
-                Volt2.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
-                Temp2.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
-                check_overheat(DXL2_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                BentoSense.ID[1].posf = FilterSensor2(BentoSense.ID[1].pos, BentoSense.ID[1].posf, 2);
+                BentoSense.ID[1].loadf = FilterSensor2(BentoSense.ID[1].load, BentoSense.ID[1].loadf, 9);
+                BentoSense.ID[1].tempf = FilterSensor2(BentoSense.ID[1].temp, BentoSense.ID[1].tempf, 2);
+                Pos2.Text = Convert.ToString(BentoSense.ID[1].posf);
+                Vel2.Text = Convert.ToString(BentoSense.ID[1].vel - 1023);
+                Load2.Text = Convert.ToString(BentoSense.ID[1].loadf - 1023);
+                Volt2.Text = Convert.ToString(BentoSense.ID[1].volt / 10);
+                Temp2.Text = Convert.ToString(BentoSense.ID[1].tempf);
+                check_overheat(DXL2_ID, BentoSense.ID[1].temp);
                 check_overload(DXL2_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL2_ID, ADDR_MX_TORQUE_LIMIT, LEN_MX_TORQUE_LIMIT));
             }
 
@@ -5092,14 +5188,23 @@ namespace brachIOplexus
             // If move in CCW direction velocity value is positive
             if (ID3_connected == 1)
             {
-                ID3_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[2].pos = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[2].vel = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)) + 1023);
+                BentoSense.ID[2].load = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)) + 1023);
+                BentoSense.ID[2].volt = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE);
+                BentoSense.ID[2].temp = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP);
+
+                ID3_present_position = BentoSense.ID[2].pos;
                 robotObj.Motor[2].p_prev = ID3_present_position;
-                Pos3.Text = Convert.ToString(ID3_present_position);
-                Vel3.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
-                Load3.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
-                Volt3.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
-                Temp3.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
-                check_overheat(DXL3_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                BentoSense.ID[2].posf = FilterSensor2(BentoSense.ID[2].pos, BentoSense.ID[2].posf, 2);
+                BentoSense.ID[2].loadf = FilterSensor2(BentoSense.ID[2].load, BentoSense.ID[2].loadf, 9);
+                BentoSense.ID[2].tempf = FilterSensor2(BentoSense.ID[2].temp, BentoSense.ID[2].tempf, 2);
+                Pos3.Text = Convert.ToString(BentoSense.ID[2].posf);
+                Vel3.Text = Convert.ToString(BentoSense.ID[2].vel - 1023);
+                Load3.Text = Convert.ToString(BentoSense.ID[2].loadf - 1023);
+                Volt3.Text = Convert.ToString(BentoSense.ID[2].volt / 10);
+                Temp3.Text = Convert.ToString(BentoSense.ID[2].tempf);
+                check_overheat(DXL3_ID, BentoSense.ID[2].temp);
                 check_overload(DXL3_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL3_ID, ADDR_MX_TORQUE_LIMIT, LEN_MX_TORQUE_LIMIT));
             }
 
@@ -5108,14 +5213,23 @@ namespace brachIOplexus
             // If move in CCW direction velocity value is positive
             if (ID4_connected == 1)
             {
-                ID4_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[3].pos = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[3].vel = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)) + 1023);
+                BentoSense.ID[3].load = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)) + 1023);
+                BentoSense.ID[3].volt = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE);
+                BentoSense.ID[3].temp = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP);
+
+                ID4_present_position = BentoSense.ID[3].pos;
                 robotObj.Motor[3].p_prev = ID4_present_position;
-                Pos4.Text = Convert.ToString(ID4_present_position);
-                Vel4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
-                Load4.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)));
-                Volt4.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
-                Temp4.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
-                check_overheat(DXL4_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                BentoSense.ID[3].posf = FilterSensor2(BentoSense.ID[3].pos, BentoSense.ID[3].posf, 2);
+                BentoSense.ID[3].loadf = FilterSensor2(BentoSense.ID[3].load, BentoSense.ID[3].loadf, 9);
+                BentoSense.ID[3].tempf = FilterSensor2(BentoSense.ID[3].temp, BentoSense.ID[3].tempf, 2);
+                Pos4.Text = Convert.ToString(BentoSense.ID[3].posf);
+                Vel4.Text = Convert.ToString(BentoSense.ID[3].vel - 1023);
+                Load4.Text = Convert.ToString(BentoSense.ID[3].loadf - 1023);
+                Volt4.Text = Convert.ToString(BentoSense.ID[3].volt / 10);
+                Temp4.Text = Convert.ToString(BentoSense.ID[3].tempf);
+                check_overheat(DXL4_ID, BentoSense.ID[3].temp);
                 check_overload(DXL4_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL4_ID, ADDR_MX_TORQUE_LIMIT, LEN_MX_TORQUE_LIMIT));
             }
             // Get Dynamixel#5 present position value
@@ -5123,16 +5237,24 @@ namespace brachIOplexus
             // If move in CCW direction velocity value is positive
             if (ID5_connected == 1)
             {
-                ID5_present_position = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[4].pos = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_POSITION, LEN_MX_PRESENT_POSITION);
+                BentoSense.ID[4].vel = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)) + 1023);
+                BentoSense.ID[4].load = (ushort)(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD)) + 1023);
+                BentoSense.ID[4].volt = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE);
+                BentoSense.ID[4].temp = (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP);
+
+                ID5_present_load = BentoSense.ID[4].load;
+                ID5_present_position = BentoSense.ID[4].pos;
                 robotObj.Motor[4].p_prev = ID5_present_position;
-                Pos5.Text = Convert.ToString(ID5_present_position);
-                Vel5.Text = Convert.ToString(parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_SPEED, LEN_MX_PRESENT_SPEED)));
-                ID5_present_load = parse_load((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_LOAD, LEN_MX_PRESENT_LOAD));
-                //Load5.Text = Convert.ToString(parse_load(ID5_present_load));
-                Load5.Text = Convert.ToString(ID5_present_load);
-                Volt5.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_VOLTAGE, LEN_MX_PRESENT_VOLTAGE) / 10);
-                Temp5.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
-                check_overheat(DXL5_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                BentoSense.ID[4].posf = FilterSensor2(BentoSense.ID[4].pos, BentoSense.ID[4].posf, 2); Temp5.Text = Convert.ToString((UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                BentoSense.ID[4].loadf = FilterSensor2(BentoSense.ID[4].load, BentoSense.ID[4].loadf, 9); check_overheat(DXL5_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_PRESENT_TEMP, LEN_MX_PRESENT_TEMP));
+                BentoSense.ID[4].tempf = FilterSensor2(BentoSense.ID[4].temp, BentoSense.ID[4].tempf, 2);
+                Pos5.Text = Convert.ToString(BentoSense.ID[4].posf);
+                Vel5.Text = Convert.ToString(BentoSense.ID[4].vel - 1023);
+                Load5.Text = Convert.ToString(BentoSense.ID[4].loadf - 1023);
+                Volt5.Text = Convert.ToString(BentoSense.ID[4].volt / 10);
+                Temp5.Text = Convert.ToString(BentoSense.ID[4].tempf);
+                check_overheat(DXL5_ID, BentoSense.ID[4].temp);
                 check_overload(DXL5_ID, (UInt16)dynamixel.groupBulkReadGetData(read_group_num, DXL5_ID, ADDR_MX_TORQUE_LIMIT, LEN_MX_TORQUE_LIMIT));
             }
 
@@ -5140,7 +5262,7 @@ namespace brachIOplexus
             {
                 BentoErrorColor.Text = "";
                 BentoErrorText.Text = "";
-            } 
+            }
         }
 
         // Check whether a dynamixel servo has overloaded
@@ -5182,6 +5304,33 @@ namespace brachIOplexus
             }
         }
 
+        // Filter that only changes the value of the sensor reading if the velocity is not zero (i.e. zero velocity is vel = 2013)		
+        private ushort FilterSensor(ushort raw, ushort filt, ushort vel)
+        {
+            if (vel == 1023)
+            {
+                return filt;
+            }
+            else
+            {
+                filt = raw;
+                return raw;
+            }
+        }
+        // Filter that only changes the value of the sensor reading if it changes by more than 2 values		
+        private ushort FilterSensor2(ushort raw, ushort filt, ushort tolerance)
+        {
+            if (Math.Abs(raw - filt) <= tolerance)
+            {
+                return filt;
+            }
+            else
+            {
+                filt = raw;
+                return raw;
+            }
+        }
+
         private void readFeedback_Click(object sender, EventArgs e)
         {
             // Old testing button. Not currently in use.
@@ -5189,11 +5338,12 @@ namespace brachIOplexus
         }
 
 
-        private int parse_load(UInt16 value)
+        private UInt16 parse_load(UInt16 value)
         {
             if (value > 1023)
             {
-                return 1023 - value;
+                // return 1023 - value;
+                return (ushort)(1023 - value);
             }
             else if (value < 1023)
             {
@@ -5445,14 +5595,14 @@ namespace brachIOplexus
                 {
                     int preGain = 500;
 
-                    InputMap[0, 0] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Left.X * preGain),true);
+                    InputMap[0, 0] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Left.X * preGain), true);
                     InputMap[0, 1] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Left.X * preGain), false);
                     InputMap[0, 2] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Left.Y * preGain), true);
                     InputMap[0, 3] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Left.Y * preGain), false);
                     InputMap[0, 4] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Right.X * preGain), true);
                     InputMap[0, 5] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Right.X * preGain), false);
                     InputMap[0, 6] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Right.Y * preGain), true);
-                    InputMap[0, 7] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Right.Y * preGain), false); 
+                    InputMap[0, 7] = splitAxis(Convert.ToInt32(reporterState.LastActiveState.ThumbSticks.Right.Y * preGain), false);
 
                     InputMap[0, 8] = Convert.ToInt32(reporterState.LastActiveState.Triggers.Left * preGain);
                     InputMap[0, 9] = Convert.ToInt32(reporterState.LastActiveState.Triggers.Right * preGain);
@@ -5567,7 +5717,7 @@ namespace brachIOplexus
                     double ramp_delay = 264;      // the time in milliseconds that it takes for the keyboard to ramp up from stopped (0) to full speed (1).
                     int preGain = 500;
 
-                    InputMap[2, 0] = velocity_ramp(ref KBvel[0], Keyboard.IsKeyDown(Key.W), KBcheckRamp.Checked, preGain /( ramp_delay / milliSec1), preGain);
+                    InputMap[2, 0] = velocity_ramp(ref KBvel[0], Keyboard.IsKeyDown(Key.W), KBcheckRamp.Checked, preGain / (ramp_delay / milliSec1), preGain);
                     InputMap[2, 1] = velocity_ramp(ref KBvel[1], Keyboard.IsKeyDown(Key.A), KBcheckRamp.Checked, preGain / (ramp_delay / milliSec1), preGain);
                     InputMap[2, 2] = velocity_ramp(ref KBvel[2], Keyboard.IsKeyDown(Key.S), KBcheckRamp.Checked, preGain / (ramp_delay / milliSec1), preGain);
                     InputMap[2, 3] = velocity_ramp(ref KBvel[3], Keyboard.IsKeyDown(Key.D), KBcheckRamp.Checked, preGain / (ramp_delay / milliSec1), preGain);
@@ -5603,7 +5753,7 @@ namespace brachIOplexus
 
                     KBcheckLeftAlt.Checked = Keyboard.IsKeyDown(Key.LeftAlt);
                     KBcheckRightAlt.Checked = Keyboard.IsKeyDown(Key.RightAlt);
-                    KBcheckSpace.Checked = Keyboard.IsKeyDown(Key.Space);                    
+                    KBcheckSpace.Checked = Keyboard.IsKeyDown(Key.Space);
 
                     KBrampW.Text = Convert.ToString(InputMap[2, 0]);
                     KBrampA.Text = Convert.ToString(InputMap[2, 1]);
@@ -5741,7 +5891,7 @@ namespace brachIOplexus
                     slrt_ch8.Text = Convert.ToString(InputMap[5, 7]);
                 }
 
-                #endregion 
+                #endregion
 
                 #region "Update DoF Parameters"
                 // Update the mapping parameters
@@ -5876,7 +6026,7 @@ namespace brachIOplexus
                                         myoBuzzFlag = true;
                                         XboxBuzzFlag = true;
                                         switched = 1; //For logging - db
-                                        // Switch the marker for the joint being controlled (only works if hand and wrist flexion are the only joints in the list) - db
+                                                      // Switch the marker for the joint being controlled (only works if hand and wrist flexion are the only joints in the list) - db
                                         if (joint_controlled == 5)
                                         {
                                             joint_controlled = 4;
@@ -6036,18 +6186,28 @@ namespace brachIOplexus
                                     case 0:
                                         if (k >= 0)
                                         {
-                                            // if controlling the wrist flexion, set the flag so that the autolevelling is disallowed. 
-                                            //Otherwise, set the flag as false to allow AL. - db
-                                            if (k == 3)
+                                            switch (k)
                                             {
-                                                wristFlexControl = true;
-                                                reset_setpoints = true;
-                                            }
-                                            else
-                                            {
-                                                wristFlexControl = false;
+                                                case 2://Controlling rotation
+                                                    autoLevelWristRot = false;
+                                                    reset_setpoint_phi = true;
+
+                                                    autoLevelWristFlex = true;
+                                                    break;
+                                                case 3://Controlling flexion
+                                                    autoLevelWristFlex = false;
+                                                    reset_setpoint_theta = true;
+
+                                                    autoLevelWristRot = true;
+                                                    break;
+                                                case 4://Controlling hand
+                                                    autoLevelWristRot = true;
+                                                    autoLevelWristFlex = true;
+                                                    break;
+
                                             }
                                             post(dofObj[i], k, i);
+                                            
                                         }
                                         break;
                                     // Use Joint Position2 Mapping (map from the analog signals of two channels to the position of one of the joints on the robot)
@@ -6124,18 +6284,18 @@ namespace brachIOplexus
 
                     if (AL_Enabled.Checked)
                     {
-                        AL_Enabled.Checked = false;                      
+                        AL_Enabled.Checked = false;
                     }
                     else
                     {
-                        AL_Enabled.Checked = true;                       
+                        AL_Enabled.Checked = true;
                     }
                 }
                 if (button_timer < 100)
                 {
                     button_timer = button_timer + 1;
                 }
-                
+
 
                 //Data Logging, start and stop- ja
                 #region Logging Starting and Stopping
@@ -6168,7 +6328,7 @@ namespace brachIOplexus
                     stopwatchLogging.Start();
                     startTime = stopwatchLogging.ElapsedMilliseconds / 1000.0;
                     string number = Convert.ToString(log_number.Value);
-                    
+
 
                     if (firstCallToLog)
                     {
@@ -6186,9 +6346,9 @@ namespace brachIOplexus
                     logging = false;
                     loggingtrigger = false;
                     stopwatchLogging.Stop();
-                    firstCallToLog = true;                   
+                    firstCallToLog = true;
 
-                    string nameOffile = "Pro00077893-03-18-1" + ppt_no.Text + "_" + task_type.Text + "_" + intervention.Text + "_" + Convert.ToString(log_number.Value);                    
+                    string nameOffile = "Pro00077893-03-18-1" + ppt_no.Text + "_" + task_type.Text + "_" + intervention.Text + "_" + Convert.ToString(log_number.Value);
                     var csv = new StringBuilder();
                     log_number.Value = log_number.Value + 1;
 
@@ -6234,12 +6394,12 @@ namespace brachIOplexus
                     System.Threading.Thread.Sleep(2);
                 }
 
-            }
+        }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-        }
+}
 
         #region "Helper Functions"
 
@@ -6372,57 +6532,58 @@ namespace brachIOplexus
             }
             else
             {
-                reset_setpoints = true;
+                reset_setpoint_theta = true;
+                reset_setpoint_phi = true;
             }
 
             // Apply the first past the post algorithm 
-           
-                if (dofObj.ChA.signal >= dofObj.ChA.smin && stateObj.motorState[k] != 2 && stateObj.motorState[k] != 3)
-                {
-                    // Move CW 
-                    stateObj.motorState[k] = 1;
-                    robotObj.Motor[k].w = linear_mapping(dofObj.ChA, robotObj.Motor[k].wmax, robotObj.Motor[k].wmin);
 
-                    // Use fake velocity method if grip force lmit is enabled
-                    if (k == 4 && BentoAdaptGripCheck.Checked == true)
-                    {
-                        MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
-                    }
-                    
-                    // Elsewise use regular velocity method
-                    else
-                    {
-                        MoveVelocity(k, global_flip, stateObj.motorState[k]);
-                    }
-                }
-                else if (dofObj.ChB.signal >= dofObj.ChB.smin && stateObj.motorState[k] != 1 && stateObj.motorState[k] != 3)
-                {
-                    // Move CCW 
-                    stateObj.motorState[k] = 2;
-                    robotObj.Motor[k].w = linear_mapping(dofObj.ChB, robotObj.Motor[k].wmax, robotObj.Motor[k].wmin);
+            if (dofObj.ChA.signal >= dofObj.ChA.smin && stateObj.motorState[k] != 2 && stateObj.motorState[k] != 3)
+            {
+                // Move CW 
+                stateObj.motorState[k] = 1;
+                robotObj.Motor[k].w = linear_mapping(dofObj.ChA, robotObj.Motor[k].wmax, robotObj.Motor[k].wmin);
 
-                    if (k == 4 && BentoAdaptGripCheck.Checked == true)
-                    {
-                        MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
-                    }
-                    // Elsewise use regular velocity method
-                    else
-                    {
-                        MoveVelocity(k, global_flip, stateObj.motorState[k]);
-                    }
-                }
-                else if ((dofObj.ChA.signal < dofObj.ChA.smin && stateObj.motorState[k] == 1) || (dofObj.ChB.signal < dofObj.ChB.smin && stateObj.motorState[k] == 2))
+                // Use fake velocity method if grip force lmit is enabled
+                if (k == 4 && BentoAdaptGripCheck.Checked == true)
                 {
-                    // Stop the motor
-                    stateObj.motorState[k] = 0;
-
-                    if (k != 4 || BentoAdaptGripCheck.Checked == false)
-                    {
-                        StopVelocity(k);
-                    }
+                    MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
                 }
-            
-            
+
+                // Elsewise use regular velocity method
+                else
+                {
+                    MoveVelocity(k, global_flip, stateObj.motorState[k]);
+                }
+            }
+            else if (dofObj.ChB.signal >= dofObj.ChB.smin && stateObj.motorState[k] != 1 && stateObj.motorState[k] != 3)
+            {
+                // Move CCW 
+                stateObj.motorState[k] = 2;
+                robotObj.Motor[k].w = linear_mapping(dofObj.ChB, robotObj.Motor[k].wmax, robotObj.Motor[k].wmin);
+
+                if (k == 4 && BentoAdaptGripCheck.Checked == true)
+                {
+                    MoveFakeVelocity(k, global_flip, stateObj.motorState[k]);
+                }
+                // Elsewise use regular velocity method
+                else
+                {
+                    MoveVelocity(k, global_flip, stateObj.motorState[k]);
+                }
+            }
+            else if ((dofObj.ChA.signal < dofObj.ChA.smin && stateObj.motorState[k] == 1) || (dofObj.ChB.signal < dofObj.ChB.smin && stateObj.motorState[k] == 2))
+            {
+                // Stop the motor
+                stateObj.motorState[k] = 0;
+
+                if (k != 4 || BentoAdaptGripCheck.Checked == false)
+                {
+                    StopVelocity(k);
+                }
+            }
+
+
 
             // Bound the position values
             robotObj.Motor[k].p = bound(robotObj.Motor[k].p, robotObj.Motor[k].pmin, robotObj.Motor[k].pmax);
@@ -6549,12 +6710,12 @@ namespace brachIOplexus
                 {
                     robotObj.Motor[k].p = linear_mapping(channel, robotObj.Motor[k].pmin, robotObj.Motor[k].pmax);
                 }
-                else if(flip == -1)
+                else if (flip == -1)
                 {
                     robotObj.Motor[k].p = linear_mapping(channel, robotObj.Motor[k].pmax, robotObj.Motor[k].pmin);
                 }
                 robotObj.Motor[k].w = 1023;
-                
+
             }
 
             // Bound the position values
@@ -6567,7 +6728,7 @@ namespace brachIOplexus
             //}
         }
 
-        private int toggle(Ch channel,int statePressed, Button state1, Button state2)
+        private int toggle(Ch channel, int statePressed, Button state1, Button state2)
         {
             // This function acts as a momentary switch that allows for toggling between
             // two states on the robot such as torque on/off and run/suspend.
@@ -6597,7 +6758,7 @@ namespace brachIOplexus
                 statePressed = 1;
                 return statePressed;
             }
-            else if(channel.signal < channel.smin)
+            else if (channel.signal < channel.smin)
             {
                 // Reset the momentary button when it falls below threshold
                 statePressed = 0;
@@ -6614,7 +6775,7 @@ namespace brachIOplexus
         //    {
         //        channel.signal = Convert.ToInt32(channel.smax);
         //    }
-            
+
         //    // Linear proportional mapping between signal strength and angular velocity of motor
         //    return Convert.ToInt32((robotObj.Motor[k].wmax - robotObj.Motor[k].wmin) / (channel.smax - channel.smin) * (channel.signal - channel.smin) + robotObj.Motor[k].wmin);
         //}
@@ -6781,7 +6942,7 @@ namespace brachIOplexus
         // Helper function to update the switching list
         private int updateList(int listPos)
         {
-            if (listPos == SWITCH_NUM-1)
+            if (listPos == SWITCH_NUM - 1)
             {
                 return 0;
             }
@@ -6789,7 +6950,7 @@ namespace brachIOplexus
             {
                 return listPos + 1;
             }
-        
+
         }
 
         //Helper function to cap the MAV display at the rail
@@ -6836,7 +6997,7 @@ namespace brachIOplexus
                 }
             }
 
-            return Convert.ToInt32(IsKeyDown)*max;
+            return Convert.ToInt32(IsKeyDown) * max;
         }
 
         // bound the value between its min and max values
@@ -6881,6 +7042,7 @@ namespace brachIOplexus
 
         #region "AutoLevelling Functions - db"
         //Main AutoLevelling Loop - db
+        //Modified for turning on and off rotation autolevelling - jg
         private void AutoLevel()
         {
 
@@ -6888,30 +7050,40 @@ namespace brachIOplexus
             Get_Grav();
             //Get goal position
             Get_GoalPos();
+            //Once setpoint is set, level both rotation and flexion. 
 
-            
-            //Once setpoint is set, level both rotation and flexion.            
-            if (!wristFlexControl)
+
+            if (autoLevelWristFlex)
             {
-                if (reset_setpoints == true)
+                //Reset setpoints if starting autolevelling from not autolevelling
+                if (reset_setpoint_theta == true)
                 {
                     setpoint_theta = theta;
-                    reset_setpoints = false;
-                    errSum_phi = 0;
+                    reset_setpoint_theta = false;
                     errSum_theta = 0;
+                }
+                else
+                {
+                    //Autolevel flexion
+                    MoveLevelFlx();
+                
+                }
+            }
+            if (autoLevelWristRot)
+            {
+                // Reset setpoints if starting autolevelling from not autolevelling
+                if (reset_setpoint_phi == true)
+                {
+                    setpoint_phi = phi;
+                    reset_setpoint_phi = false;
+                    errSum_phi = 0;
                 }
                 else
                 {
                     //Autolevel rotation
                     MoveLevelRot();
-                    //Autolevel flexion
-                    MoveLevelFlx();                    
+
                 }
-            }
-            else
-            {
-                //Autolevel rotation
-                MoveLevelRot();
             }
         }
 
@@ -6931,16 +7103,16 @@ namespace brachIOplexus
         // Angle theta defined as the angle between the negative IMU y axis 
         // and the direction of gravity projected onto the z-y plane, CW
         // around the x axis. Refer to IMU Axes diagram in BrachI/OPlexus main folder.
-        private double Get_theta(double num, double den, double current_angle)
+        private double Get_theta(double gy, double gz, double current_angle)
         {
             //Conditions when den = 0:
-            if (den == 0)
+            if (gz == 0)
             {
-                if (num < 0)
+                if (gy < 0)
                 {
                     return 0.0;
                 }
-                else if (num > 0)
+                else if (gy > 0)
                 {
                     return 180.0;
                 }
@@ -6951,15 +7123,15 @@ namespace brachIOplexus
             }
 
             //Conditions when den > 0:
-            else if (den > 0)
+            else if (gz > 0)
             {
-                return Math.Atan(num / den) * 180 / 3.141592653589793 + 90;
+                return Math.Atan(gy / gz) * 180 / 3.141592653589793 + 90;
             }
 
             //Conditions when den < 0:
             else
             {
-                return Math.Atan(num / den) * 180 / 3.141592653589793 + 270;
+                return Math.Atan(gy / gz) * 180 / 3.141592653589793 + 270;
             }
         }
 
@@ -6967,16 +7139,16 @@ namespace brachIOplexus
         // Angle phi defined as the angle between the negative IMU y axis 
         // and the direction of gravity projected onto the x-y plane, CCW
         // around the z axis. Refer to IMU Axes diagram in BrachI/OPlexus main folder.
-        private double Get_phi(double num, double den, double current_angle)
+        private double Get_phi(double gx, double gy, double current_angle)
         {
             //Conditions when den = 0:
-            if (den == 0)
+            if (gy == 0)
             {
-                if (num < 0)
+                if (gx < 0)
                 {
                     return 90.0;
                 }
-                else if (num > 0)
+                else if (gx > 0)
                 {
                     return 270.0;
                 }
@@ -6987,21 +7159,21 @@ namespace brachIOplexus
             }
 
             //Conditions when den > 0:
-            else if (den > 0)
+            else if (gy > 0)
             {
-                return Math.Atan(num / den) * 180 / 3.141592653589793 + 180;
+                return Math.Atan(gx / gy) * 180 / 3.141592653589793 + 180;
             }
 
             //Conditions when den < 0 and num <= 0:
-            else if (num <= 0)
+            else if (gx <= 0)
             {
-                return Math.Atan(num / den) * 180 / 3.141592653589793;
+                return Math.Atan(gx / gy) * 180 / 3.141592653589793;
             }
 
             //Conditions when den < 0 and num > 0:
             else
             {
-                return Math.Atan(num / den) * 180 / 3.141592653589793 + 360;
+                return Math.Atan(gx / gy) * 180 / 3.141592653589793 + 360;
             }
         }
 
@@ -7010,7 +7182,8 @@ namespace brachIOplexus
         {
             //compute working variables:
             double error = setpoint - measured_value;
-            if (robotObj.Motor[3].p_prev < 2890 && robotObj.Motor[3].p_prev > 60) //Only increase integral if within joint limits to prevent windup
+            //if (robotObj.Motor[3].p_prev < 2890 && robotObj.Motor[3].p_prev > 60) //Only increase integral if within joint limits to prevent windup
+            if (robotObj.Motor[2].p_prev < robotObj.Motor[2].pmax && robotObj.Motor[2].p_prev > robotObj.Motor[2].pmin)
             {
                 errSum_phi += (error * milliSec1 / 1000);
             }
@@ -7028,7 +7201,8 @@ namespace brachIOplexus
         {
             //compute working variables:
             double error = setpoint - measured_value;
-            if (robotObj.Motor[4].p_prev < 3320 && robotObj.Motor[4].p_prev > 780) //Only increase integral if within joint limits to prevent windup
+            //if (robotObj.Motor[4].p_prev < 3320 && robotObj.Motor[4].p_prev > 780) //Only increase integral if within joint limits to prevent windup
+            if (robotObj.Motor[3].p_prev < robotObj.Motor[3].pmax && robotObj.Motor[3].p_prev > robotObj.Motor[3].pmin)
             {
                 errSum_phi += (error * milliSec1 / 1000);
             }
@@ -7059,11 +7233,29 @@ namespace brachIOplexus
         {
             sign();
             //double g_mag = magnitude(x_component, y_component, z_component);
-            double a = x_component;//normalize(x_component, g_mag);
-            double b = y_component;//normalize(y_component, g_mag);
-            double c = z_component;//normalize(z_component, g_mag);
-            phi = Get_phi(a, b, phi);
-            theta = Get_theta(b, c, theta);
+            //double a = x_component;//normalize(x_component, g_mag);
+            //double b = y_component;//normalize(y_component, g_mag);
+            //double c = z_component;//normalize(z_component, g_mag);
+
+            double alpha = Ticks_to_Deg(robotObj.Motor[3].p_prev);
+            double gy_prime = 0;
+            //double gz_prime = 0;
+            if(alpha <= 180)
+            {
+                double beta = (alpha - 90) * 3.141592653589793 / 180;
+                gy_prime = y_component * Math.Sin(beta) - z_component * Math.Cos(beta);
+                //gz_prime = z_component * Math.Sin(beta) + y_component * Math.Cos(beta);
+
+            }
+            else
+            {
+                double beta = (270-alpha) * 3.141592653589793 / 180;
+                gy_prime = y_component * Math.Sin(beta) + z_component * Math.Cos(beta);
+                //gz_prime = z_component * Math.Sin(beta) - y_component * Math.Cos(beta);
+
+            }
+            phi = Get_phi(x_component, gy_prime, phi);
+            theta = Get_theta(y_component, z_component, theta);
 
         }
 
@@ -7084,7 +7276,9 @@ namespace brachIOplexus
 
             robotObj.Motor[2].wmax = 500;
             robotObj.Motor[2].w = 500;
-            robotObj.Motor[2].p = robotObj.Motor[2].p_prev + taper(RotAdjustment, theta);
+            robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + taper(RotAdjustment, theta), 0);
+            //robotObj.Motor[2].p = robotObj.Motor[2].p_prev + RotAdjustment;
+
 
         }
 
@@ -7093,7 +7287,7 @@ namespace brachIOplexus
         {
             robotObj.Motor[3].wmax = 500;
             robotObj.Motor[3].w = 500;
-            robotObj.Motor[3].p = robotObj.Motor[3].p_prev - FlxAdjustment;
+            robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - FlxAdjustment, 0);
         }
 
         //Function to convert degrees to encoder position ticks - db
@@ -7102,12 +7296,18 @@ namespace brachIOplexus
             return (int)(degrees * 11.3611111111111111111111); //11.361111 degrees per encoder tick
         }
 
+        //Function to convert encoder position ticks to degrees  - jg
+        private double Ticks_to_Deg(int ticks)
+        {
+            return (ticks/11.3611111111111111111111); //11.361111 degrees per encoder tick
+        }
+
         //Function to taper off the rotation adjustments near the vertical positions - db
         private int taper(int adjustment_val, double theta)
         {
             if (theta > 90 && theta < 270)
             {
-                    return Convert.ToInt16((90 - Math.Abs(180 - theta)) / 90 * adjustment_val);                
+                return Convert.ToInt16((90 - Math.Abs(180 - theta)) / 90 * adjustment_val);
             }
             else
             {
@@ -7382,7 +7582,7 @@ namespace brachIOplexus
                 if (changed.mappingBox.SelectedIndex <= 1)
                 {
                     autoFill(dof.channel1.outputBox, dof.channel2.outputBox, changed.outputBox, 10);
-                    autoOff(dof.channel1.outputBox, dof.channel2.outputBox, changed.outputBox, 10); 
+                    autoOff(dof.channel1.outputBox, dof.channel2.outputBox, changed.outputBox, 10);
                 }
                 autoDeselect(dof.channel1.outputBox, dof.channel2.outputBox, changed.outputBox);
             }
@@ -7517,17 +7717,17 @@ namespace brachIOplexus
         {
             this.BeginInvoke((MethodInvoker)delegate
             {
-                // Double check corresponding items on the bento arm checked list box. i.e. if you select hand open it will autoselect hand close
-                double_check(BentoList, 9, e);
+                    // Double check corresponding items on the bento arm checked list box. i.e. if you select hand open it will autoselect hand close
+                    double_check(BentoList, 9, e);
             });
         }
-  
+
         private void XBoxList_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             this.BeginInvoke((MethodInvoker)delegate
             {
-                // Double check corresponding items on the xbox checked list box. i.e. if you select 'StickLeftX1' it will autoselect 'StickLeftX2'
-                double_check(XBoxList, 7, e);
+                    // Double check corresponding items on the xbox checked list box. i.e. if you select 'StickLeftX1' it will autoselect 'StickLeftX2'
+                    double_check(XBoxList, 7, e);
             });
         }
 
@@ -7714,7 +7914,7 @@ namespace brachIOplexus
         // Update the minimum threshold for the switching channel
         private void switchSminCtrl1_ValueChanged(object sender, EventArgs e)
         {
-            switchObj.smin1 = switchSminCtrl1.Value*100;
+            switchObj.smin1 = switchSminCtrl1.Value * 100;
             // Adjust the position of the smin tick and label to reflect changes to the smin value
             switchSminTick1.Location = new Point(switch_tick_position(Convert.ToDouble(switchSminCtrl1.Value)), switchSminTick1.Location.Y);
             switchSminLabel1.Location = new Point(switch_tick_position(Convert.ToDouble(switchSminCtrl1.Value)) - switchSminLabel1.Width / 2 + switchSminTick1.Width / 2, switchSminLabel1.Location.Y);
@@ -7723,7 +7923,7 @@ namespace brachIOplexus
         // Update the maximum threshold for the switching channel
         private void switchSmaxCtrl1_ValueChanged(object sender, EventArgs e)
         {
-            switchObj.smax1 = switchSmaxCtrl1.Value*100;
+            switchObj.smax1 = switchSmaxCtrl1.Value * 100;
             // Adjust the position of the smin tick and label to reflect changes to the smin value
             switchSmaxTick1.Location = new Point(switch_tick_position(Convert.ToDouble(switchSmaxCtrl1.Value)), switchSmaxTick1.Location.Y);
             switchSmaxLabel1.Location = new Point(switch_tick_position(Convert.ToDouble(switchSmaxCtrl1.Value)) - switchSmaxLabel1.Width / 2 + switchSmaxTick1.Width / 2, switchSmaxLabel1.Location.Y);
@@ -7839,7 +8039,7 @@ namespace brachIOplexus
 
         private void switch1Flip_CheckedChanged(object sender, EventArgs e)
         {
-            switchObj.List[0].flip = Convert.ToInt32(switch1Flip.Checked); 
+            switchObj.List[0].flip = Convert.ToInt32(switch1Flip.Checked);
         }
 
         private void switch2Flip_CheckedChanged(object sender, EventArgs e)
@@ -8072,7 +8272,7 @@ namespace brachIOplexus
                                 bytes[1] = Convert.ToByte(robotObj.Motor[4].w);
                                 netStream.Write(bytes, 0, 2);
                             }
-                            
+
                             // Used for testing/troubleshooting
                             //bytes[0] = 15;
                             //bytes[1] = 80;
@@ -8224,7 +8424,229 @@ namespace brachIOplexus
 
         #endregion
 
-        
+        #region "Auto Levelling Adaptive Switching"
+        private void ALAdaptive_Enabled_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                if (UDPFlagPython == false && dynaConnect.Enabled == false && ALAdaptive_Enabled.Checked)
+                {
+                    // Initialize Bento Arm feedback values to 0
+                    for (int i = 0; i < BENTO_NUM; i++)
+                    {
+                        BentoSense.ID[i].pos = 0;
+                        BentoSense.ID[i].vel = 0;
+                        BentoSense.ID[i].load = 0;
+                        BentoSense.ID[i].volt = 0;
+                        BentoSense.ID[i].temp = 0;
+                    }
+
+
+                    // Initialize the UDP TX object
+                    udpClientPythonTX = new UdpClient();
+                    ipEndPointPythonTX = new IPEndPoint(localAddrPython, portPythonTX);
+
+                    //// Initialize the UDP RX object
+                    udpClientPythonRX = new UdpClient(portPythonRX);
+                    ipEndPointPythonRX = new IPEndPoint(localAddrPython, portPythonRX);
+
+                    // Start the timer that will send the serial packets out to the arduino 
+                    // NOTE: for some reason the actual timestep of the timer is a bit slower -> i.e. it is set to 45ms, but actually achieves more like 49-50ms
+                    // This update rate is to match the 20Hz (50ms) that was used in the previous adaptive switching code from ROS
+                    timerPython = new System.Threading.Timer(new TimerCallback(DoWorkPythonUDP), null, 0, 45);
+
+                    // Reset the UDP flag
+                    UDPFlagPython = true;
+                }
+                else
+                {
+                    udpClientPythonTX.Close();
+                    udpClientPythonRX.Close();
+                    timerPython.Change(Timeout.Infinite, Timeout.Infinite);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        // This is a timer callback function that operates on a separate thread and that is used for communicating with an external program via UDP
+        public void DoWorkPythonUDP(object state)
+        {
+            try
+            {
+                // Stop stopwatch and record how long everything in the main loop took to execute as well as how long it took to retrigger the main loop
+                stopWatchPython.Stop();
+                milliSecPythonUDPLoop = stopWatchPython.ElapsedMilliseconds;
+
+                if (UDPPythonDelay.InvokeRequired)
+                {
+                    UDPPythonDelay.Invoke(new MethodInvoker(delegate { UDPPythonDelay.Text = "Delay: " + Convert.ToString(milliSecPythonUDPLoop); }));
+                }
+
+                // Reset and start the stop watch
+                stopWatchPython.Restart();
+
+                // Send the sensor stream from the Bento Arm if the 
+                if (dynaConnect.Enabled == false)
+                {
+                // Create a byte array for holding the packet values
+                // packet size is 
+                // 3 + (number of servos in switching list) * 10 + 1
+                // 2 header bytes, 1 byte for packet length
+                // 10 values for each servo
+                // 1 byte for checksum at the end
+                int MSG_SIZE2 = 3 + numSwitchItems * 10 + 1;
+                    byte[] packet = new byte[MSG_SIZE2];
+
+                    // Construct the packet that will be transmitted to the external program
+                    packet[0] = 255;    // First two bytes of the packet are the header section and set to 255
+                    packet[1] = 255;
+                    packet[2] = (byte)(numSwitchItems * 9);      // The length of the packet
+                    packet[3] = 3;
+                    packet[4] = low_byte(BentoSense.ID[2].posf);
+                    packet[5] = high_byte(BentoSense.ID[2].posf);
+                    packet[6] = low_byte(BentoSense.ID[2].vel);
+                    packet[7] = high_byte(BentoSense.ID[2].vel);
+                    packet[8] = low_byte(BentoSense.ID[2].loadf);
+                    packet[9] = high_byte(BentoSense.ID[2].loadf);
+                    packet[10] = (byte)BentoSense.ID[2].tempf;
+                    packet[11] = (byte)stateObj.motorState[2];
+                    packet[12] = Convert.ToByte(autoLevelWristRot);
+                    packet[13] = 4;
+                    packet[14] = low_byte(BentoSense.ID[3].posf);
+                    packet[15] = high_byte(BentoSense.ID[3].posf);
+                    packet[16] = low_byte(BentoSense.ID[3].vel);
+                    packet[17] = high_byte(BentoSense.ID[3].vel);
+                    packet[18] = low_byte(BentoSense.ID[3].loadf);
+                    packet[19] = high_byte(BentoSense.ID[3].loadf);
+                    packet[20] = (byte)BentoSense.ID[3].tempf;
+                    packet[21] = (byte)stateObj.motorState[3];
+                    packet[22] = Convert.ToByte(autoLevelWristFlex);
+                    packet[23] = 5;
+                    packet[24] = low_byte(BentoSense.ID[4].posf);
+                    packet[25] = high_byte(BentoSense.ID[4].posf);
+                    packet[26] = low_byte(BentoSense.ID[4].vel);
+                    packet[27] = high_byte(BentoSense.ID[4].vel);
+                    packet[28] = low_byte(BentoSense.ID[4].loadf);
+                    packet[29] = high_byte(BentoSense.ID[4].loadf);
+                    packet[30] = (byte)BentoSense.ID[4].tempf;
+                    packet[31] = (byte)stateObj.motorState[4];
+                    packet[32] = 0; //no autolevelling for hand
+
+
+                    // Calculate the checksum for the packet
+                    int checksum = 0;
+                    for (int p = 2; p < packet.Length - 1; p++)
+                    {
+                        checksum = checksum + packet[p];     // Add up all the bytes in the DATA section of the packet. i.e. do not count the header bytes
+                    }
+                    checksum = (byte)~checksum;     // return the bitwise complement which is equivalent to the NOT operator
+                    packet[packet.Length - 1] = (byte)checksum; // Tuck the checksum byte into the last slot in the byte array 
+                    udpClientPythonTX.Send(packet, packet.Length, ipEndPointPythonTX);
+
+                    // Process the return packet from the external program
+                    byte[] bytes = udpClientPythonRX.Receive(ref ipEndPointPythonRX);
+
+                    // Decode packets from the external program using packet structure from UDP_Comm_Protocol_ASD_python_to_brachIO_180619.xls
+                    // Calculate the checksum for the packet
+                    int checksumRX = 0;
+                    for (int p = 2; p < bytes.Length - 1; p++)
+                    {
+                        checksumRX = checksumRX + bytes[p];     // Add up all the bytes in the LENGTH and DATA section of hte packet
+                    }
+
+                    checksumRX = (byte)~checksumRX;     // return the bitwise complement which is equivalent to the NOT operator
+                    //foreach(byte b in bytes)
+                    //{
+                    //    Console.WriteLine(b);
+                    //}
+                    //Console.WriteLine("~~~~");
+                    // Only update the input values if the packet is valid
+                    if (checksumRX == bytes[bytes.Length - 1] && bytes[0] == 255 && bytes[1] == 255)
+                    {
+                        //Console.WriteLine("Received valid packet");
+
+                        for (int m = 3; m < bytes.Length - 1; m = m + 2)
+                        {
+                            AdaptivePred[bytes[m] - 1] = bytes[m + 1];
+                        }
+                    }
+
+                    if (ALAdaptive_Enabled.Checked == true)
+                    {
+                        //AdaptivePred = new double[5] { 0.0, 0.0, 0.8, 0.2, 0.9};
+                        //For just rot, flex, and hand use last 3 entries in array
+                        AdaptivePred[0] = -1;
+                        AdaptivePred[1] = -1;
+ 
+                        // Sort the adaptive switching predictions into a sorted array that can be used for updating the list
+                        // Reference: https://stackoverflow.com/questions/8866414/how-to-sort-2d-array-in-c-sharp
+                        int[] newIndex = new int[] { 1, 2, 3, 4, 5};
+                        AdaptivePred[switchObj.List[stateObj.listPos].output - 1] = -1;        // Set the prediction for the active item in the switching list to -1 so that it goes to the bottom of the list
+                        for (int i = 0; i < 5; i++)
+                        {
+                            Console.WriteLine(AdaptivePred[i]);
+                        }
+                        Console.WriteLine("=======");
+                        AdaptiveIndex = newIndex;       // Reset the index array
+                        Array.Sort(AdaptivePred, AdaptiveIndex);    // sort the arrays (default is ascending order)
+                        Array.Reverse(AdaptivePred);                // reverse the order of the array
+                        Array.Reverse(AdaptiveIndex);               // reverse the order of the array
+
+                        if (adaptiveFreeze == false)
+                        {
+                            // Update the switching list
+                            int[] listPos_new = new int[5];
+
+                            listPos_new[0] = updateList(stateObj.listPos);
+                            listPos_new[1] = updateList(listPos_new[0]);
+                            listPos_new[2] = updateList(listPos_new[1]);
+                            listPos_new[3] = updateList(listPos_new[2]);
+                            listPos_new[4] = updateList(listPos_new[3]);
+
+
+                            switchObj.List[listPos_new[0]].output = AdaptiveIndex[0];
+                            switchObj.List[listPos_new[1]].output = AdaptiveIndex[1];
+                            switchObj.List[listPos_new[2]].output = AdaptiveIndex[2];
+                            switchObj.List[listPos_new[3]].output = AdaptiveIndex[3];
+                            switchObj.List[listPos_new[4]].output = AdaptiveIndex[4];
+
+
+                            //Console.WriteLine(switchObj.List[0].output);
+                            //Console.WriteLine(switchObj.List[1].output);
+                            //Console.WriteLine(switchObj.List[2].output);
+                            //Console.WriteLine(switchObj.List[3].output);
+                            //Console.WriteLine(switchObj.List[4].output);
+                            //Console.WriteLine("==================");
+                        }
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        // Returns the lower byte of an integer number
+        // https://stackoverflow.com/questions/5419453/getting-upper-and-lower-byte-of-an-integer-in-c-sharp-and-putting-it-as-a-char-a
+        private byte low_byte(ushort number)
+        {
+            return (byte)(number & 0xff);
+        }
+
+        // Returns the lower byte of an integer number
+        private byte high_byte(ushort number)
+        {
+            return (byte)(number >> 8);
+        }
+        #endregion
+
+
         // synchronization sequence for use with mo-cap - db
         private void synchronize()
         {
