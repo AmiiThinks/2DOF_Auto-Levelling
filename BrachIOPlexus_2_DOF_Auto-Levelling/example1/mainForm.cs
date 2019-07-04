@@ -142,6 +142,8 @@ namespace brachIOplexus
         int[] AdaptiveIndex = new int[] { 0, 1, 2, 3, 4 };
         bool adaptiveFreeze = false;        // the state variable for controlling whether the switching list is frozen under certain conditions (i.e. adaptiveFreeze = true -> freeze the list, adaptiveFreeze = false -> allow the list to be re-ordered)
         int numSwitchItems = 3; //number of items to switch through
+        bool autoLevellingOn = false;
+        bool autoLevellingAdaptive = false;
 
         #region "Dynamixel SDK Initilization"
         // DynamixelSDK
@@ -6021,6 +6023,20 @@ namespace brachIOplexus
 
                                         stateObj.switchState = 1;
 
+                                        //temporary for adaptive auto levelling - jg
+                                        if (k == 1)
+                                        {
+                                            autoLevelWristFlex = true;
+                                            autoLevelWristRot = true;
+                                            autoLevellingAdaptive = true;
+                                        }
+                                        else if (autoLevellingAdaptive)
+                                        {
+                                            TurnOffAutoLevelRot();
+                                            TurnOffAutoLevelFlex();
+                                            autoLevellingAdaptive = false;
+                                        }
+
                                         // Update switch feedback with current item in switching list
                                         updateSwitchFeedback();
                                         myoBuzzFlag = true;
@@ -6189,20 +6205,28 @@ namespace brachIOplexus
                                             switch (k)
                                             {
                                                 case 2://Controlling rotation
-                                                    autoLevelWristRot = false;
-                                                    reset_setpoint_phi = true;
+                                                    if (!ALAdaptive_Enabled.Checked)
+                                                    {
+                                                        TurnOffAutoLevelRot();
+                                                        autoLevelWristFlex = true;
+                                                    }
 
-                                                    autoLevelWristFlex = true;
                                                     break;
                                                 case 3://Controlling flexion
-                                                    autoLevelWristFlex = false;
-                                                    reset_setpoint_theta = true;
+                                                    if (!ALAdaptive_Enabled.Checked)
+                                                    {
+                                                        TurnOffAutoLevelFlex();
+                                                        autoLevelWristRot = true;
+                                                    }
 
-                                                    autoLevelWristRot = true;
                                                     break;
                                                 case 4://Controlling hand
-                                                    autoLevelWristRot = true;
-                                                    autoLevelWristFlex = true;
+                                                    if (!ALAdaptive_Enabled.Checked)
+                                                    {
+                                                        autoLevelWristRot = true;
+                                                        autoLevelWristFlex = true;
+                                                    }
+
                                                     break;
 
                                             }
@@ -7288,6 +7312,18 @@ namespace brachIOplexus
             robotObj.Motor[3].wmax = 500;
             robotObj.Motor[3].w = 500;
             robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - FlxAdjustment, 0);
+        }
+
+        private void TurnOffAutoLevelRot()
+        {
+            autoLevelWristRot = false;
+            reset_setpoint_phi = true;
+        }
+
+        private void TurnOffAutoLevelFlex()
+        {
+            autoLevelWristFlex = false;
+            reset_setpoint_theta = true;
         }
 
         //Function to convert degrees to encoder position ticks - db
@@ -8431,6 +8467,9 @@ namespace brachIOplexus
             {
                 if (UDPFlagPython == false && dynaConnect.Enabled == false && ALAdaptive_Enabled.Checked)
                 {
+                    TurnOffAutoLevelRot();
+                    TurnOffAutoLevelFlex();
+
                     // Initialize Bento Arm feedback values to 0
                     for (int i = 0; i < BENTO_NUM; i++)
                     {
@@ -8491,13 +8530,13 @@ namespace brachIOplexus
                 // Send the sensor stream from the Bento Arm if the 
                 if (dynaConnect.Enabled == false)
                 {
-                // Create a byte array for holding the packet values
-                // packet size is 
-                // 3 + (number of servos in switching list) * 10 + 1
-                // 2 header bytes, 1 byte for packet length
-                // 10 values for each servo
-                // 1 byte for checksum at the end
-                int MSG_SIZE2 = 3 + numSwitchItems * 10 + 1;
+                    // Create a byte array for holding the packet values
+                    // packet size is 
+                    // 3 + (number of servos in switching list) * 10 + 1
+                    // 2 header bytes, 1 byte for packet length
+                    // 10 values for each servo
+                    // 1 byte for checksum at the end
+                    int MSG_SIZE2 = 3 + numSwitchItems * 10 + 1;
                     byte[] packet = new byte[MSG_SIZE2];
 
                     // Construct the packet that will be transmitted to the external program
@@ -8534,6 +8573,7 @@ namespace brachIOplexus
                     packet[30] = (byte)BentoSense.ID[4].tempf;
                     packet[31] = (byte)stateObj.motorState[4];
                     packet[32] = 0; //no autolevelling for hand
+
 
 
                     // Calculate the checksum for the packet
@@ -8579,23 +8619,20 @@ namespace brachIOplexus
                         //AdaptivePred = new double[5] { 0.0, 0.0, 0.8, 0.2, 0.9};
                         //For just rot, flex, and hand use last 3 entries in array
                         AdaptivePred[0] = -1;
-                        AdaptivePred[1] = -1;
  
                         // Sort the adaptive switching predictions into a sorted array that can be used for updating the list
                         // Reference: https://stackoverflow.com/questions/8866414/how-to-sort-2d-array-in-c-sharp
-                        int[] newIndex = new int[] { 1, 2, 3, 4, 5};
+                        int[] newIndex = new int[] { -1, 2, 3, 4, 5};
                         AdaptivePred[switchObj.List[stateObj.listPos].output - 1] = -1;        // Set the prediction for the active item in the switching list to -1 so that it goes to the bottom of the list
-                        for (int i = 0; i < 5; i++)
-                        {
-                            Console.WriteLine(AdaptivePred[i]);
-                        }
-                        Console.WriteLine("=======");
+
                         AdaptiveIndex = newIndex;       // Reset the index array
                         Array.Sort(AdaptivePred, AdaptiveIndex);    // sort the arrays (default is ascending order)
                         Array.Reverse(AdaptivePred);                // reverse the order of the array
                         Array.Reverse(AdaptiveIndex);               // reverse the order of the array
 
-                        if (adaptiveFreeze == false)
+                        //If motors are moving then update list. If not moving do not update list so user can choose the what they want.
+                        //Moving using autolevelling does not count since it doesn't update the motor state
+                        if (motorsMoving())
                         {
                             // Update the switching list
                             int[] listPos_new = new int[5];
@@ -8612,15 +8649,8 @@ namespace brachIOplexus
                             switchObj.List[listPos_new[2]].output = AdaptiveIndex[2];
                             switchObj.List[listPos_new[3]].output = AdaptiveIndex[3];
                             switchObj.List[listPos_new[4]].output = AdaptiveIndex[4];
-
-
-                            //Console.WriteLine(switchObj.List[0].output);
-                            //Console.WriteLine(switchObj.List[1].output);
-                            //Console.WriteLine(switchObj.List[2].output);
-                            //Console.WriteLine(switchObj.List[3].output);
-                            //Console.WriteLine(switchObj.List[4].output);
-                            //Console.WriteLine("==================");
                         }
+                        
                     }
                 }
 
@@ -8646,6 +8676,17 @@ namespace brachIOplexus
         }
         #endregion
 
+        //Returns true if a motor is moving (while not being autolevelled)
+        private bool motorsMoving()
+        {
+            if ((stateObj.motorState[2] == 1 || stateObj.motorState[2] == 2))
+                return true;
+            else if ((stateObj.motorState[3] == 1 || stateObj.motorState[3] == 2))
+                return true;
+            else if (stateObj.motorState[4] == 1 || stateObj.motorState[4] == 2)
+                return true;
+            return false;
+        }
 
         // synchronization sequence for use with mo-cap - db
         private void synchronize()

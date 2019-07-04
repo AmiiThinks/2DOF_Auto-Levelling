@@ -16,16 +16,16 @@ numTilings = 4      # The number of tilings in the tilecoder
 numBins = 8       # The number of bins in the tilecoder
 
 # Adaptive Switching Variables
-numSwitchItems = 3      # Number of items in the switching list
+numSwitchItems = 4      # Number of items in the switching list
 servoIDs = [3, 4, 5]
 
 # Initialize a separate TD Lambda Learner for each item in the switching list
 #       - TDLambdaLearner(numTilings, num_bins (not used), alpha, lambda, gamma, cTableSize (not used))
 td = [None]*numSwitchItems
-td[0] = TDLambdaLearner(numTilings, 64, alpha, lambda_val, gamma, 64)  # TDLambda learner for gripper movement
-td[1] = TDLambdaLearner(numTilings, 64, alpha, lambda_val, gamma, 64)  # TDLambda learner for gripper movement
+td[0] = TDLambdaLearner(numTilings, 64, alpha, lambda_val, gamma, 64)  # TDLambda learner for wrist rotation movement
+td[1] = TDLambdaLearner(numTilings, 64, alpha, lambda_val, gamma, 64)  # TDLambda learner for wrist flexion movement
 td[2] = TDLambdaLearner(numTilings, 64, alpha, lambda_val, gamma, 64)  # TDLambda learner for gripper movement
-# td[3] = TDLambdaLearner(numTilings, 64, alpha, lambda_val, gamma, 64)  # TDLambda learner for gripper movement
+td[3] = TDLambdaLearner(numTilings, 64, alpha, lambda_val, gamma, 64)  # TDLambda learner for AL
 # td[4] = TDLambdaLearner(numTilings, 64, alpha, lambda_val, gamma, 64)  # TDLambda learner for gripper movement
 
 # Counter variables
@@ -224,6 +224,11 @@ def checksum_fcn(packet):
     summed_packet = sum(packet)
     checksum = ~np.uint8(summed_packet)
     return checksum
+def check_moving_by_vel(servos_to_check, t_l, t_h):
+    for i in servos_to_check:
+        if robotObj[i-1].normalized_velocity < t_l or robotObj[i-1].normalized_velocity > t_h:
+            return True
+    return False
 
 """ Main Loop """
 try:
@@ -277,27 +282,30 @@ try:
 
             # Update state information with the latest values received from the external program
             # state_joints = [robotObj[0].normalized_position*numBins]
-            # state_joints = [robotObj[2].normalized_position*numBins, robotObj[2].normalized_velocity*numBins,
-            #                 robotObj[3].normalized_position*numBins, robotObj[3].normalized_velocity*numBins,
-            #                 robotObj[4].normalized_position*numBins, robotObj[4].normalized_velocity*numBins]
-            state_joints = [robotObj[2].normalized_position, robotObj[2].normalized_velocity,
-                            robotObj[3].normalized_position, robotObj[3].normalized_velocity,
-                            robotObj[4].normalized_position, robotObj[4].normalized_velocity]
+            state_joints = [robotObj[2].normalized_position*numBins, robotObj[2].normalized_velocity*numBins,
+                            robotObj[3].normalized_position*numBins, robotObj[3].normalized_velocity*numBins,
+                            robotObj[4].normalized_position*numBins, robotObj[4].normalized_velocity*numBins]
+            # state_joints = [robotObj[2].normalized_position, robotObj[2].normalized_velocity,
+            #                 robotObj[3].normalized_position, robotObj[3].normalized_velocity,
+            #                 robotObj[4].normalized_position, robotObj[4].normalized_velocity]
             #state_joints = [robotObj[0].normalized_position*numBins,
                         #robotObj[0].normalized_velocity*numBins]
 
             # Define the reward/cumulant for each TD learner
             # Since the state property has already been converted into a suitable cumulant this step is a bit redundant, but is included as a reference in case some sort of conversion might be required for other cumulant signals
             cumulant = [None]*numSwitchItems
-            for i in range(numSwitchItems):
+            for i in range(3):
                 # If autolevelling is on set cumulant to 0
-                print(robotObj[servoIDs[i]-1].autolevelling)
-
                 if robotObj[servoIDs[i]-1].autolevelling == 1:
                     cumulant[i] = 0
                 else:
                     cumulant[i] = robotObj[servoIDs[i]-1].normalized_state
-                
+
+           
+            if robotObj[servoIDs[0]-1].autolevelling == 1 and robotObj[servoIDs[1]-1].autolevelling == 1 and check_moving_by_vel([3, 4], 0.4, 0.6):
+                cumulant[3] = 1
+            else:
+                cumulant[3] = 0
             # Update the TD learners - td.update(state input, gamma, reward)
             for i in range(numSwitchItems):
                 td[i].update(state_joints, gamma, rho, cumulant[i])
@@ -322,14 +330,16 @@ try:
             LENGTH = 2*N            # The number of bytes in the data section of the packet
             DATA = []               # Load the data with the servoID and prediction for each servo
             
-            for i in range(0, N):
+            for i in range(3):
                 DATA.append(servoIDs[i])       # add the servo IDs for servos being used
                 DATA.append(scaled_pred[i])    # add the predictions for each switching item
-            
+            DATA.append(2)#Setting to elbow for now
+            DATA.append(scaled_pred[3])
+
             packetTX = [HEADER, HEADER, LENGTH]
             for i in DATA:   
                 packetTX.append(i)
-            print(DATA)
+            # print(DATA)
             checksumTX = checksum_fcn(packetTX[2:len(packetTX)])
             packetTX.append(checksumTX)
             packetTX_byte = bytearray(packetTX)     # convert the list to a byte array
