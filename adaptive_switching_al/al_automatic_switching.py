@@ -224,6 +224,7 @@ def checksum_fcn(packet):
     summed_packet = sum(packet)
     checksum = ~np.uint8(summed_packet)
     return checksum
+    
 def check_moving_by_vel(servos_to_check, t_l, t_h):
     for i in servos_to_check:
         if robotObj[i-1].normalized_velocity < t_l or robotObj[i-1].normalized_velocity > t_h:
@@ -301,11 +302,14 @@ try:
                 else:
                     cumulant[i] = robotObj[servoIDs[i]-1].normalized_state
 
-           
+
+            # Check if auto levelling is being used (enabled and a servo is moving above a certain threshold velocity)
             if robotObj[servoIDs[0]-1].autolevelling == 1 and robotObj[servoIDs[1]-1].autolevelling == 1 and check_moving_by_vel([3, 4], 0.4, 0.6):
                 cumulant[3] = 1
             else:
                 cumulant[3] = 0
+
+
             # Update the TD learners - td.update(state input, gamma, reward)
             for i in range(numSwitchItems):
                 td[i].update(state_joints, gamma, rho, cumulant[i])
@@ -335,7 +339,7 @@ try:
                 DATA.append(scaled_pred[i])    # add the predictions for each switching item
             DATA.append(2)#Setting to elbow for now
             DATA.append(scaled_pred[3])
-
+            print(DATA)
             packetTX = [HEADER, HEADER, LENGTH]
             for i in DATA:   
                 packetTX.append(i)
