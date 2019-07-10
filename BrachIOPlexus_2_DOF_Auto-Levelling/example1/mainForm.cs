@@ -39,6 +39,8 @@ using MyoSharp.Exceptions;              // for MyoSharp
 using Clifton.Collections.Generic;      // For simple moving average
 using Clifton.Tools.Data;               // For simple moving average
 using System.Windows.Input;
+using MLCSharp;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace brachIOplexus
 {
@@ -142,7 +144,6 @@ namespace brachIOplexus
         int[] AdaptiveIndex = new int[] { 0, 1, 2, 3, 4 };
         bool adaptiveFreeze = false;        // the state variable for controlling whether the switching list is frozen under certain conditions (i.e. adaptiveFreeze = true -> freeze the list, adaptiveFreeze = false -> allow the list to be re-ordered)
         int numSwitchItems = 3; //number of items to switch through
-        bool autoLevellingOn = false;
         bool autoLevellingAdaptive = false;
 
         #region "Dynamixel SDK Initilization"
@@ -265,6 +266,7 @@ namespace brachIOplexus
         int x_component = 0;            //x component of IMU reading of gravity acceleration 
         int y_component = 0;            //y component of IMU reading of gravity acceleration 
         int z_component = 0;            //x component of IMU reading of gravity acceleration 
+        double gy_prime = 0;
         double phi = 180;               //roll angle of wrist
         double theta = 180;             //flexion angle of wrist
         double setpoint_phi = 180;      //target roll angle of wrist
@@ -292,6 +294,34 @@ namespace brachIOplexus
         bool closed = false;            //false until the syhchro sequence has completely closed
         bool done = true;               //true if this is the first time through the loop doing synchro (and between sequences); false if in mid-sequence.
         int button_timer = 0;           //time that the button to turn on AL was last pressed
+
+
+        #endregion
+
+        #region "RL Auto Level Initialization"
+
+        RLAgent agentRotation = new RLAgent(5, 1, new int[] { 3 }, new string[] { "relu", "sigmoid" }, 0.001,
+                                            5, 2, new int[] { 3 }, new string[] { "relu", "sigmoid" }, 0.001,
+                                            0.5);
+        RLAgent agentFlexion = new RLAgent(5, 1, new int[] { 3 }, new string[] { "relu", "sigmoid" }, 0.001,
+                                           5, 2, new int[] { 3 }, new string[] { "relu", "sigmoid" }, 0.001,
+                                           0.5);
+        bool firstRLStep = true;
+        int currentRLSteps = 0;
+        bool resettingEnv = false;
+        //readonly int[,] rlActionList = new int[,]
+        //{
+        //    { 1, 1 },
+        //    { 1, -1 },
+        //    { 1, 0 },
+        //    { -1, 1 },
+        //    { -1, -1 },
+        //    { -1, 0 },
+        //    { 0, 1 },
+        //    { 0, -1 },
+        //    { 0, 0 }
+        //};
+
 
         #endregion
 
@@ -6551,7 +6581,17 @@ namespace brachIOplexus
             // If full autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
             if (AL_Enabled.Checked == true)
             {
-                AutoLevel();
+                if(!resettingEnv)
+                {
+                    AutoLevel();
+                }
+                else if (robotObj.Motor[2].p_prev > (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2 -10 &&
+                    robotObj.Motor[2].p_prev < (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2 + 10 && 
+                    robotObj.Motor[3].p_prev > (robotObj.Motor[3].pmax + robotObj.Motor[3].pmin) / 2 - 10 &&
+                     robotObj.Motor[3].p_prev < (robotObj.Motor[3].pmax + robotObj.Motor[3].pmin) / 2 + 10)
+                {
+                    resettingEnv = false;
+                }
 
             }
             else
@@ -7067,50 +7107,121 @@ namespace brachIOplexus
         #region "AutoLevelling Functions - db"
         //Main AutoLevelling Loop - db
         //Modified for turning on and off rotation autolevelling - jg
+        //Added RL option - jg
         private void AutoLevel()
         {
 
             //Get current position
             Get_Grav();
-            //Get goal position
-            Get_GoalPos();
-            //Once setpoint is set, level both rotation and flexion. 
 
-
-            if (autoLevelWristFlex)
+            if (autoLevelWristFlex && reset_setpoint_theta == true)
             {
-                //Reset setpoints if starting autolevelling from not autolevelling
-                if (reset_setpoint_theta == true)
-                {
-                    setpoint_theta = theta;
-                    reset_setpoint_theta = false;
-                    errSum_theta = 0;
-                }
-                else
+                // Reset setpoints if starting autolevelling from not autolevelling
+                setpoint_theta = theta;
+                reset_setpoint_theta = false;
+                errSum_theta = 0;
+            }
+            if (autoLevelWristRot && reset_setpoint_phi == true)
+            {
+                // Reset setpoints if starting autolevelling from not autolevelling
+                setpoint_phi = phi;
+                reset_setpoint_phi = false;
+                errSum_phi = 0;
+            }
+
+            if (RL_Control_Enabled.Checked)
+            {
+                Step_RL_AutoLevel();
+
+                //if (currentRLSteps == 100)
+                //{
+                //    currentRLSteps = 0;
+                //    Step_RL_AutoLevel();
+                //}
+                //currentRLSteps++;
+            }
+            else
+            {
+                //Get goal position
+                Get_GoalPos();
+                //Once setpoint is set, level both rotation and flexion. 
+
+                if (autoLevelWristFlex)
                 {
                     //Autolevel flexion
                     MoveLevelFlx();
-                
                 }
-            }
-            if (autoLevelWristRot)
-            {
-                // Reset setpoints if starting autolevelling from not autolevelling
-                if (reset_setpoint_phi == true)
-                {
-                    setpoint_phi = phi;
-                    reset_setpoint_phi = false;
-                    errSum_phi = 0;
-                }
-                else
+                if (autoLevelWristRot)
                 {
                     //Autolevel rotation
                     MoveLevelRot();
-
                 }
             }
+            
         }
 
+        private void Step_RL_AutoLevel()
+        {
+            
+            double rewardRotation = -Math.Abs(setpoint_phi - phi);
+            double rewardFlexion = -Math.Abs(setpoint_theta - theta);
+            Console.WriteLine("Reward Rotation:" + rewardRotation);
+            Console.WriteLine("Reward Flexion:" + rewardFlexion);
+            double phiNormal = phi / 360;
+            double thetaNormal = theta / 360;
+            double septoint_phiNormal = setpoint_phi / 360;
+            double setpoint_thetaNormal = setpoint_theta / 360;
+            double rotPositionNormal = (double)(robotObj.Motor[2].p_prev - robotObj.Motor[2].pmin) / (double)(robotObj.Motor[2].pmax - robotObj.Motor[2].pmin);
+            double flexPositionNormal = (double)(robotObj.Motor[3].p_prev - robotObj.Motor[3].pmin) / (double)(robotObj.Motor[3].pmax - robotObj.Motor[3].pmin);
+            double gxNormal = (double)(x_component - (-512)) / (double)(512 - (-512));
+            double gyPrimeNormal = (double)(gy_prime - (-512)) / (double)(512 - (-512));
+            double gzNormal = (double)(z_component - (-512)) / (double)(512 - (-512));
+
+
+            double[] stateRotation = new double[] { phiNormal, septoint_phiNormal, rotPositionNormal, gxNormal, gyPrimeNormal};
+            double[] stateFlexion = new double[] { thetaNormal, setpoint_thetaNormal, flexPositionNormal, gyPrimeNormal, gzNormal};
+
+            Console.WriteLine("State");
+            Console.WriteLine(string.Join(",", stateRotation));
+            Console.WriteLine(string.Join(",", stateFlexion));
+
+
+            if (!firstRLStep)
+            {
+                agentRotation.Update(stateRotation, rewardRotation);
+                agentFlexion.Update(stateRotation, rewardFlexion);
+            }
+            else
+            {
+                firstRLStep = false;
+            }
+            double actionRotation = agentRotation.SelectAction(stateRotation) * (robotObj.Motor[2].pmax - robotObj.Motor[2].pmin) + robotObj.Motor[2].pmin;
+            double actionFlexion = agentFlexion.SelectAction(stateFlexion) * (robotObj.Motor[3].pmax - robotObj.Motor[3].pmin) + robotObj.Motor[3].pmin;
+
+            Console.WriteLine("Action Rotation: " + actionRotation);
+            Console.WriteLine("Action Flexion: " + actionFlexion);
+
+
+            int maxSpeed = 100;
+            robotObj.Motor[2].wmax = maxSpeed;
+            robotObj.Motor[2].w = maxSpeed;
+            robotObj.Motor[2].p = truncateAction(actionRotation, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
+            //robotObj.Motor[2].p = Convert.ToInt32(actions[0]);
+
+
+            robotObj.Motor[3].wmax = maxSpeed;
+            robotObj.Motor[3].w = maxSpeed;
+            robotObj.Motor[3].p = truncateAction(actionFlexion, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
+            //robotObj.Motor[3].p = Convert.ToInt32(actions[1]);
+
+            Console.WriteLine("Rot: " + robotObj.Motor[2].p + ", Flex: " + robotObj.Motor[3].p);
+
+
+        }
+        private int truncateAction(double action, double min, double max)
+        {
+            return Convert.ToInt32(Math.Min(Math.Max(action, min), max));
+        }
         // Helper function to find the magnitude of a three component vector - db
         private double magnitude(int x, int y, int z)
         {
@@ -7262,7 +7373,6 @@ namespace brachIOplexus
             //double c = z_component;//normalize(z_component, g_mag);
 
             double alpha = Ticks_to_Deg(robotObj.Motor[3].p_prev);
-            double gy_prime = 0;
             //double gz_prime = 0;
             if(alpha <= 180)
             {
@@ -8742,6 +8852,21 @@ namespace brachIOplexus
             loggingtrigger = true;
             StartLogging.Enabled = true;
             StopLogging.Enabled = false;
+        }
+
+        private void Reset_Env_Btn_Click(object sender, EventArgs e)
+        {
+            robotObj.Motor[2].w = 500;
+            robotObj.Motor[2].wmax = 500;
+            robotObj.Motor[3].w = 500;
+            robotObj.Motor[3].wmax = 500;
+            robotObj.Motor[2].p = (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2;
+            robotObj.Motor[3].p = (robotObj.Motor[3].pmax + robotObj.Motor[3].pmin) / 2;
+            resettingEnv = true;
+            firstRLStep = true;
+            setpoint_phi = 180;
+            setpoint_theta = 180;
+
         }
     }
 }
