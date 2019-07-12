@@ -663,6 +663,7 @@
             this.doF2 = new brachIOplexus.DoF();
             this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
+            this.LogPID_Enabled = new System.Windows.Forms.CheckBox();
             this.UDPALPythonDelay = new System.Windows.Forms.Label();
             this.Reset_Env_Btn = new System.Windows.Forms.Button();
             this.RL_Control_Enabled = new System.Windows.Forms.CheckBox();
@@ -807,7 +808,6 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
-            this.ALActor_Enabled = new System.Windows.Forms.CheckBox();
             this.MenuStrip1.SuspendLayout();
             this.VoiceCoilCommBox.SuspendLayout();
             this.EMGParamBox.SuspendLayout();
@@ -950,8 +950,7 @@
             this.SuspendLayout();
             // 
             // tg
-            // 
-            // 
+
             // MenuStrip1
             // 
             this.MenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
@@ -9144,7 +9143,7 @@
             // 
             // tabBento
             // 
-            this.tabBento.Controls.Add(this.ALActor_Enabled);
+            this.tabBento.Controls.Add(this.LogPID_Enabled);
             this.tabBento.Controls.Add(this.UDPALPythonDelay);
             this.tabBento.Controls.Add(this.Reset_Env_Btn);
             this.tabBento.Controls.Add(this.RL_Control_Enabled);
@@ -9172,6 +9171,18 @@
             this.tabBento.TabIndex = 2;
             this.tabBento.Text = "Bento Arm";
             this.tabBento.UseVisualStyleBackColor = true;
+            // 
+            // LogPID_Enabled
+            // 
+            this.LogPID_Enabled.AutoSize = true;
+            this.LogPID_Enabled.Location = new System.Drawing.Point(376, 371);
+            this.LogPID_Enabled.Margin = new System.Windows.Forms.Padding(4);
+            this.LogPID_Enabled.Name = "LogPID_Enabled";
+            this.LogPID_Enabled.Size = new System.Drawing.Size(80, 21);
+            this.LogPID_Enabled.TabIndex = 217;
+            this.LogPID_Enabled.Text = "Log PID";
+            this.LogPID_Enabled.UseVisualStyleBackColor = true;
+            this.LogPID_Enabled.CheckedChanged += new System.EventHandler(this.LogPID_Enabled_CheckedChanged);
             // 
             // UDPALPythonDelay
             // 
@@ -10941,17 +10952,6 @@
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
             // 
-            // ALActor_Enabled
-            // 
-            this.ALActor_Enabled.AutoSize = true;
-            this.ALActor_Enabled.Location = new System.Drawing.Point(376, 371);
-            this.ALActor_Enabled.Margin = new System.Windows.Forms.Padding(4);
-            this.ALActor_Enabled.Name = "ALActor_Enabled";
-            this.ALActor_Enabled.Size = new System.Drawing.Size(83, 21);
-            this.ALActor_Enabled.TabIndex = 217;
-            this.ALActor_Enabled.Text = "Actor on";
-            this.ALActor_Enabled.UseVisualStyleBackColor = true;
-            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -11925,7 +11925,7 @@
         private System.Windows.Forms.CheckBox RL_Control_Enabled;
         internal System.Windows.Forms.Button Reset_Env_Btn;
         internal System.Windows.Forms.Label UDPALPythonDelay;
-        private System.Windows.Forms.CheckBox ALActor_Enabled;
+        private System.Windows.Forms.CheckBox LogPID_Enabled;
     }
 }
 

@@ -78,6 +78,7 @@ namespace MLCSharp
 
         }
 
+        //Q Learning
         //public double gamma { get; private set; } //discount factor
         //public double epsilon { get; private set; } //exploration rate
         //public int c { get; private set; } //steps before updating target network with predictio network

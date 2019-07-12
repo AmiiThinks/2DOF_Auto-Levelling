@@ -311,32 +311,18 @@ namespace brachIOplexus
         long milliSecALPythonUDPLoop;     // the timestep of the UDP loop in milliseconds
         bool UDPFlagALPython = false;   // Flag used to used to track whether the demoSurpriseButton has been clicked and whether it is in the launch or close state
 
-        //RLAgent agentRotation = new RLAgent(5, 1, new int[] { 3 }, new string[] { "relu", "sigmoid" }, 0.001,
-        //                                    5, 2, new int[] { 3 }, new string[] { "relu", "sigmoid" }, 0.001,
-        //                                    0.5);
-        //RLAgent agentFlexion = new RLAgent(5, 1, new int[] { 3 }, new string[] { "relu", "sigmoid" }, 0.001,
-        //                                   5, 2, new int[] { 3 }, new string[] { "relu", "sigmoid" }, 0.001,
-        //                                   0.5);
-        //bool firstRLStep = true;
-        //int currentRLSteps = 0;
+        string pidLogFilePath = @"C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\al_python\pidLog.txt";
+        System.IO.StreamWriter pidLog;
+        bool firstPIDLog = true;
+        long pidLoggingDelay = 50; //Delay for logging pid since the neural network will have ~50ms delay
+        string prevPIDState;
+        string prevPIDAction;
+
         bool resettingEnv = false;
         bool newAction = false;
         double actionRotation = 0;
         double actionFlexion = 0;
-        //readonly int[,] rlActionList = new int[,]
-        //{
-        //    { 1, 1 },
-        //    { 1, -1 },
-        //    { 1, 0 },
-        //    { -1, 1 },
-        //    { -1, -1 },
-        //    { -1, 0 },
-        //    { 0, 1 },
-        //    { 0, -1 },
-        //    { 0, 0 }
-        //};
-
-
+       
         #endregion
 
 
@@ -686,6 +672,11 @@ namespace brachIOplexus
                     udpClientALPythonTX.Close();
                     udpClientALPythonRX.Close();
                     timerALPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
+                }
+
+                if(LogPID_Enabled.Checked)
+                {
+                    pidLog.Dispose();
                 }
 
 
@@ -5605,6 +5596,11 @@ namespace brachIOplexus
             try
             {
                 // Stop stopwatch and record how long everything in the main loop took to execute as well as how long it took to retrigger the main loop
+                //milliSec1 = stopWatch1.ElapsedMilliseconds;
+                //if (LogPID_Enabled.Checked && milliSec1 <pidLoggingDelay )
+                //{
+                //    Thread.Sleep((int)(pidLoggingDelay - milliSec1));
+                //}
                 stopWatch1.Stop();
                 milliSec1 = stopWatch1.ElapsedMilliseconds;
                 delay.Text = Convert.ToString(milliSec1);
@@ -6599,7 +6595,6 @@ namespace brachIOplexus
                 global_flip = -1;
             }
 
-            // If full autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
             if (resettingEnv && robotObj.Motor[2].p_prev > (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2 - 100 &&
                 robotObj.Motor[2].p_prev < (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2 + 100 &&
                 robotObj.Motor[3].p_prev > (robotObj.Motor[3].pmax + robotObj.Motor[3].pmin) / 2 - 100 &&
@@ -6608,6 +6603,8 @@ namespace brachIOplexus
                 Console.WriteLine("Env Reset");
                 resettingEnv = false;
             }
+
+            // If full autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
             if (AL_Enabled.Checked == true)
             {
                 AutoLevel();
@@ -6617,11 +6614,21 @@ namespace brachIOplexus
                 reset_setpoint_theta = true;
                 reset_setpoint_phi = true;
 
-                if (RL_Control_Enabled.Checked && ALActor_Enabled.Checked && newAction)
+                if (RL_Control_Enabled.Checked)
                 {
-                    RL_AutoLevel();
-                    newAction = false;
+                    if(newAction)
+                    {
+                        RL_AutoLevel();
+                        newAction = false;
+                    }
+                    else
+                    {
+                        //Keep torque on if no action is ready
+                        robotObj.Motor[2].p = robotObj.Motor[2].p_prev;
+                        robotObj.Motor[3].p = robotObj.Motor[3].p_prev;
+                    }
                 }
+                
             }
 
 
@@ -7156,8 +7163,9 @@ namespace brachIOplexus
       
             //Get goal position
             Get_GoalPos();
-            //Once setpoint is set, level both rotation and flexion. 
 
+
+            //Once setpoint is set, level both rotation and flexion. 
             if (autoLevelWristFlex)
             {
                 //Autolevel flexion
@@ -7168,98 +7176,48 @@ namespace brachIOplexus
                 //Autolevel rotation
                 MoveLevelRot();
             }
-            
-            
+
+            if (LogPID_Enabled.Checked && autoLevelWristFlex && autoLevelWristRot)
+            {
+                string newPIDState = string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}",
+                    Convert.ToString(phi), Convert.ToString(setpoint_phi), Convert.ToString(theta), Convert.ToString(setpoint_theta),
+                    Convert.ToString(robotObj.Motor[2].p_prev), Convert.ToString(robotObj.Motor[3].p_prev), x_component, gy_prime, z_component);
+
+                if(!firstPIDLog)
+                {
+                    string toPIDLog = string.Format("{0}, {1}, {2}, {3}", DateTime.Now.ToString("HH:mm:ss.fff"), prevPIDState, prevPIDAction, newPIDState);
+                    Console.WriteLine(toPIDLog);
+                    pidLog.WriteLine(toPIDLog);
+                }
+                else
+                {
+                    firstPIDLog = false;
+                }
+
+                string newPIDAction = string.Format("{0}, {1}", Convert.ToString(robotObj.Motor[2].p), Convert.ToString(robotObj.Motor[3].p));
+                prevPIDState = newPIDState;
+                prevPIDAction = newPIDAction;
+            }
+            else
+            {
+                firstPIDLog = true;
+
+            }
+
         }
         private void RL_AutoLevel()
         {
             Console.WriteLine(actionRotation + ", " +  actionFlexion);
-            int maxSpeed = 100;
+            int maxSpeed = 500;
             robotObj.Motor[2].wmax = maxSpeed;
             robotObj.Motor[2].w = maxSpeed;
-            if (actionRotation != 0)
-            {
-                robotObj.Motor[2].p = truncateAction(actionRotation, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
-            }
-            else
-            {
-                robotObj.Motor[2].p = robotObj.Motor[2].p_prev;
-                stateObj.motorState[2] = 0;
-            }
-
-            //robotObj.Motor[2].p = Convert.ToInt32(actions[0]);
-
+            robotObj.Motor[2].p = truncateAction(actionRotation, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
 
             robotObj.Motor[3].wmax = maxSpeed;
             robotObj.Motor[3].w = maxSpeed;
-            if (actionFlexion != 0)
-            {
-                robotObj.Motor[3].p = truncateAction(actionFlexion, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
-            }
-            else
-            {
-                robotObj.Motor[3].p = robotObj.Motor[3].p_prev;
-                stateObj.motorState[3] = 0;
-            }
+            robotObj.Motor[3].p = truncateAction(actionFlexion, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
         }
-        //private void Step_RL_AutoLevel()
-        //{
-
-        //    double rewardRotation = -Math.Abs(setpoint_phi - phi);
-        //    double rewardFlexion = -Math.Abs(setpoint_theta - theta);
-        //    Console.WriteLine("Reward Rotation:" + rewardRotation);
-        //    Console.WriteLine("Reward Flexion:" + rewardFlexion);
-        //    double phiNormal = phi / 360;
-        //    double thetaNormal = theta / 360;
-        //    double septoint_phiNormal = setpoint_phi / 360;
-        //    double setpoint_thetaNormal = setpoint_theta / 360;
-        //    double rotPositionNormal = (double)(robotObj.Motor[2].p_prev - robotObj.Motor[2].pmin) / (double)(robotObj.Motor[2].pmax - robotObj.Motor[2].pmin);
-        //    double flexPositionNormal = (double)(robotObj.Motor[3].p_prev - robotObj.Motor[3].pmin) / (double)(robotObj.Motor[3].pmax - robotObj.Motor[3].pmin);
-        //    double gxNormal = (double)(x_component - (-512)) / (double)(512 - (-512));
-        //    double gyPrimeNormal = (double)(gy_prime - (-512)) / (double)(512 - (-512));
-        //    double gzNormal = (double)(z_component - (-512)) / (double)(512 - (-512));
-
-
-        //    double[] stateRotation = new double[] { phiNormal, septoint_phiNormal, rotPositionNormal, gxNormal, gyPrimeNormal};
-        //    double[] stateFlexion = new double[] { thetaNormal, setpoint_thetaNormal, flexPositionNormal, gyPrimeNormal, gzNormal};
-
-        //    Console.WriteLine("State");
-        //    Console.WriteLine(string.Join(",", stateRotation));
-        //    Console.WriteLine(string.Join(",", stateFlexion));
-
-
-        //    if (!firstRLStep)
-        //    {
-        //        agentRotation.Update(stateRotation, rewardRotation);
-        //        agentFlexion.Update(stateRotation, rewardFlexion);
-        //    }
-        //    else
-        //    {
-        //        firstRLStep = false;
-        //    }
-        //    double actionRotation = agentRotation.SelectAction(stateRotation) * (robotObj.Motor[2].pmax - robotObj.Motor[2].pmin) + robotObj.Motor[2].pmin;
-        //    double actionFlexion = agentFlexion.SelectAction(stateFlexion) * (robotObj.Motor[3].pmax - robotObj.Motor[3].pmin) + robotObj.Motor[3].pmin;
-
-        //    Console.WriteLine("Action Rotation: " + actionRotation);
-        //    Console.WriteLine("Action Flexion: " + actionFlexion);
-
-
-        //    int maxSpeed = 100;
-        //    robotObj.Motor[2].wmax = maxSpeed;
-        //    robotObj.Motor[2].w = maxSpeed;
-        //    robotObj.Motor[2].p = truncateAction(actionRotation, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
-        //    //robotObj.Motor[2].p = Convert.ToInt32(actions[0]);
-
-
-        //    robotObj.Motor[3].wmax = maxSpeed;
-        //    robotObj.Motor[3].w = maxSpeed;
-        //    robotObj.Motor[3].p = truncateAction(actionFlexion, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
-        //    //robotObj.Motor[3].p = Convert.ToInt32(actions[1]);
-
-        //    Console.WriteLine("Rot: " + robotObj.Motor[2].p + ", Flex: " + robotObj.Motor[3].p);
-
-
-        //}
+       
         private int truncateAction(double action, double min, double max)
         {
             return Convert.ToInt32(Math.Min(Math.Max(action, min), max));
@@ -7453,9 +7411,6 @@ namespace brachIOplexus
             robotObj.Motor[2].wmax = 500;
             robotObj.Motor[2].w = 500;
             robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + taper(RotAdjustment, theta), 0);
-            //robotObj.Motor[2].p = robotObj.Motor[2].p_prev + RotAdjustment;
-
-
         }
 
         //Function to write the PID driven goal-position to the flexion servo - db
@@ -8929,13 +8884,13 @@ namespace brachIOplexus
                     // 1 byte for packet length
                     // 39 data values
                     // 1 byte for checksum at the end
-                    int MSG_SIZE2 = 45;
+                    int MSG_SIZE2 = 40;
                     byte[] packet = new byte[MSG_SIZE2];
 
                     // Construct the packet that will be transmitted to the external program
                     packet[0] = 255;    // First two bytes of the packet are the header section and set to 255
                     packet[1] = 255;
-                    packet[2] = 41;     // The length of the packet
+                    packet[2] = 36;     // The length of the packet
                     packet[3] = 0;
                     packet[4] = low_byte(BentoSense.ID[2].posf);
                     packet[5] = high_byte(BentoSense.ID[2].posf);
@@ -8967,16 +8922,11 @@ namespace brachIOplexus
                     packet[31] = high_byte((ushort)phi);
                     packet[32] = low_byte((ushort)setpoint_phi);
                     packet[33] = high_byte((ushort)setpoint_phi);
-                    packet[34] = low_byte((ushort)reward_rot);
-                    packet[35] = high_byte((ushort)reward_rot);
-                    packet[36] = low_byte((ushort)theta);
-                    packet[37] = high_byte((ushort)theta);
-                    packet[38] = low_byte((ushort)setpoint_theta);
-                    packet[39] = high_byte((ushort)setpoint_theta);
-                    packet[40] = low_byte((ushort)reward_flex);
-                    packet[41] = high_byte((ushort)reward_flex);
-                    packet[42] = (byte)(ALActor_Enabled.Checked ? 1 : 0);
-                    packet[43] = (byte)(resettingEnv ? 1 : 0);
+                    packet[34] = low_byte((ushort)theta);
+                    packet[35] = high_byte((ushort)theta);
+                    packet[36] = low_byte((ushort)setpoint_theta);
+                    packet[37] = high_byte((ushort)setpoint_theta);
+                    packet[38] = (byte)(resettingEnv ? 1 : 0);
 
                     // Calculate the checksum for the packet
                     int checksum = 0;
@@ -9002,7 +8952,7 @@ namespace brachIOplexus
                     checksumRX = (byte)~checksumRX;     // return the bitwise complement which is equivalent to the NOT operator
                     // Only update the input values if the packet is valid
 
-                    if (RL_Control_Enabled.Checked == true && !resettingEnv && ALActor_Enabled.Checked)
+                    if (RL_Control_Enabled.Checked == true && !resettingEnv)
                     {
                         double[] actions = new double[2];
                         if (checksumRX == bytes[bytes.Length - 1] && bytes[0] == 255 && bytes[1] == 255)
@@ -9113,6 +9063,17 @@ namespace brachIOplexus
             StopLogging.Enabled = false;
         }
 
-        
+        private void LogPID_Enabled_CheckedChanged(object sender, EventArgs e)
+        {
+            if (LogPID_Enabled.Checked)
+            {
+                pidLog = new System.IO.StreamWriter(pidLogFilePath, true);
+                firstPIDLog = true;
+            }
+            else
+            {
+                pidLog.Dispose();
+            }
+        }
     }
 }
