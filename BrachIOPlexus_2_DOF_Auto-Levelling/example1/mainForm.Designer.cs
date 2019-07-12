@@ -663,6 +663,8 @@
             this.doF2 = new brachIOplexus.DoF();
             this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
+            this.UDPALPythonDelay = new System.Windows.Forms.Label();
+            this.Reset_Env_Btn = new System.Windows.Forms.Button();
             this.RL_Control_Enabled = new System.Windows.Forms.CheckBox();
             this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
             this.UDPPythonDelay = new System.Windows.Forms.Label();
@@ -805,7 +807,7 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
-            this.Reset_Env_Btn = new System.Windows.Forms.Button();
+            this.ALActor_Enabled = new System.Windows.Forms.CheckBox();
             this.MenuStrip1.SuspendLayout();
             this.VoiceCoilCommBox.SuspendLayout();
             this.EMGParamBox.SuspendLayout();
@@ -9142,6 +9144,8 @@
             // 
             // tabBento
             // 
+            this.tabBento.Controls.Add(this.ALActor_Enabled);
+            this.tabBento.Controls.Add(this.UDPALPythonDelay);
             this.tabBento.Controls.Add(this.Reset_Env_Btn);
             this.tabBento.Controls.Add(this.RL_Control_Enabled);
             this.tabBento.Controls.Add(this.AutoLevellingBox);
@@ -9169,16 +9173,37 @@
             this.tabBento.Text = "Bento Arm";
             this.tabBento.UseVisualStyleBackColor = true;
             // 
+            // UDPALPythonDelay
+            // 
+            this.UDPALPythonDelay.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.UDPALPythonDelay.Location = new System.Drawing.Point(376, 395);
+            this.UDPALPythonDelay.Name = "UDPALPythonDelay";
+            this.UDPALPythonDelay.Size = new System.Drawing.Size(93, 22);
+            this.UDPALPythonDelay.TabIndex = 216;
+            this.UDPALPythonDelay.Text = "Delay: --";
+            // 
+            // Reset_Env_Btn
+            // 
+            this.Reset_Env_Btn.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.Reset_Env_Btn.Location = new System.Drawing.Point(379, 424);
+            this.Reset_Env_Btn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.Reset_Env_Btn.Name = "Reset_Env_Btn";
+            this.Reset_Env_Btn.Size = new System.Drawing.Size(59, 28);
+            this.Reset_Env_Btn.TabIndex = 213;
+            this.Reset_Env_Btn.Text = "Reset";
+            this.Reset_Env_Btn.Click += new System.EventHandler(this.Reset_Env_Btn_Click);
+            // 
             // RL_Control_Enabled
             // 
             this.RL_Control_Enabled.AutoSize = true;
-            this.RL_Control_Enabled.Location = new System.Drawing.Point(379, 379);
+            this.RL_Control_Enabled.Location = new System.Drawing.Point(377, 342);
             this.RL_Control_Enabled.Margin = new System.Windows.Forms.Padding(4);
             this.RL_Control_Enabled.Name = "RL_Control_Enabled";
             this.RL_Control_Enabled.Size = new System.Drawing.Size(72, 21);
             this.RL_Control_Enabled.TabIndex = 212;
             this.RL_Control_Enabled.Text = "ML me";
             this.RL_Control_Enabled.UseVisualStyleBackColor = true;
+            this.RL_Control_Enabled.CheckedChanged += new System.EventHandler(this.RL_Control_Enabled_CheckedChanged);
             // 
             // AutoLevellingBox
             // 
@@ -10916,16 +10941,16 @@
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
             // 
-            // Reset_Env_Btn
+            // ALActor_Enabled
             // 
-            this.Reset_Env_Btn.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.Reset_Env_Btn.Location = new System.Drawing.Point(379, 406);
-            this.Reset_Env_Btn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Reset_Env_Btn.Name = "Reset_Env_Btn";
-            this.Reset_Env_Btn.Size = new System.Drawing.Size(59, 28);
-            this.Reset_Env_Btn.TabIndex = 213;
-            this.Reset_Env_Btn.Text = "Reset";
-            this.Reset_Env_Btn.Click += new System.EventHandler(this.Reset_Env_Btn_Click);
+            this.ALActor_Enabled.AutoSize = true;
+            this.ALActor_Enabled.Location = new System.Drawing.Point(376, 371);
+            this.ALActor_Enabled.Margin = new System.Windows.Forms.Padding(4);
+            this.ALActor_Enabled.Name = "ALActor_Enabled";
+            this.ALActor_Enabled.Size = new System.Drawing.Size(83, 21);
+            this.ALActor_Enabled.TabIndex = 217;
+            this.ALActor_Enabled.Text = "Actor on";
+            this.ALActor_Enabled.UseVisualStyleBackColor = true;
             // 
             // mainForm
             // 
@@ -11899,6 +11924,8 @@
         internal System.Windows.Forms.Label label235;
         private System.Windows.Forms.CheckBox RL_Control_Enabled;
         internal System.Windows.Forms.Button Reset_Env_Btn;
+        internal System.Windows.Forms.Label UDPALPythonDelay;
+        private System.Windows.Forms.CheckBox ALActor_Enabled;
     }
 }
 
