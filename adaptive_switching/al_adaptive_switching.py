@@ -282,10 +282,10 @@ try:
             number_of_steps += 1  # increase step count since beginning experiment
 
             # Update state information with the latest values received from the external program
-            # state_joints = [robotObj[0].normalized_position*numBins]
-            state_joints = [robotObj[2].normalized_position*numBins, robotObj[2].normalized_velocity*numBins,
-                            robotObj[3].normalized_position*numBins, robotObj[3].normalized_velocity*numBins,
-                            robotObj[4].normalized_position*numBins, robotObj[4].normalized_velocity*numBins]
+            state_joints = [robotObj[4].normalized_position*numBins]
+            # state_joints = [robotObj[2].normalized_position*numBins, robotObj[2].normalized_velocity*numBins,
+            #                 robotObj[3].normalized_position*numBins, robotObj[3].normalized_velocity*numBins,
+            #                 robotObj[4].normalized_position*numBins, robotObj[4].normalized_velocity*numBins]
             # state_joints = [robotObj[2].normalized_position, robotObj[2].normalized_velocity,
             #                 robotObj[3].normalized_position, robotObj[3].normalized_velocity,
             #                 robotObj[4].normalized_position, robotObj[4].normalized_velocity]

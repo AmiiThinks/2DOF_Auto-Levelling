@@ -267,6 +267,7 @@ namespace brachIOplexus
         int y_component = 0;            //y component of IMU reading of gravity acceleration 
         int z_component = 0;            //x component of IMU reading of gravity acceleration 
         int gy_prime = 0;
+        int gz_prime = 0;
         double phi = 180;               //roll angle of wrist
         double theta = 180;             //flexion angle of wrist
         double setpoint_phi = 180;      //target roll angle of wrist
@@ -6605,6 +6606,8 @@ namespace brachIOplexus
             }
 
             // If full autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
+            Get_Grav();
+
             if (AL_Enabled.Checked == true)
             {
                 AutoLevel();
@@ -7144,8 +7147,6 @@ namespace brachIOplexus
         {
 
             //Get current position
-            Get_Grav();
-
             if (autoLevelWristFlex && reset_setpoint_theta == true)
             {
                 // Reset setpoints if starting autolevelling from not autolevelling
@@ -7177,11 +7178,13 @@ namespace brachIOplexus
                 MoveLevelRot();
             }
 
-            if (LogPID_Enabled.Checked && autoLevelWristFlex && autoLevelWristRot)
+            if (LogPID_Enabled.Checked && autoLevelWristRot && autoLevelWristFlex)
             {
                 string newPIDState = string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}",
                     Convert.ToString(phi), Convert.ToString(setpoint_phi), Convert.ToString(theta), Convert.ToString(setpoint_theta),
-                    Convert.ToString(robotObj.Motor[2].p_prev), Convert.ToString(robotObj.Motor[3].p_prev), x_component, gy_prime, z_component);
+                    Convert.ToString(robotObj.Motor[2].p_prev), Convert.ToString(robotObj.Motor[2].w_prev), 
+                    Convert.ToString(robotObj.Motor[3].p_prev), Convert.ToString(robotObj.Motor[3].w_prev), 
+                    x_component, y_component, gy_prime, z_component);
 
                 if(!firstPIDLog)
                 {
@@ -7207,7 +7210,6 @@ namespace brachIOplexus
         }
         private void RL_AutoLevel()
         {
-            Console.WriteLine(actionRotation + ", " +  actionFlexion);
             int maxSpeed = 500;
             robotObj.Motor[2].wmax = maxSpeed;
             robotObj.Motor[2].w = maxSpeed;
@@ -7318,10 +7320,16 @@ namespace brachIOplexus
             //compute working variables:
             double error = setpoint - measured_value;
             //if (robotObj.Motor[3].p_prev < 2890 && robotObj.Motor[3].p_prev > 60) //Only increase integral if within joint limits to prevent windup
-            if (robotObj.Motor[2].p_prev < robotObj.Motor[2].pmax && robotObj.Motor[2].p_prev > robotObj.Motor[2].pmin)
+            //Only increase integral if within joint limits to prevent windup
+            if (error > 0 && robotObj.Motor[2].p_prev < robotObj.Motor[2].pmax)
             {
                 errSum_phi += (error * milliSec1 / 1000);
             }
+            else if (error < 0 && robotObj.Motor[2].p_prev > robotObj.Motor[2].pmin)
+            {
+                errSum_phi += (error * milliSec1 / 1000);
+            }
+
             double dErr = (error - lastErr_phi) / (milliSec1);
 
             //update variables for next loop
@@ -7336,11 +7344,17 @@ namespace brachIOplexus
         {
             //compute working variables:
             double error = setpoint - measured_value;
-            //if (robotObj.Motor[4].p_prev < 3320 && robotObj.Motor[4].p_prev > 780) //Only increase integral if within joint limits to prevent windup
-            if (robotObj.Motor[3].p_prev < robotObj.Motor[3].pmax && robotObj.Motor[3].p_prev > robotObj.Motor[3].pmin)
+           
+            //Only increase integral if within joint limits to prevent windup
+            if (error > 0 && robotObj.Motor[3].p_prev < robotObj.Motor[3].pmax)
             {
-                errSum_phi += (error * milliSec1 / 1000);
+                errSum_theta += (error * milliSec1 / 1000);
+            } 
+            else if(error < 0 && robotObj.Motor[3].p_prev > robotObj.Motor[3].pmin)
+            {
+                errSum_theta += (error * milliSec1 / 1000);
             }
+
             double dErr = (error - lastErr_theta) / (milliSec1);
 
             //update variables for next loop
@@ -7373,24 +7387,22 @@ namespace brachIOplexus
             //double c = z_component;//normalize(z_component, g_mag);
 
             double alpha = Ticks_to_Deg(robotObj.Motor[3].p_prev);
-            //double gz_prime = 0;
             if(alpha <= 180)
             {
                 double beta = (alpha - 90) * 3.141592653589793 / 180;
                 gy_prime = Convert.ToInt32(y_component * Math.Sin(beta) - z_component * Math.Cos(beta));
-                //gz_prime = z_component * Math.Sin(beta) + y_component * Math.Cos(beta);
+                //gz_prime = Convert.ToInt32(z_component * Math.Sin(beta) + y_component * Math.Cos(beta));
 
             }
             else
             {
                 double beta = (270-alpha) * 3.141592653589793 / 180;
                 gy_prime = Convert.ToInt32(y_component * Math.Sin(beta) + z_component * Math.Cos(beta));
-                //gz_prime = z_component * Math.Sin(beta) - y_component * Math.Cos(beta);
+                //gz_prime = Convert.ToInt32(z_component * Math.Sin(beta) - y_component * Math.Cos(beta));
 
             }
-            phi = Get_phi(x_component, gy_prime, phi);
+            phi = Get_phi(x_component, gy_prime, phi); // Only need adjusted y value for rotation (we're basically moving the accelerometer onto the rotation motor)
             theta = Get_theta(y_component, z_component, theta);
-
         }
 
         //Function to call the PID controller, get the desired servo position - db
@@ -7398,7 +7410,7 @@ namespace brachIOplexus
         {
             //get output from PID controller (amount servo needs to move in degrees)
             output_phi = PID_phi(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi);
-            output_theta = PID_theta(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
+            output_theta = PID_theta(taper_theta(theta, setpoint_theta, phi), setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
             //convert to encoder ticks
             RotAdjustment = Deg_to_Ticks(output_phi);
             FlxAdjustment = Deg_to_Ticks(output_theta);
@@ -7410,7 +7422,10 @@ namespace brachIOplexus
 
             robotObj.Motor[2].wmax = 500;
             robotObj.Motor[2].w = 500;
-            robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + taper(RotAdjustment, theta), 0);
+            //robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + taper(RotAdjustment, theta), 0);
+            robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + RotAdjustment, 0);
+            //robotObj.Motor[2].p = Math.Max(RotAdjustment, 0);
+
         }
 
         //Function to write the PID driven goal-position to the flexion servo - db
@@ -7418,7 +7433,8 @@ namespace brachIOplexus
         {
             robotObj.Motor[3].wmax = 500;
             robotObj.Motor[3].w = 500;
-            robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - FlxAdjustment, 0);
+            robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - taper_flexion(FlxAdjustment, phi), 0);
+            //robotObj.Motor[3].p = Math.Max(FlxAdjustment, 0);
         }
 
         private void TurnOffAutoLevelRot()
@@ -7443,6 +7459,27 @@ namespace brachIOplexus
         private double Ticks_to_Deg(int ticks)
         {
             return (ticks/11.3611111111111111111111); //11.361111 degrees per encoder tick
+        }
+
+        private double taper_theta(double theta, double setpoint_value, double phi)
+        {
+            int buffer = 20;
+            int slope_den = 180 - (90 + buffer);
+            double taper_amount = Math.Max((slope_den - Math.Abs(180 - phi)) / slope_den, 0);
+
+            return taper_amount * theta + (1 - taper_amount) * setpoint_value;
+     
+        }
+
+        private int taper_flexion(int flexion, double phi)
+        {
+            int buffer = 20;
+            if (phi > (90 + buffer) && theta < (270 - buffer))
+            {
+                return flexion;
+            }
+            return 0;
+
         }
 
         //Function to taper off the rotation adjustments near the vertical positions - db
@@ -8854,29 +8891,7 @@ namespace brachIOplexus
                 if (dynaConnect.Enabled == false)
                 {
                     Get_Grav();
-                    double reward_rot;
-                    if (Math.Abs(setpoint_phi - phi) < 10)
-                    {
-                        reward_rot = 10;
-                    }
-                    else
-                    {
-                        reward_rot = -Math.Abs(setpoint_phi - phi);
-                    }
-                    //double reward_rot = -Math.Abs(setpoint_phi - phi);
-
-
-                    double reward_flex;
-                    if (Math.Abs(setpoint_theta - theta) < 10)
-                    {
-                        reward_flex = 10;
-                    }
-                    else
-                    {
-                        reward_flex = -Math.Abs(setpoint_theta - theta);
-                    }
-                    //double reward_flex = -Math.Abs(setpoint_theta - theta);
-
+                  
 
                     // Create a byte array for holding the packet values
                     // packet size is 
@@ -8998,9 +9013,7 @@ namespace brachIOplexus
         //Returns true if a motor is moving (while not being autolevelled)
         private bool motorsMoving()
         {
-            if ((stateObj.motorState[2] == 1 || stateObj.motorState[2] == 2))
-                return true;
-            else if ((stateObj.motorState[3] == 1 || stateObj.motorState[3] == 2))
+            if (Math.Abs(BentoSense.ID[2].vel - 1023) > 10 || Math.Abs(BentoSense.ID[3].vel - 1023) > 10)
                 return true;
             else if (stateObj.motorState[4] == 1 || stateObj.motorState[4] == 2)
                 return true;
