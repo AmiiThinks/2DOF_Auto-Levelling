@@ -326,6 +326,10 @@ namespace brachIOplexus
         int prevRotationCommand = 0;
         int prevFlexionCommand = 0;
 
+        
+
+        RLAgent agent = new RLAgent(360 + 360 + 1, 1000, 0.9, 0, 0.1, 10, 0.9, "Q_Values.bin");
+
         #endregion
 
 
@@ -681,6 +685,7 @@ namespace brachIOplexus
                 {
                     pidLog.Dispose();
                 }
+                agent.SaveQ("Q_Values.bin");
 
 
                 // Close port
@@ -6614,6 +6619,7 @@ namespace brachIOplexus
             if (AL_Enabled.Checked == true)
             {
                 AutoLevel();
+                RL_AutoLevel(true);
             }
             else
             {
@@ -6622,7 +6628,7 @@ namespace brachIOplexus
 
                 if (RL_Control_Enabled.Checked)
                 {
-                    RL_AutoLevel();
+                    RL_AutoLevel(false);
                 }
             }
 
@@ -7202,7 +7208,7 @@ namespace brachIOplexus
             }
 
         }
-        private void RL_AutoLevel()
+        private void RL_AutoLevel(bool learningMode)
         {
             ////Velocity command
             //robotObj.Motor[2].wmax = Math.Abs(actionRotation);
@@ -7236,32 +7242,34 @@ namespace brachIOplexus
             //{
             //    robotObj.Motor[3].p = robotObj.Motor[3].p_prev;
             //}
+            int state = Convert.ToInt32(setpoint_phi - phi) + 360;
+            double reward = -Math.Abs(setpoint_phi - phi);
+            double tdError;
 
-            if (newAction)
+            if (learningMode)
             {
-                prevRotationCommand = robotObj.Motor[2].p_prev + actionRotation;
-                prevFlexionCommand = robotObj.Motor[3].p_prev + actionFlexion;
-                newAction = false;
+                agent.SetAction(RotAdjustment);
+                tdError = agent.Update(state, reward);
+
+            }
+            else
+            {
+                tdError = agent.Update(state, reward);
+                RotAdjustment = agent.SelectAction(state);
+                MoveLevelRot();
             }
 
+            Console.WriteLine("State: " + state + "| Reward: " + reward + "| Action: " + RotAdjustment + "| TD Error: " + tdError);
 
 
-            int maxSpeed = 500;
-            robotObj.Motor[2].wmax = maxSpeed;
-            robotObj.Motor[2].w = maxSpeed;
-            //prevRotationCommand = truncateAction(actionRotation, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
-            robotObj.Motor[2].p = truncateAction(prevRotationCommand, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax); ;
-            Console.WriteLine(prevRotationCommand);
-
-            robotObj.Motor[3].wmax = maxSpeed;
-            robotObj.Motor[3].w = maxSpeed;
-            //prevFlexionCommand = truncateAction(actionFlexion, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
-            robotObj.Motor[3].p = truncateAction(prevFlexionCommand, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
+            //robotObj.Motor[3].wmax = maxSpeed;
+            //robotObj.Motor[3].w = maxSpeed;
+            //robotObj.Motor[3].p = truncateAction(prevFlexionCommand, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
         }
 
-        private int truncateAction(int action, int min, int max)
+        private int truncateAction(int action, int robotObjNum)
         {
-            return Math.Min(Math.Max(action, min), max);
+            return Math.Min(Math.Max(action, robotObj.Motor[robotObjNum].pmin), robotObj.Motor[robotObjNum].pmax);
         }
         // Helper function to find the magnitude of a three component vector - db
         private double magnitude(int x, int y, int z)
@@ -7464,7 +7472,7 @@ namespace brachIOplexus
             robotObj.Motor[2].wmax = 500;
             robotObj.Motor[2].w = 500;
             //robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + taper(RotAdjustment, theta), 0);
-            robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + RotAdjustment, 0);
+            robotObj.Motor[2].p = truncateAction(robotObj.Motor[2].p_prev + RotAdjustment, 2);
             //robotObj.Motor[2].p = Math.Max(RotAdjustment, 0);
 
         }
@@ -7475,7 +7483,7 @@ namespace brachIOplexus
             robotObj.Motor[3].wmax = 500;
             robotObj.Motor[3].w = 500;
             //robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - taper_flexion(FlxAdjustment, phi), 0);
-            robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - FlxAdjustment, 0);
+            robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev - FlxAdjustment, 3);
 
             //robotObj.Motor[3].p = Math.Max(FlxAdjustment, 0);
         }
@@ -8866,176 +8874,180 @@ namespace brachIOplexus
 
         private void RL_Control_Enabled_CheckedChanged(object sender, EventArgs e)
         {
-            try
+            if(!RL_Control_Enabled.Checked)
             {
-                if (UDPFlagALPython == false && dynaConnect.Enabled == false && RL_Control_Enabled.Checked)
-                {
-                    TurnOffAutoLevelRot();
-                    TurnOffAutoLevelFlex();
-
-                    // Initialize Bento Arm feedback values to 0
-                    for (int i = 0; i < BENTO_NUM; i++)
-                    {
-                        BentoSense.ID[i].pos = 0;
-                        BentoSense.ID[i].vel = 0;
-                        BentoSense.ID[i].load = 0;
-                        BentoSense.ID[i].volt = 0;
-                        BentoSense.ID[i].temp = 0;
-                    }
-
-
-                    // Initialize the UDP TX object
-                    udpClientALPythonTX = new UdpClient();
-                    ipEndPointALPythonTX = new IPEndPoint(localAddrALPython, portALPythonTX);
-
-                    //// Initialize the UDP RX object
-                    udpClientALPythonRX = new UdpClient(portALPythonRX);
-                    ipEndPointALPythonRX = new IPEndPoint(localAddrALPython, portALPythonRX);
-
-                    // Start the timer that will send the serial packets out to the arduino 
-                    // NOTE: for some reason the actual timestep of the timer is a bit slower -> i.e. it is set to 45ms, but actually achieves more like 49-50ms
-                    // This update rate is to match the 20Hz (50ms) that was used in the previous adaptive switching code from ROS
-                    timerALPython = new System.Threading.Timer(new TimerCallback(DoWorkALPythonUDP), null, 0, 45);
-
-                    // Reset the UDP flag
-                    UDPFlagALPython = true;
-                }
-                else
-                {
-                    udpClientALPythonTX.Close();
-                    udpClientALPythonRX.Close();
-                    timerALPython.Change(Timeout.Infinite, Timeout.Infinite);
-                }
+                agent.SaveQ("Q_Values.bin");
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            //try
+            //{
+            //    if (UDPFlagALPython == false && dynaConnect.Enabled == false && RL_Control_Enabled.Checked)
+            //    {
+            //        TurnOffAutoLevelRot();
+            //        TurnOffAutoLevelFlex();
+
+            //        // Initialize Bento Arm feedback values to 0
+            //        for (int i = 0; i < BENTO_NUM; i++)
+            //        {
+            //            BentoSense.ID[i].pos = 0;
+            //            BentoSense.ID[i].vel = 0;
+            //            BentoSense.ID[i].load = 0;
+            //            BentoSense.ID[i].volt = 0;
+            //            BentoSense.ID[i].temp = 0;
+            //        }
+
+
+            //        // Initialize the UDP TX object
+            //        udpClientALPythonTX = new UdpClient();
+            //        ipEndPointALPythonTX = new IPEndPoint(localAddrALPython, portALPythonTX);
+
+            //        //// Initialize the UDP RX object
+            //        udpClientALPythonRX = new UdpClient(portALPythonRX);
+            //        ipEndPointALPythonRX = new IPEndPoint(localAddrALPython, portALPythonRX);
+
+            //        // Start the timer that will send the serial packets out to the arduino 
+            //        // NOTE: for some reason the actual timestep of the timer is a bit slower -> i.e. it is set to 45ms, but actually achieves more like 49-50ms
+            //        // This update rate is to match the 20Hz (50ms) that was used in the previous adaptive switching code from ROS
+            //        timerALPython = new System.Threading.Timer(new TimerCallback(DoWorkALPythonUDP), null, 0, 45);
+
+            //        // Reset the UDP flag
+            //        UDPFlagALPython = true;
+            //    }
+            //    else
+            //    {
+            //        udpClientALPythonTX.Close();
+            //        udpClientALPythonRX.Close();
+            //        timerALPython.Change(Timeout.Infinite, Timeout.Infinite);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show(ex.Message);
+            //}
         }
 
         // This is a timer callback function that operates on a separate thread and that is used for communicating with an external program via UDP
         public void DoWorkALPythonUDP(object state)
         {
-            try
-            {
-                // Stop stopwatch and record how long everything in the main loop took to execute as well as how long it took to retrigger the main loop
-                stopWatchALPython.Stop();
-                milliSecALPythonUDPLoop = stopWatchALPython.ElapsedMilliseconds;
+            //try
+            //{
+            //    // Stop stopwatch and record how long everything in the main loop took to execute as well as how long it took to retrigger the main loop
+            //    stopWatchALPython.Stop();
+            //    milliSecALPythonUDPLoop = stopWatchALPython.ElapsedMilliseconds;
 
-                if (UDPPythonDelay.InvokeRequired)
-                {
-                    UDPPythonDelay.Invoke(new MethodInvoker(delegate { UDPALPythonDelay.Text = "Delay: " + Convert.ToString(milliSecALPythonUDPLoop); }));
-                }
+            //    if (UDPPythonDelay.InvokeRequired)
+            //    {
+            //        UDPPythonDelay.Invoke(new MethodInvoker(delegate { UDPALPythonDelay.Text = "Delay: " + Convert.ToString(milliSecALPythonUDPLoop); }));
+            //    }
 
-                //Reset and start the stop watch
-                stopWatchALPython.Restart();
+            //    //Reset and start the stop watch
+            //    stopWatchALPython.Restart();
 
-                // Send the sensor stream from the Bento Arm if the 
-                if (dynaConnect.Enabled == false)
-                {
-                    Get_Grav();
+            //    // Send the sensor stream from the Bento Arm if the 
+            //    if (dynaConnect.Enabled == false)
+            //    {
+            //        Get_Grav();
                   
 
-                    // Create a byte array for holding the packet values
-                    // packet size is 
-                    // 2 header bytes, 
-                    // 1 byte for packet length
-                    // 39 data values
-                    // 1 byte for checksum at the end
-                    int MSG_SIZE2 = 40;
-                    byte[] packet = new byte[MSG_SIZE2];
+            //        // Create a byte array for holding the packet values
+            //        // packet size is 
+            //        // 2 header bytes, 
+            //        // 1 byte for packet length
+            //        // 39 data values
+            //        // 1 byte for checksum at the end
+            //        int MSG_SIZE2 = 40;
+            //        byte[] packet = new byte[MSG_SIZE2];
 
-                    // Construct the packet that will be transmitted to the external program
-                    packet[0] = 255;    // First two bytes of the packet are the header section and set to 255
-                    packet[1] = 255;
-                    packet[2] = 36;     // The length of the packet
-                    packet[3] = 0;
-                    packet[4] = low_byte(BentoSense.ID[2].posf);
-                    packet[5] = high_byte(BentoSense.ID[2].posf);
-                    packet[6] = low_byte(BentoSense.ID[2].vel);
-                    packet[7] = high_byte(BentoSense.ID[2].vel);
-                    packet[8] = low_byte(BentoSense.ID[2].loadf);
-                    packet[9] = high_byte(BentoSense.ID[2].loadf);
-                    packet[10] = (byte)BentoSense.ID[2].tempf;
-                    packet[11] = (byte)stateObj.motorState[2];
-                    packet[12] = Convert.ToByte(autoLevelWristRot);
-                    packet[13] = 1;
-                    packet[14] = low_byte(BentoSense.ID[3].posf);
-                    packet[15] = high_byte(BentoSense.ID[3].posf);
-                    packet[16] = low_byte(BentoSense.ID[3].vel);
-                    packet[17] = high_byte(BentoSense.ID[3].vel);
-                    packet[18] = low_byte(BentoSense.ID[3].loadf);
-                    packet[19] = high_byte(BentoSense.ID[3].loadf);
-                    packet[20] = (byte)BentoSense.ID[3].tempf;
-                    packet[21] = (byte)stateObj.motorState[3];
-                    packet[22] = Convert.ToByte(autoLevelWristFlex);
-                    packet[23] = 2;
-                    packet[24] = low_byte((ushort)x_component);
-                    packet[25] = high_byte((ushort)x_component);
-                    packet[26] = low_byte((ushort)gy_prime);
-                    packet[27] = high_byte((ushort)gy_prime);
-                    packet[28] = low_byte((ushort)z_component);
-                    packet[29] = high_byte((ushort)z_component);
-                    packet[30] = low_byte((ushort)phi);
-                    packet[31] = high_byte((ushort)phi);
-                    packet[32] = low_byte((ushort)setpoint_phi);
-                    packet[33] = high_byte((ushort)setpoint_phi);
-                    packet[34] = low_byte((ushort)theta);
-                    packet[35] = high_byte((ushort)theta);
-                    packet[36] = low_byte((ushort)setpoint_theta);
-                    packet[37] = high_byte((ushort)setpoint_theta);
-                    packet[38] = (byte)(resettingEnv ? 1 : 0);
+            //        // Construct the packet that will be transmitted to the external program
+            //        packet[0] = 255;    // First two bytes of the packet are the header section and set to 255
+            //        packet[1] = 255;
+            //        packet[2] = 36;     // The length of the packet
+            //        packet[3] = 0;
+            //        packet[4] = low_byte(BentoSense.ID[2].posf);
+            //        packet[5] = high_byte(BentoSense.ID[2].posf);
+            //        packet[6] = low_byte(BentoSense.ID[2].vel);
+            //        packet[7] = high_byte(BentoSense.ID[2].vel);
+            //        packet[8] = low_byte(BentoSense.ID[2].loadf);
+            //        packet[9] = high_byte(BentoSense.ID[2].loadf);
+            //        packet[10] = (byte)BentoSense.ID[2].tempf;
+            //        packet[11] = (byte)stateObj.motorState[2];
+            //        packet[12] = Convert.ToByte(autoLevelWristRot);
+            //        packet[13] = 1;
+            //        packet[14] = low_byte(BentoSense.ID[3].posf);
+            //        packet[15] = high_byte(BentoSense.ID[3].posf);
+            //        packet[16] = low_byte(BentoSense.ID[3].vel);
+            //        packet[17] = high_byte(BentoSense.ID[3].vel);
+            //        packet[18] = low_byte(BentoSense.ID[3].loadf);
+            //        packet[19] = high_byte(BentoSense.ID[3].loadf);
+            //        packet[20] = (byte)BentoSense.ID[3].tempf;
+            //        packet[21] = (byte)stateObj.motorState[3];
+            //        packet[22] = Convert.ToByte(autoLevelWristFlex);
+            //        packet[23] = 2;
+            //        packet[24] = low_byte((ushort)x_component);
+            //        packet[25] = high_byte((ushort)x_component);
+            //        packet[26] = low_byte((ushort)gy_prime);
+            //        packet[27] = high_byte((ushort)gy_prime);
+            //        packet[28] = low_byte((ushort)z_component);
+            //        packet[29] = high_byte((ushort)z_component);
+            //        packet[30] = low_byte((ushort)phi);
+            //        packet[31] = high_byte((ushort)phi);
+            //        packet[32] = low_byte((ushort)setpoint_phi);
+            //        packet[33] = high_byte((ushort)setpoint_phi);
+            //        packet[34] = low_byte((ushort)theta);
+            //        packet[35] = high_byte((ushort)theta);
+            //        packet[36] = low_byte((ushort)setpoint_theta);
+            //        packet[37] = high_byte((ushort)setpoint_theta);
+            //        packet[38] = (byte)(resettingEnv ? 1 : 0);
 
-                    // Calculate the checksum for the packet
-                    int checksum = 0;
-                    for (int p = 2; p < packet.Length - 1; p++)
-                    {
-                        checksum = checksum + packet[p];     // Add up all the bytes in the DATA section of the packet. i.e. do not count the header bytes
-                    }
-                    checksum = (byte)~checksum;     // return the bitwise complement which is equivalent to the NOT operator
-                    packet[packet.Length - 1] = (byte)checksum; // Tuck the checksum byte into the last slot in the byte array 
-                    udpClientALPythonTX.Send(packet, packet.Length, ipEndPointALPythonTX);
+            //        // Calculate the checksum for the packet
+            //        int checksum = 0;
+            //        for (int p = 2; p < packet.Length - 1; p++)
+            //        {
+            //            checksum = checksum + packet[p];     // Add up all the bytes in the DATA section of the packet. i.e. do not count the header bytes
+            //        }
+            //        checksum = (byte)~checksum;     // return the bitwise complement which is equivalent to the NOT operator
+            //        packet[packet.Length - 1] = (byte)checksum; // Tuck the checksum byte into the last slot in the byte array 
+            //        udpClientALPythonTX.Send(packet, packet.Length, ipEndPointALPythonTX);
 
-                    // Process the return packet from the external program
-                    byte[] bytes = udpClientALPythonRX.Receive(ref ipEndPointALPythonRX);
+            //        // Process the return packet from the external program
+            //        byte[] bytes = udpClientALPythonRX.Receive(ref ipEndPointALPythonRX);
 
-                    // Decode packets from the external program using packet structure from UDP_Comm_Protocol_ASD_python_to_brachIO_180619.xls
-                    // Calculate the checksum for the packet
-                    int checksumRX = 0;
-                    for (int p = 2; p < bytes.Length - 1; p++)
-                    {
-                        checksumRX = checksumRX + bytes[p];     // Add up all the bytes in the LENGTH and DATA section of hte packet
-                    }
+            //        // Decode packets from the external program using packet structure from UDP_Comm_Protocol_ASD_python_to_brachIO_180619.xls
+            //        // Calculate the checksum for the packet
+            //        int checksumRX = 0;
+            //        for (int p = 2; p < bytes.Length - 1; p++)
+            //        {
+            //            checksumRX = checksumRX + bytes[p];     // Add up all the bytes in the LENGTH and DATA section of hte packet
+            //        }
 
-                    checksumRX = (byte)~checksumRX;     // return the bitwise complement which is equivalent to the NOT operator
-                    // Only update the input values if the packet is valid
+            //        checksumRX = (byte)~checksumRX;     // return the bitwise complement which is equivalent to the NOT operator
+            //        // Only update the input values if the packet is valid
 
-                    if (RL_Control_Enabled.Checked == true && !resettingEnv)
-                    {
-                        int[] actions = new int[2];
-                        if (checksumRX == bytes[bytes.Length - 1] && bytes[0] == 255 && bytes[1] == 255)
-                        {
-                            //Console.WriteLine("Received valid packet");
-                            int actionIdx = 0;
-                            for (int m = 3; m < bytes.Length - 1; m = m + 2)
-                            {
-                                actions[actionIdx] = BitConverter.ToInt16(new byte[] { bytes[m], bytes[m + 1] }, 0);
-                                actionIdx++;
-                            }
-                        }
-                        actionRotation = actions[0];
-                        actionFlexion = actions[1];
-                        newAction = true;
+            //        if (RL_Control_Enabled.Checked == true && !resettingEnv)
+            //        {
+            //            int[] actions = new int[2];
+            //            if (checksumRX == bytes[bytes.Length - 1] && bytes[0] == 255 && bytes[1] == 255)
+            //            {
+            //                //Console.WriteLine("Received valid packet");
+            //                int actionIdx = 0;
+            //                for (int m = 3; m < bytes.Length - 1; m = m + 2)
+            //                {
+            //                    actions[actionIdx] = BitConverter.ToInt16(new byte[] { bytes[m], bytes[m + 1] }, 0);
+            //                    actionIdx++;
+            //                }
+            //            }
+            //            actionRotation = actions[0];
+            //            actionFlexion = actions[1];
+            //            newAction = true;
 
-                    }
-                }
+            //        }
+            //    }
 
 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show(ex.Message);
+            //}
         }
    
 

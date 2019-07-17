@@ -4,146 +4,156 @@ using System.Linq;
 using System.Text;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Distributions;
+using System.IO;
 
 namespace MLCSharp
 {
     
     public class RLAgent
     {
+        //Q Learning
+        int numStates { get; set; }
+        int numActions { get; set; }
         public double gamma { get; private set; } //discount factor
-        public NeuralNetwork actor { get; private set; }
-        public NeuralNetwork critic { get; private set; }
+        public double epsilon { get; private set; } //exploration rate
+        public int statePropAmount { get; set; } //Number of nearby states to propagate a state update
+        public double statePropFactor { get; set; } //Amount to propagate a state update
+        public Matrix<double> Q { get; set; }
+        public double alpha { get; set; }
         public Random rnd { get; set; }
 
-        private Matrix<double> prevState;
+        private int prevState;
+        private int prevAction;
 
-        private double mu;
-        private double sigma;
-        private double sample;
+        public List<int> statesVisited;
 
-        //Actor critic
-        //https://medium.com/@asteinbach/actor-critic-using-deep-rl-continuous-mountain-car-in-tensorflow-4c1fb2110f7c
-        public RLAgent(int inputSizeCritic, int outputSizeCritic, int[] hiddenLayersCritic, string[] activationsCritic, double lrCritic, 
-            int intputSizeActor, int outputSizeActor, int[] hiddenLayersActor, string[] activationsActor, double lrActor, double gamma)
+        public RLAgent(int numStates, int numActions, double gamma, double epsilon, double alpha, int statePropAmount, double statePropFactor, string filePath = "")
         {
+            this.numStates = numStates;
+            this.numActions = numActions;
             this.gamma = gamma;
+            this.epsilon = epsilon;
+            this.alpha = alpha;
+            this.statePropAmount = statePropAmount;
+            this.statePropFactor = statePropFactor;
+            prevState = -1;
             rnd = new Random();
-            actor = new NeuralNetwork(intputSizeActor, outputSizeActor, hiddenLayersActor, activationsActor, lrActor);
-            critic = new NeuralNetwork(inputSizeCritic, outputSizeCritic, hiddenLayersCritic, activationsCritic, lrCritic);
-        }
-
-        public Matrix<double> arrayToMatrix(double[] input)
-        {
-            Matrix<double> output = Matrix<double>.Build.Dense(1, input.Length);
-            for (int i = 0; i < input.Length; i++)
+            if (filePath != string.Empty && File.Exists(filePath))
             {
-                output[0, i] = input[i];
+                Q = LoadQ(filePath);
             }
-            return output;
+            else
+            {
+                Console.WriteLine("Create new Q table");
+                Q = Matrix<double>.Build.Dense(numStates, numActions, -90);
+            }
+            statesVisited = new List<int>();
         }
-        public double SelectAction(double[] state)
+
+        public int SelectAction(int state)
         {
-            Matrix<double> stateM = arrayToMatrix(state);
-            Vector<double> actorOutput = actor.predict(stateM).Row(0);
-            prevState = arrayToMatrix(state);
-            //Reparameterization trick for Gaussian Distribution
-            //https://math.stackexchange.com/questions/2540170/reparameterization-trick-for-gaussian-distribution/2555256
-
-            mu = actorOutput[0]; //stdev
-            sigma = actorOutput[1]; //mean
-            sample = Normal.Sample(0, 1);
-            Console.WriteLine("Mu: " + mu + " Sigma: " + sigma + " Sample: " + sample);
-
-            return mu + sigma * sample;
+            int a;
+            double randNum = rnd.NextDouble();
+            if (randNum < epsilon)
+            {
+                a = rnd.Next(0, numActions);
+            }
+            else
+            {
+                var QRow = Q.Row(state).ToList();
+                a = QRow.IndexOf(QRow.Max());
+            }
+            prevAction = a;
+            return a - numActions / 2;
         }
 
-        public void Update(double[] newState, double reward)
-        { 
-            //Get value of new state
-            double newValue = reward + gamma * critic.predict(arrayToMatrix(newState))[0, 0];
-
-            //Get value of prev state
-            Matrix<double> prevValue = critic.predict(prevState);
-
-            //Train critic on difference between prev state value and new state value
-            double error = critic.train(prevState, prevValue, arrayToMatrix(new double[] { newValue }));
-            Console.WriteLine("Critic erorr: " + error);
-
-            //Calculate TD loss
-            double tdLoss = 0.5 * Math.Pow((newValue - prevValue[0, 0]), 2);
-            //Train actor
-            double errorActor = actor.trainActor(prevState, tdLoss, mu, sigma, sample);
-            Console.WriteLine("Actor error: " + errorActor);
-
-
+        public void SetAction(int action)
+        {
+            prevAction = Math.Min(Math.Max(action + numActions / 2, 0), numActions - 1);
         }
 
-        //Q Learning
-        //public double gamma { get; private set; } //discount factor
-        //public double epsilon { get; private set; } //exploration rate
-        //public int c { get; private set; } //steps before updating target network with predictio network
-        //public int current_steps { get; private set; } //current number of steps
-        //public NeuralNetwork predNetwork { get; private set; }
-        //public NeuralNetwork targetNetwork { get; private set; }
-        //public Random rnd { get; set; }
+        public double Update(int newState, double reward)
+        {
+            double tdError = 0;
+            if (prevState != -1)
+            {
+                double target = reward + gamma * Q.Row(newState).Max();
+                double update = (1 - alpha) * Q[prevState, prevAction] + alpha * target;
+                Q[prevState, prevAction] = update;
+                for (int i = 1; i <= statePropAmount; i++)
+                {
+                    double propagatedFactor = Math.Pow(statePropFactor, i);
+                    if (prevState + i < numStates)
+                    {
+                        if(!(prevState <= numStates/2 && prevState + i > numStates/2))
+                        {
+                            Q[prevState + i, prevAction] = (1 - propagatedFactor) * Q[prevState + i, prevAction] + propagatedFactor * update;
+                        }
 
-        //public RLAgent(double gamma, double epsilon, int c, double nnLearningRate)
-        //{
-        //    this.gamma = gamma;
-        //    this.epsilon = epsilon;
-        //    this.c = c;
-        //    current_steps = 0;
-        //    rnd = new Random();
-        //    predNetwork = new NeuralNetwork(6, 9, new int[] { 10 }, new string[] { "relu", "linear" }, nnLearningRate);
-        //    targetNetwork = new NeuralNetwork(predNetwork);
-        //}
+                    }
+                    if (prevState - i >= 0)
+                    {
+                        if (!(prevState >= numStates / 2 && prevState - i < numStates / 2))
+                        {
+                            Q[prevState - i, prevAction] = (1 - propagatedFactor) * Q[prevState, prevAction] + propagatedFactor * update;
+                        }
+                    }
+                }
 
-        //public Matrix<double> arrayToMatrix(double[] input)
-        //{
-        //    Matrix<double> output = Matrix<double>.Build.Dense(1, input.Length);
-        //    for (int i = 0; i < input.Length; i++)
-        //    {
-        //        output[0, i] = input[i];
-        //    }
-        //    return output;
-        //}
-        //public int SelectAction(double[] state)
-        //{
-        //    int a;
-        //    double randNum = rnd.NextDouble();
-        //    if (randNum < epsilon)
-        //    {
-        //        a = rnd.Next(0, 8);
-        //    }
-        //    else
-        //    {
-        //        Matrix<double> Q = predNetwork.predict(arrayToMatrix(state));
-        //        List<double> QList = Q.Row(0).ToList();
-        //        a = QList.IndexOf(QList.Max());
-        //    }
-        //    return a;
-        //}
+                tdError = Q[prevState, prevAction] - target;
 
-        //public void Update(int prevAction, double[] prevState, double[] newState, double reward)
-        //{
-        //    current_steps++;
-        //    Matrix<double> prevStateMatrix = arrayToMatrix(prevState);
-        //    Matrix<double> newStateMatrix = arrayToMatrix(newState);
+            }
+            prevState = newState;
+            if (!statesVisited.Exists(x => x == prevState))
+            {
+                statesVisited.Add(prevState);
+            }
+            Console.WriteLine(String.Format("Visited {0}/{1}", statesVisited.Count, numStates));
+            return tdError;
+        }
 
-        //    Matrix<double> Q = predNetwork.predict(prevStateMatrix);
+        public void SaveQ(string filePath)
+        {
+            WriteToBinaryFile<Matrix<Double>>(filePath, Q);
+        }
 
-        //    Console.WriteLine(Q.ToString());
+        public Matrix<double> LoadQ(string filePath)
+        {
+            return ReadFromBinaryFile<Matrix<double>>(filePath);
+        }
 
-        //    if (current_steps == c)
-        //    {
-        //        targetNetwork.copyWeights(predNetwork);
-        //        current_steps = 0;
-        //    }
+        //From https://stackoverflow.com/a/22417240
+        // <summary>
+        /// Writes the given object instance to a binary file.
+        /// <para>Object type (and all child types) must be decorated with the [Serializable] attribute.</para>
+        /// <para>To prevent a variable from being serialized, decorate it with the [NonSerialized] attribute; cannot be applied to properties.</para>
+        /// </summary>
+        /// <typeparam name="T">The type of object being written to the binary file.</typeparam>
+        /// <param name="filePath">The file path to write the object instance to.</param>
+        /// <param name="objectToWrite">The object instance to write to the binary file.</param>
+        /// <param name="append">If false the file will be overwritten if it already exists. If true the contents will be appended to the file.</param>
+        private void WriteToBinaryFile<T>(string filePath, T objectToWrite, bool append = false)
+        {
+            using (Stream stream = File.Open(filePath, append ? FileMode.Append : FileMode.Create))
+            {
+                var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                binaryFormatter.Serialize(stream, objectToWrite);
+            }
+        }
 
-        //    double target = reward + gamma * targetNetwork.predict(newStateMatrix).Row(0).Max();
-        //    Q[0, prevAction] = target;
-        //    double error = predNetwork.train(prevStateMatrix, Q);
-        //    Console.WriteLine("Model erorr: " + error);
-        //}
+        /// <summary>
+        /// Reads an object instance from a binary file.
+        /// </summary>
+        /// <typeparam name="T">The type of object to read from the binary file.</typeparam>
+        /// <param name="filePath">The file path to read the object instance from.</param>
+        /// <returns>Returns a new instance of the object read from the binary file.</returns>
+        private T ReadFromBinaryFile<T>(string filePath)
+        {
+            using (Stream stream = File.Open(filePath, FileMode.Open))
+            {
+                var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                return (T)binaryFormatter.Deserialize(stream);
+            }
+        }
     }
 }
