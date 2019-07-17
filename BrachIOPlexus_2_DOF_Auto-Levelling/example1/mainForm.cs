@@ -321,9 +321,11 @@ namespace brachIOplexus
 
         bool resettingEnv = false;
         bool newAction = false;
-        double actionRotation = 0;
-        double actionFlexion = 0;
-       
+        int actionRotation = 0;
+        int actionFlexion = 0;
+        int prevRotationCommand = 0;
+        int prevFlexionCommand = 0;
+
         #endregion
 
 
@@ -4973,6 +4975,7 @@ namespace brachIOplexus
                 BentoRun.Enabled = false;
                 BentoSuspend.Enabled = true;
                 BentoStatus.Text = "Torque On / Running";
+                BentoStatus.Text = "Torque On / Running";
                 BentoRunStatus.Text = "Suspend";
             }
         }
@@ -6619,20 +6622,10 @@ namespace brachIOplexus
 
                 if (RL_Control_Enabled.Checked)
                 {
-                    if(newAction)
-                    {
-                        RL_AutoLevel();
-                        newAction = false;
-                    }
-                    else
-                    {
-                        //Keep torque on if no action is ready
-                        robotObj.Motor[2].p = robotObj.Motor[2].p_prev;
-                        robotObj.Motor[3].p = robotObj.Motor[3].p_prev;
-                    }
+                    RL_AutoLevel();
                 }
-                
             }
+
 
 
             // Apply the first past the post algorithm 
@@ -7178,9 +7171,9 @@ namespace brachIOplexus
                 MoveLevelRot();
             }
 
-            if (LogPID_Enabled.Checked && autoLevelWristRot && autoLevelWristFlex)
+            if (LogPID_Enabled.Checked)
             {
-                string newPIDState = string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}",
+                string newPIDState = string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}",
                     Convert.ToString(phi), Convert.ToString(setpoint_phi), Convert.ToString(theta), Convert.ToString(setpoint_theta),
                     Convert.ToString(robotObj.Motor[2].p_prev), Convert.ToString(robotObj.Motor[2].w_prev), 
                     Convert.ToString(robotObj.Motor[3].p_prev), Convert.ToString(robotObj.Motor[3].w_prev), 
@@ -7197,7 +7190,8 @@ namespace brachIOplexus
                     firstPIDLog = false;
                 }
 
-                string newPIDAction = string.Format("{0}, {1}", Convert.ToString(robotObj.Motor[2].p), Convert.ToString(robotObj.Motor[3].p));
+                string newPIDAction = string.Format("{0}, {1}, {2}, {3}", Convert.ToString(output_phi), Convert.ToString(RotAdjustment), Convert.ToString(output_theta), Convert.ToString(FlxAdjustment));
+
                 prevPIDState = newPIDState;
                 prevPIDAction = newPIDAction;
             }
@@ -7210,19 +7204,64 @@ namespace brachIOplexus
         }
         private void RL_AutoLevel()
         {
+            ////Velocity command
+            //robotObj.Motor[2].wmax = Math.Abs(actionRotation);
+            //robotObj.Motor[2].w = Math.Abs(actionRotation);
+
+            //robotObj.Motor[3].wmax = Math.Abs(actionFlexion);
+            //robotObj.Motor[3].w = Math.Abs(actionFlexion);
+
+            //if (actionRotation > 0)
+            //{
+            //    robotObj.Motor[2].p = truncateAction(robotObj.Motor[2].p_prev + 10, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax); ;
+            //}
+            //else if (actionRotation < 0)
+            //{
+            //    robotObj.Motor[2].p = truncateAction(robotObj.Motor[2].p_prev - 10, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax); ;
+            //}
+            //else
+            //{
+            //    robotObj.Motor[2].p = robotObj.Motor[2].p_prev;
+            //}
+
+            //if (actionFlexion > 0)
+            //{
+            //    robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev + 10, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax); ;
+            //}
+            //else if (actionFlexion < 0)
+            //{
+            //    robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev - 10, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax); ;
+            //}
+            //else
+            //{
+            //    robotObj.Motor[3].p = robotObj.Motor[3].p_prev;
+            //}
+
+            if (newAction)
+            {
+                prevRotationCommand = robotObj.Motor[2].p_prev + actionRotation;
+                prevFlexionCommand = robotObj.Motor[3].p_prev + actionFlexion;
+                newAction = false;
+            }
+
+
+
             int maxSpeed = 500;
             robotObj.Motor[2].wmax = maxSpeed;
             robotObj.Motor[2].w = maxSpeed;
-            robotObj.Motor[2].p = truncateAction(actionRotation, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
+            //prevRotationCommand = truncateAction(actionRotation, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
+            robotObj.Motor[2].p = truncateAction(prevRotationCommand, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax); ;
+            Console.WriteLine(prevRotationCommand);
 
             robotObj.Motor[3].wmax = maxSpeed;
             robotObj.Motor[3].w = maxSpeed;
-            robotObj.Motor[3].p = truncateAction(actionFlexion, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
+            //prevFlexionCommand = truncateAction(actionFlexion, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
+            robotObj.Motor[3].p = truncateAction(prevFlexionCommand, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
         }
-       
-        private int truncateAction(double action, double min, double max)
+
+        private int truncateAction(int action, int min, int max)
         {
-            return Convert.ToInt32(Math.Min(Math.Max(action, min), max));
+            return Math.Min(Math.Max(action, min), max);
         }
         // Helper function to find the magnitude of a three component vector - db
         private double magnitude(int x, int y, int z)
@@ -7410,7 +7449,9 @@ namespace brachIOplexus
         {
             //get output from PID controller (amount servo needs to move in degrees)
             output_phi = PID_phi(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi);
-            output_theta = PID_theta(taper_theta(theta, setpoint_theta, phi), setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
+            //output_theta = PID_theta(taper_theta(theta, setpoint_theta, phi), setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
+            output_theta = PID_theta(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
+
             //convert to encoder ticks
             RotAdjustment = Deg_to_Ticks(output_phi);
             FlxAdjustment = Deg_to_Ticks(output_theta);
@@ -7433,7 +7474,9 @@ namespace brachIOplexus
         {
             robotObj.Motor[3].wmax = 500;
             robotObj.Motor[3].w = 500;
-            robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - taper_flexion(FlxAdjustment, phi), 0);
+            //robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - taper_flexion(FlxAdjustment, phi), 0);
+            robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - FlxAdjustment, 0);
+
             //robotObj.Motor[3].p = Math.Max(FlxAdjustment, 0);
         }
 
@@ -7474,7 +7517,7 @@ namespace brachIOplexus
         private int taper_flexion(int flexion, double phi)
         {
             int buffer = 20;
-            if (phi > (90 + buffer) && theta < (270 - buffer))
+            if (phi > (90 + buffer) && phi < (270 - buffer))
             {
                 return flexion;
             }
@@ -8969,7 +9012,7 @@ namespace brachIOplexus
 
                     if (RL_Control_Enabled.Checked == true && !resettingEnv)
                     {
-                        double[] actions = new double[2];
+                        int[] actions = new int[2];
                         if (checksumRX == bytes[bytes.Length - 1] && bytes[0] == 255 && bytes[1] == 255)
                         {
                             //Console.WriteLine("Received valid packet");

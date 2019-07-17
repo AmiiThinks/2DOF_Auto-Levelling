@@ -1,9 +1,9 @@
 import select, socket
 import numpy as np
 import time
-from keras import models, layers, optimizers
 from random import sample, randint, uniform
 import sys
+import pickle
 
 """ Initialization Section """
 # Prediction variables
@@ -14,7 +14,9 @@ def exit_handler():
     # experiment_data = open('test_data.txt', 'wb')
     # pickle.dump([list_step, list_shoulder_state, list_shoulder_pred, list_wristFlex_state, list_wristFlex_pred, list_hand_state, list_hand_pred], experiment_data)
     # pickle.dump([list_step, list_wristRot_state, list_wristRot_pred, list_wristFlex_state, list_wristFlex_pred, list_hand_state, list_hand_pred], experiment_data)
-
+    pickle.dump(rot_agent.q_table, open("q_table.pkl", 'wb'))
+    for row in rot_agent.q_table:
+        print(row)
     # experiment_data.close()
     print('data logged!')
     print('...exiting!')
@@ -176,118 +178,53 @@ def deg_to_ticks(degrees):
 
 """ RL Variables """
 
-class replay_buffer:
-    def __init__(self, buffer_size, state_size):
-        self.state_size = state_size
-        self.buffer_size = buffer_size
-        self.buffer = np.empty(shape=(self.buffer_size, self.state_size+1+1+self.state_size))
-
-        self.buffer_count = 0
-        self.buf_idx = 0
-
-    def sample(self, batch_size):
-        sampled_buf = self.buffer[np.random.choice(self.buffer.shape[0], size=batch_size, replace=False), :]
-        return sampled_buf[:, 0:self.state_size], sampled_buf[:, self.state_size], sampled_buf[:, self.state_size+1], sampled_buf[:, self.state_size+2:self.state_size*2 + 2]
-
-    def add_row(self, new_row):
-        self.buffer[self.buf_idx, :] = new_row
-        self.buf_idx = self.buf_idx + 1
-        if self.buf_idx == self.buffer_size:
-            self.buf_idx = 0
-        if self.buffer_count < self.buffer_size:
-            self.buffer_count = self.buffer_count + 1
-
-    def is_full(self):
-        if self.buffer_count == self.buffer_size:
-            return True
-        else:
-            return False
-
-    def clear(self):
-        self.buffer_count = 0
-        self.buf_idx = 0
-
-
 
 class agent:
 
-    def __init__(self, state_size, action_size, hidden_layers, activations, buffer_size, batch_size, epsilon, gamma, learning_rate, steps_to_update_target):
-        self.state_size = state_size
+    def __init__(self, num_states, action_size, epsilon, gamma, learning_rate):
+        self.num_states = num_states
         self.action_size = action_size
-        self.batch_size = batch_size
         self.prev_state = None
         self.prev_action = None
         self.epsilon = epsilon
         self.gamma = gamma
+        try:
+            self.q_table = pickle.load(open("q_table.pkl", 'rb'))
+            assert self.q_table.shape == (self.num_states, self.action_size)
+        except:
+            self.q_table = np.ones(shape=(num_states, action_size)) * -5
+            print("Initializing new table")
+        self.lr = learning_rate
 
-        self.model = models.Sequential()
-        self.model.add(layers.Dense(hidden_layers[0], activation=activations[0], input_shape=(self.state_size, )))
-        for i in range(1, len(hidden_layers)):
-            self.model.add(layers.Dense(hidden_layers[i], activation=activations[i]))
-        self.model.add(layers.Dense(self.action_size))
-        self.model.compile(optimizer=optimizers.Adam(lr=learning_rate), loss="mean_squared_error")
-
-        self.update_target_model()
-
-        self.steps_to_update_target = steps_to_update_target
-        self.current_steps = 0
-
-        self.replay_buf = replay_buffer(buffer_size, self.state_size)
-    
-    def train_on_buffer(self):
-        if self.replay_buf.is_full():
-            prev_state_buf, prev_action_buf, reward_buf, new_state_buf = self.replay_buf.sample(self.batch_size)
-
-            prev_Q = self.model.predict(prev_state_buf, batch_size=self.batch_size)
-            new_Q = self.target_model.predict(new_state_buf, batch_size=self.batch_size)
-            target = reward_buf + self.gamma * np.amax(new_Q, axis=1)
-
-            for i in range(self.batch_size):
-                prev_Q[i, int(prev_action_buf[i])] = target[i]
-
-            result = self.model.fit(prev_state_buf, prev_Q, batch_size=self.batch_size, epochs=1, verbose=0)
-
-            self.current_steps = self.current_steps + 1
-            if self.current_steps == self.steps_to_update_target:
-                self.update_target_model()
-                self.current_steps = 0
-
-            return result.history['loss']
-    
     def select_action(self, new_state):
         rand_num = uniform(0, 1)
         if rand_num < self.epsilon:
             action = randint(0, self.action_size-1)
         else:
-            Q = self.model.predict(np.array( [new_state,]))
-            action = np.argmax(Q)
+            action = np.argmax(self.q_table[new_state, :])
         
         self.prev_state = new_state
         self.prev_action = action
 
         return action
 
-    def add_to_buffer(self, reward, new_state):
+    def update_table(self, reward, new_state):
+        new_val = reward + self.gamma * np.max(self.q_table[new_state, :])
         if self.prev_state is not None and self.prev_action is not None:
-            self.replay_buf.add_row(self.prev_state + [self.prev_action] + [reward] + new_state)
-            return True
-        else:
-            return False
+            self.q_table[self.prev_state, self.prev_action] = (1-self.lr) * self.q_table[self.prev_state, self.prev_action] + self.lr * (new_val)
+        return new_val
 
     def reset(self):
         self.prev_state=None
         self.prev_action=None
 
-    def update_target_model(self):
-        self.target_model = models.clone_model(self.model)
-        self.target_model.set_weights(self.model.get_weights())
 
-rot_action_size = wristRot_pmax - wristRot_pmin
+action_space = [-500, -100, -50, 0, 50 , 100, 500]
+rot_action_size = len(action_space)
 loss = None
-state_size = 5
-rot_agent = agent(state_size, rot_action_size, [rot_action_size//4, rot_action_size//2], ['relu', 'relu'], 100, 32, 0.05, 0.6, 0.01, 10)
+num_states = 722
+rot_agent = agent(num_states, rot_action_size, 0.05, 0.9, 0.1)
 actions = [None, None]
-rot_agent.model.summary()
 """ Main Loop """
 print("Starting")
 try:
@@ -348,19 +285,17 @@ try:
             if resetEnv == 1:
                 print("Reset")
                 actions = [wristRot_pmax - wristRot_pmin, 0]
+                rot_agent.reset()
             else:
-            #     new_state = [normalize(phi, 0, 360), normalize(setpoint_phi, 0, 360), robotObj[0].normalized_position, normalize(theta, 0, 360), normalize(setpoint_theta, 0, 360), robotObj[1].normalized_position,
-            #     normalize(x_component, -512, 512), normalize(y_component, -512, 512), normalize(z_component, -512, 512)]
-
-                new_state = [normalize(phi, 0, 360), normalize(setpoint_phi, 0, 360), robotObj[0].normalized_position, normalize(x_component, -512, 512), normalize(y_component, -512, 512)]
-                reward = - deg_to_ticks(abs(setpoint_phi - phi))
-                if rot_agent.add_to_buffer(reward, new_state):
-                    loss = rot_agent.train_on_buffer()
-
-                actions[0] = int(rot_agent.select_action(new_state)) + wristRot_pmin # - (rot_action_size)//2
+                angle_diff = int(setpoint_phi - phi)
+                new_state = angle_diff + 360
+                print(angle_diff, new_state)
+                reward = -abs(setpoint_phi - phi)
+                new_val = rot_agent.update_table(reward, new_state)
+                actions[0] = action_space[int(rot_agent.select_action(new_state))]
                 actions[1] = 0
 
-                print("Actions: {0}, {1} | Rewards: {2} | Loss: {3} ".format(actions[0], actions[1], reward, loss))
+                print("Actions: {0}, {1} | Reward: {2} | Expected: {3} ".format(actions[0], actions[1], reward, new_val))
 
             # Construct the packet to transmit the predictions to the external script 
             HEADER = 255            # Header byte

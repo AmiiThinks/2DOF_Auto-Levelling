@@ -256,11 +256,11 @@ class agent:
     
     def select_action(self, new_state):
         rand_num = uniform(0, 1)
-        if rand_num < self.epsilon:
-            action = randint(0, self.action_size-1)
-        else:
-            Q = self.model.predict(np.array( [new_state,]))
-            action = np.argmax(Q)
+        # if rand_num < self.epsilon:
+        #     action = randint(0, self.action_size-1)
+        # else:
+        Q = self.model.predict(np.array( [new_state,]))
+        action = np.argmax(Q)
         
         self.prev_state = new_state
         self.prev_action = action
@@ -282,12 +282,14 @@ class agent:
         self.target_model = models.clone_model(self.model)
         self.target_model.set_weights(self.model.get_weights())
 
-rot_action_size = wristRot_pmax - wristRot_pmin
+rot_action_size = 8
 loss = None
-state_size = 5
-rot_agent = agent(state_size, rot_action_size, [rot_action_size//4, rot_action_size//2], ['relu', 'relu'], 100, 32, 0.05, 0.6, 0.01, 10)
+state_size = 2
+rot_agent = agent(state_size, rot_action_size, [4], ['relu'], 100, 32, 0.05, 0.6, 0.01, 10)
 actions = [None, None]
 rot_agent.model.summary()
+
+action_space = [-100, -50, -25, -10, 10, 25, 50, 100]
 """ Main Loop """
 print("Starting")
 try:
@@ -349,15 +351,21 @@ try:
                 print("Reset")
                 actions = [wristRot_pmax - wristRot_pmin, 0]
             else:
-            #     new_state = [normalize(phi, 0, 360), normalize(setpoint_phi, 0, 360), robotObj[0].normalized_position, normalize(theta, 0, 360), normalize(setpoint_theta, 0, 360), robotObj[1].normalized_position,
-            #     normalize(x_component, -512, 512), normalize(y_component, -512, 512), normalize(z_component, -512, 512)]
+                angle_diff = int(setpoint_phi - phi)
+                if angle_diff > 0:
+                    angle_dir = 1
+                elif angle_diff < 0:
+                    angle_dir = -1
+                else:
+                    angle_dir = 0
 
-                new_state = [normalize(phi, 0, 360), normalize(setpoint_phi, 0, 360), robotObj[0].normalized_position, normalize(x_component, -512, 512), normalize(y_component, -512, 512)]
-                reward = - deg_to_ticks(abs(setpoint_phi - phi))
+                new_state = [angle_diff, angle_dir]
+                print(new_state)
+                reward = -abs(setpoint_phi - phi)
                 if rot_agent.add_to_buffer(reward, new_state):
                     loss = rot_agent.train_on_buffer()
 
-                actions[0] = int(rot_agent.select_action(new_state)) + wristRot_pmin # - (rot_action_size)//2
+                actions[0] = action_space[int(rot_agent.select_action(new_state))]
                 actions[1] = 0
 
                 print("Actions: {0}, {1} | Rewards: {2} | Loss: {3} ".format(actions[0], actions[1], reward, loss))
