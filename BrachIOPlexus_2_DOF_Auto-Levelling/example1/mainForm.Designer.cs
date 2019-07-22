@@ -808,6 +808,7 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
+            this.NN_PID_Enabled = new System.Windows.Forms.CheckBox();
             this.MenuStrip1.SuspendLayout();
             this.VoiceCoilCommBox.SuspendLayout();
             this.EMGParamBox.SuspendLayout();
@@ -950,7 +951,9 @@
             this.SuspendLayout();
             // 
             // tg
-
+            // 
+            
+            // 
             // MenuStrip1
             // 
             this.MenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
@@ -9218,6 +9221,7 @@
             // 
             // AutoLevellingBox
             // 
+            this.AutoLevellingBox.Controls.Add(this.NN_PID_Enabled);
             this.AutoLevellingBox.Controls.Add(this.UDPPythonDelay);
             this.AutoLevellingBox.Controls.Add(this.label235);
             this.AutoLevellingBox.Controls.Add(this.ALAdaptive_Enabled);
@@ -9237,7 +9241,7 @@
             // UDPPythonDelay
             // 
             this.UDPPythonDelay.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.UDPPythonDelay.Location = new System.Drawing.Point(8, 132);
+            this.UDPPythonDelay.Location = new System.Drawing.Point(8, 147);
             this.UDPPythonDelay.Name = "UDPPythonDelay";
             this.UDPPythonDelay.Size = new System.Drawing.Size(93, 22);
             this.UDPPythonDelay.TabIndex = 215;
@@ -9246,7 +9250,7 @@
             // label235
             // 
             this.label235.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label235.Location = new System.Drawing.Point(8, 60);
+            this.label235.Location = new System.Drawing.Point(8, 79);
             this.label235.Name = "label235";
             this.label235.Size = new System.Drawing.Size(99, 36);
             this.label235.TabIndex = 214;
@@ -9255,7 +9259,7 @@
             // ALAdaptive_Enabled
             // 
             this.ALAdaptive_Enabled.AutoSize = true;
-            this.ALAdaptive_Enabled.Location = new System.Drawing.Point(11, 102);
+            this.ALAdaptive_Enabled.Location = new System.Drawing.Point(10, 119);
             this.ALAdaptive_Enabled.Margin = new System.Windows.Forms.Padding(4);
             this.ALAdaptive_Enabled.Name = "ALAdaptive_Enabled";
             this.ALAdaptive_Enabled.Size = new System.Drawing.Size(82, 21);
@@ -10952,6 +10956,17 @@
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
             // 
+            // NN_PID_Enabled
+            // 
+            this.NN_PID_Enabled.AutoSize = true;
+            this.NN_PID_Enabled.Location = new System.Drawing.Point(11, 54);
+            this.NN_PID_Enabled.Margin = new System.Windows.Forms.Padding(4);
+            this.NN_PID_Enabled.Name = "NN_PID_Enabled";
+            this.NN_PID_Enabled.Size = new System.Drawing.Size(76, 21);
+            this.NN_PID_Enabled.TabIndex = 216;
+            this.NN_PID_Enabled.Text = "NN PID";
+            this.NN_PID_Enabled.UseVisualStyleBackColor = true;
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -11926,6 +11941,7 @@
         internal System.Windows.Forms.Button Reset_Env_Btn;
         internal System.Windows.Forms.Label UDPALPythonDelay;
         private System.Windows.Forms.CheckBox LogPID_Enabled;
+        private System.Windows.Forms.CheckBox NN_PID_Enabled;
     }
 }
 

@@ -76,7 +76,7 @@ namespace MLCSharp
 
         public NeuralNetwork(int inputSize, int outputSize, int[] hiddenLayers, string[] activationFunctions, double learningRate)
         {
-            this.activationFunctions = activationFunctions; //list of activation functions used by each layer
+            this.activationFunctions = activationFunctions; //list of activation functions used by each layer (including output layer). If you don't want activation on the output layer, specify 'linear'
             this.learningRate = learningRate;
 
             layers = new int[2 + hiddenLayers.Length];
@@ -185,7 +185,9 @@ namespace MLCSharp
 
             for (int j = 0; j < weights[L].ColumnCount; j++)
             {
-                grad[L][j] = activationPrime(hiddenVals[L][j], L) * (activationVals[L][j] - label[0, j]); //For last layer, store derivative of activation * gradient of error
+                double errorPartial = (activationVals[L][j] - label[0, j]);
+                errorPartial = Math.Max(Math.Min(errorPartial, 10), -10);
+                grad[L][j] = activationPrime(hiddenVals[L][j], L) * errorPartial; //For last layer, store derivative of activation * gradient of error
                 biases[L][0, j] -= grad[L][j] * learningRate; //update bias
                 for (int i = 0; i < weights[L].RowCount; i++)
                 {
@@ -223,6 +225,7 @@ namespace MLCSharp
             }
         }
 
+        //Backward prop for actor network
         public void backwardProp(Matrix<double> input, double tdLoss, double mu, double sigma, double sample)
         {
             int L = layers.Length - 2; //for indexing weights and activations
@@ -311,6 +314,7 @@ namespace MLCSharp
             return error;
         }
 
+        //Training for actor
         public double trainActor(Matrix<double> X, double tdLoss, double mu, double sigma, double sample)
         {
             double error = -Math.Log(mu + sigma * sample) * tdLoss;

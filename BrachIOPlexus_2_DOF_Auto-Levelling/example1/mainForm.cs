@@ -299,39 +299,53 @@ namespace brachIOplexus
 
         #endregion
 
-        #region "RL Auto Level Initialization"
-        static System.Threading.Timer timerALPython;
-        static Int32 portALPythonTX = 30004;                                   // Set the UDP ports
-        static Int32 portALPythonRX = 30005;                                   // Set the UDP ports
-        static IPAddress localAddrALPython = IPAddress.Parse("127.0.0.2");     // address for localhost
-        UdpClient udpClientALPythonTX;
-        IPEndPoint ipEndPointALPythonTX;
-        UdpClient udpClientALPythonRX;
-        IPEndPoint ipEndPointALPythonRX;
-        Stopwatch stopWatchALPython = new Stopwatch();
-        long milliSecALPythonUDPLoop;     // the timestep of the UDP loop in milliseconds
-        bool UDPFlagALPython = false;   // Flag used to used to track whether the demoSurpriseButton has been clicked and whether it is in the launch or close state
+        #region "NN PID Tuning Initialization"
+        static int state_size = 4;// rot pos, flex pos, gx, gy, gyprime, gz
 
+        //Input is current state and actions for rot and flex, output it next state
+        NeuralNetwork dynamicModel = new NeuralNetwork(state_size + 2, state_size, new int[] { 7 }, new string[] { "relu", "linear" }, 0.0001);
+        NeuralNetwork rotPIDModel = new NeuralNetwork(state_size + 1, 3, new int[] { 5 }, new string[] { "relu", "relu" }, 0.01);
+        NeuralNetwork flexPIDModel = new NeuralNetwork(state_size + 1, 3, new int[] { 5 }, new string[] { "relu", "relu" }, 0.01);
+
+        Matrix<double> stateAction;
+
+        MatrixBuilder<double> matBuilder = Matrix<double>.Build;
+        int num_trajectories = 10;
+        int trajectory_steps = 20;
+        bool firstNNPIDLoop = true;
+
+        #endregion
+
+        #region "RL Auto Level Initialization"
+        //static System.Threading.Timer timerALPython;
+        //static Int32 portALPythonTX = 30004;                                   // Set the UDP ports
+        //static Int32 portALPythonRX = 30005;                                   // Set the UDP ports
+        //static IPAddress localAddrALPython = IPAddress.Parse("127.0.0.2");     // address for localhost
+        //UdpClient udpClientALPythonTX;
+        //IPEndPoint ipEndPointALPythonTX;
+        //UdpClient udpClientALPythonRX;
+        //IPEndPoint ipEndPointALPythonRX;
+        //Stopwatch stopWatchALPython = new Stopwatch();
+        //long milliSecALPythonUDPLoop;     // the timestep of the UDP loop in milliseconds
+        //bool UDPFlagALPython = false;   // Flag used to used to track whether the demoSurpriseButton has been clicked and whether it is in the launch or close state
+        //bool newAction = false;
+        //int actionRotation = 0;
+        //int actionFlexion = 0;
+        //int prevRotationCommand = 0;
+        //int prevFlexionCommand = 0;
+
+        #endregion
+
+        #region "PID Logging Initialization"
         string pidLogFilePath = @"C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\al_python\pidLog.txt";
         System.IO.StreamWriter pidLog;
         bool firstPIDLog = true;
-        long pidLoggingDelay = 50; //Delay for logging pid since the neural network will have ~50ms delay
+        //long pidLoggingDelay = 50; //Delay for logging pid since the neural network will have ~50ms delay
         string prevPIDState;
         string prevPIDAction;
 
         bool resettingEnv = false;
-        bool newAction = false;
-        int actionRotation = 0;
-        int actionFlexion = 0;
-        int prevRotationCommand = 0;
-        int prevFlexionCommand = 0;
-
-        
-
-        RLAgent agent = new RLAgent(360 + 360 + 1, 1000, 0.9, 0, 0.1, 10, 0.9, "Q_Values.bin");
-
         #endregion
-
 
         // Initialization for data logging - ja
         // Logging parameters and variables
@@ -540,7 +554,7 @@ namespace brachIOplexus
 
         private void mainForm_Load(object sender, EventArgs e)
         {
-
+            
             // How to find com ports and populate combobox: http://stackoverflow.com/questions/13794376/combo-box-for-serial-port
             string[] ports = SerialPort.GetPortNames();
             cmbSerialPorts.DataSource = ports;
@@ -674,18 +688,18 @@ namespace brachIOplexus
                     timerPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
                 }
 
-                if (UDPFlagALPython == true)
-                {
-                    udpClientALPythonTX.Close();
-                    udpClientALPythonRX.Close();
-                    timerALPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
-                }
+                //if (UDPFlagALPython == true)
+                //{
+                //    udpClientALPythonTX.Close();
+                //    udpClientALPythonRX.Close();
+                //    timerALPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
+                //}
 
-                if(LogPID_Enabled.Checked)
+                if (LogPID_Enabled.Checked)
                 {
                     pidLog.Dispose();
                 }
-                agent.SaveQ("Q_Values.bin");
+                //agent.SaveQ("Q_Values.bin");
 
 
                 // Close port
@@ -6614,22 +6628,14 @@ namespace brachIOplexus
             }
 
             // If full autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
-            Get_Grav();
-
             if (AL_Enabled.Checked == true)
             {
                 AutoLevel();
-                RL_AutoLevel(true);
             }
             else
             {
                 reset_setpoint_theta = true;
                 reset_setpoint_phi = true;
-
-                if (RL_Control_Enabled.Checked)
-                {
-                    RL_AutoLevel(false);
-                }
             }
 
 
@@ -7144,6 +7150,19 @@ namespace brachIOplexus
         //Added RL option - jg
         private void AutoLevel()
         {
+            Get_Grav();
+            double rotPosNorm = minMaxNorm(robotObj.Motor[2].p_prev, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
+            double flexPosNorm = minMaxNorm(robotObj.Motor[3].p_prev, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
+            double rotVelNorm = minMaxNorm(BentoSense.ID[2].vel, 0, 2047);
+            double flexVelNorm = minMaxNorm(BentoSense.ID[3].vel, 0, 2047);
+
+            double gxNorm = minMaxNorm(x_component, -512, 512);
+            double gyNorm = minMaxNorm(y_component, -512, 512);
+            double gyPrimeNorm = minMaxNorm(gy_prime, -512, 512);
+            double gzNorm = minMaxNorm(z_component, -512, 512);
+
+            double phiNorm = minMaxNorm(phi, 0, 360);
+            double thetaNorm = minMaxNorm(theta, 0, 360);
 
             //Get current position
             if (autoLevelWristFlex && reset_setpoint_theta == true)
@@ -7160,9 +7179,39 @@ namespace brachIOplexus
                 reset_setpoint_phi = false;
                 errSum_phi = 0;
             }
-      
+
             //Get goal position
             Get_GoalPos();
+            if (NN_PID_Enabled.Checked)
+            {
+                var state = matBuilder.DenseOfArray(new double[,] { { phiNorm, thetaNorm} });
+                Console.WriteLine(state.ToString());
+
+                if (!firstNNPIDLoop)
+                {
+                    //var stateDiff = matBuilder.Dense(1, state_size);
+                    //for (int j = 0; j < state.ColumnCount; j++)
+                    //{
+                    //    stateDiff[0, j] = state[0, j] - stateAction[0, j];
+                    //}
+                    //Console.WriteLine(stateDiff.ToString());
+                    var nextState = matBuilder.Dense(1, 2);
+                    for (int j = 0; j < state.ColumnCount; j++)
+                    {
+                        stateDiff[0, j] = state[0, j] - stateAction[0, j];
+                    }
+                    double loss = dynamicModel.train(stateAction, state);
+                    Console.WriteLine("Dynamic Model Loss: " + loss);
+                }
+                else
+                {
+                    firstNNPIDLoop = false;
+                }
+
+                stateAction = matBuilder.DenseOfArray(new double[,] { { phiNorm, thetaNorm, output_phi, output_theta } });
+
+            }
+
 
 
             //Once setpoint is set, level both rotation and flexion. 
@@ -7177,6 +7226,8 @@ namespace brachIOplexus
                 MoveLevelRot();
             }
 
+
+            
             if (LogPID_Enabled.Checked)
             {
                 string newPIDState = string.Format("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}",
@@ -7207,6 +7258,11 @@ namespace brachIOplexus
 
             }
 
+        }
+
+        private double minMaxNorm(double input, double min, double max)
+        {
+            return (input - min) / (max - min);
         }
         private void RL_AutoLevel(bool learningMode)
         {
@@ -7242,24 +7298,24 @@ namespace brachIOplexus
             //{
             //    robotObj.Motor[3].p = robotObj.Motor[3].p_prev;
             //}
-            int state = Convert.ToInt32(setpoint_phi - phi) + 360;
-            double reward = -Math.Abs(setpoint_phi - phi);
-            double tdError;
+            //int state = Convert.ToInt32(setpoint_phi - phi) + 360;
+            //double reward = -Math.Abs(setpoint_phi - phi);
+            //double tdError;
 
-            if (learningMode)
-            {
-                agent.SetAction(RotAdjustment);
-                tdError = agent.Update(state, reward);
+            //if (learningMode)
+            //{
+            //    agent.SetAction(RotAdjustment);
+            //    tdError = agent.Update(state, reward);
 
-            }
-            else
-            {
-                tdError = agent.Update(state, reward);
-                RotAdjustment = agent.SelectAction(state);
-                MoveLevelRot();
-            }
+            //}
+            //else
+            //{
+            //    tdError = agent.Update(state, reward);
+            //    RotAdjustment = agent.SelectAction(state);
+            //    MoveLevelRot();
+            //}
 
-            Console.WriteLine("State: " + state + "| Reward: " + reward + "| Action: " + RotAdjustment + "| TD Error: " + tdError);
+            //Console.WriteLine("State: " + state + "| Reward: " + reward + "| Action: " + RotAdjustment + "| TD Error: " + tdError);
 
 
             //robotObj.Motor[3].wmax = maxSpeed;
@@ -8874,10 +8930,10 @@ namespace brachIOplexus
 
         private void RL_Control_Enabled_CheckedChanged(object sender, EventArgs e)
         {
-            if(!RL_Control_Enabled.Checked)
-            {
-                agent.SaveQ("Q_Values.bin");
-            }
+            //if(!RL_Control_Enabled.Checked)
+            //{
+            //    agent.SaveQ("Q_Values.bin");
+            //}
             //try
             //{
             //    if (UDPFlagALPython == false && dynaConnect.Enabled == false && RL_Control_Enabled.Checked)
@@ -8946,7 +9002,7 @@ namespace brachIOplexus
             //    if (dynaConnect.Enabled == false)
             //    {
             //        Get_Grav();
-                  
+
 
             //        // Create a byte array for holding the packet values
             //        // packet size is 
@@ -9020,25 +9076,22 @@ namespace brachIOplexus
             //        }
 
             //        checksumRX = (byte)~checksumRX;     // return the bitwise complement which is equivalent to the NOT operator
-            //        // Only update the input values if the packet is valid
+            //                                            // Only update the input values if the packet is valid
 
             //        if (RL_Control_Enabled.Checked == true && !resettingEnv)
             //        {
-            //            int[] actions = new int[2];
+            //            int[] newPIDGains = new int[3];
             //            if (checksumRX == bytes[bytes.Length - 1] && bytes[0] == 255 && bytes[1] == 255)
             //            {
             //                //Console.WriteLine("Received valid packet");
-            //                int actionIdx = 0;
+            //                int idx = 0;
             //                for (int m = 3; m < bytes.Length - 1; m = m + 2)
             //                {
-            //                    actions[actionIdx] = BitConverter.ToInt16(new byte[] { bytes[m], bytes[m + 1] }, 0);
-            //                    actionIdx++;
+            //                    newPIDGains[idx] = BitConverter.ToInt16(new byte[] { bytes[m], bytes[m + 1] }, 0);
+            //                    idx++;
             //                }
             //            }
-            //            actionRotation = actions[0];
-            //            actionFlexion = actions[1];
-            //            newAction = true;
-
+            //            //update gains   
             //        }
             //    }
 
