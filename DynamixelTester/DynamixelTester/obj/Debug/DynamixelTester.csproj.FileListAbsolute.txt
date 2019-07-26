@@ -1,0 +1,7 @@
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\DynamixelTester\DynamixelTester\bin\Debug\DynamixelTester.exe
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\DynamixelTester\DynamixelTester\bin\Debug\DynamixelTester.pdb
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\DynamixelTester\DynamixelTester\obj\Debug\DynamixelTester.csprojAssemblyReference.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\DynamixelTester\DynamixelTester\obj\Debug\DynamixelTester.csproj.CoreCompileInputs.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\DynamixelTester\DynamixelTester\obj\Debug\DynamixelTester.exe
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\DynamixelTester\DynamixelTester\obj\Debug\DynamixelTester.pdb
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\DynamixelTester\DynamixelTester\bin\Debug\DynamixelSDK\dxl_x86_c.dll

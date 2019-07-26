@@ -300,19 +300,19 @@ namespace brachIOplexus
         #endregion
 
         #region "NN PID Tuning Initialization"
-        static int state_size = 4;// rot pos, flex pos, gx, gy, gyprime, gz
+        //static int state_size = 4;// rot pos, flex pos, gx, gy, gyprime, gz
 
-        //Input is current state and actions for rot and flex, output it next state
-        NeuralNetwork dynamicModel = new NeuralNetwork(state_size + 2, state_size, new int[] { 7 }, new string[] { "relu", "linear" }, 0.0001);
-        NeuralNetwork rotPIDModel = new NeuralNetwork(state_size + 1, 3, new int[] { 5 }, new string[] { "relu", "relu" }, 0.01);
-        NeuralNetwork flexPIDModel = new NeuralNetwork(state_size + 1, 3, new int[] { 5 }, new string[] { "relu", "relu" }, 0.01);
+        ////Input is current state and actions for rot and flex, output it next state
+        //NeuralNetwork dynamicModel = new NeuralNetwork(state_size + 2, state_size, new int[] { 7 }, new string[] { "relu", "linear" }, 0.0001);
+        //NeuralNetwork rotPIDModel = new NeuralNetwork(state_size + 1, 3, new int[] { 5 }, new string[] { "relu", "relu" }, 0.01);
+        //NeuralNetwork flexPIDModel = new NeuralNetwork(state_size + 1, 3, new int[] { 5 }, new string[] { "relu", "relu" }, 0.01);
 
-        Matrix<double> stateAction;
+        //Matrix<double> stateAction;
 
-        MatrixBuilder<double> matBuilder = Matrix<double>.Build;
-        int num_trajectories = 10;
-        int trajectory_steps = 20;
-        bool firstNNPIDLoop = true;
+        //MatrixBuilder<double> matBuilder = Matrix<double>.Build;
+        //int num_trajectories = 10;
+        //int trajectory_steps = 20;
+        //bool firstNNPIDLoop = true;
 
         #endregion
 
@@ -7151,18 +7151,18 @@ namespace brachIOplexus
         private void AutoLevel()
         {
             Get_Grav();
-            double rotPosNorm = minMaxNorm(robotObj.Motor[2].p_prev, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
-            double flexPosNorm = minMaxNorm(robotObj.Motor[3].p_prev, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
-            double rotVelNorm = minMaxNorm(BentoSense.ID[2].vel, 0, 2047);
-            double flexVelNorm = minMaxNorm(BentoSense.ID[3].vel, 0, 2047);
+            //double rotPosNorm = minMaxNorm(robotObj.Motor[2].p_prev, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
+            //double flexPosNorm = minMaxNorm(robotObj.Motor[3].p_prev, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
+            //double rotVelNorm = minMaxNorm(BentoSense.ID[2].vel, 0, 2047);
+            //double flexVelNorm = minMaxNorm(BentoSense.ID[3].vel, 0, 2047);
 
-            double gxNorm = minMaxNorm(x_component, -512, 512);
-            double gyNorm = minMaxNorm(y_component, -512, 512);
-            double gyPrimeNorm = minMaxNorm(gy_prime, -512, 512);
-            double gzNorm = minMaxNorm(z_component, -512, 512);
+            //double gxNorm = minMaxNorm(x_component, -512, 512);
+            //double gyNorm = minMaxNorm(y_component, -512, 512);
+            //double gyPrimeNorm = minMaxNorm(gy_prime, -512, 512);
+            //double gzNorm = minMaxNorm(z_component, -512, 512);
 
-            double phiNorm = minMaxNorm(phi, 0, 360);
-            double thetaNorm = minMaxNorm(theta, 0, 360);
+            //double phiNorm = minMaxNorm(phi, 0, 360);
+            //double thetaNorm = minMaxNorm(theta, 0, 360);
 
             //Get current position
             if (autoLevelWristFlex && reset_setpoint_theta == true)
@@ -7182,35 +7182,35 @@ namespace brachIOplexus
 
             //Get goal position
             Get_GoalPos();
-            if (NN_PID_Enabled.Checked)
-            {
-                var state = matBuilder.DenseOfArray(new double[,] { { phiNorm, thetaNorm} });
-                Console.WriteLine(state.ToString());
+            //if (NN_PID_Enabled.Checked)
+            //{
+            //    var state = matBuilder.DenseOfArray(new double[,] { { phiNorm, thetaNorm} });
+            //    Console.WriteLine(state.ToString());
 
-                if (!firstNNPIDLoop)
-                {
-                    //var stateDiff = matBuilder.Dense(1, state_size);
-                    //for (int j = 0; j < state.ColumnCount; j++)
-                    //{
-                    //    stateDiff[0, j] = state[0, j] - stateAction[0, j];
-                    //}
-                    //Console.WriteLine(stateDiff.ToString());
-                    var nextState = matBuilder.Dense(1, 2);
-                    for (int j = 0; j < state.ColumnCount; j++)
-                    {
-                        stateDiff[0, j] = state[0, j] - stateAction[0, j];
-                    }
-                    double loss = dynamicModel.train(stateAction, state);
-                    Console.WriteLine("Dynamic Model Loss: " + loss);
-                }
-                else
-                {
-                    firstNNPIDLoop = false;
-                }
+            //    if (!firstNNPIDLoop)
+            //    {
+            //        //var stateDiff = matBuilder.Dense(1, state_size);
+            //        //for (int j = 0; j < state.ColumnCount; j++)
+            //        //{
+            //        //    stateDiff[0, j] = state[0, j] - stateAction[0, j];
+            //        //}
+            //        //Console.WriteLine(stateDiff.ToString());
+            //        var nextState = matBuilder.Dense(1, 2);
+            //        for (int j = 0; j < state.ColumnCount; j++)
+            //        {
+            //            stateDiff[0, j] = state[0, j] - stateAction[0, j];
+            //        }
+            //        double loss = dynamicModel.train(stateAction, state);
+            //        Console.WriteLine("Dynamic Model Loss: " + loss);
+            //    }
+            //    else
+            //    {
+            //        firstNNPIDLoop = false;
+            //    }
 
-                stateAction = matBuilder.DenseOfArray(new double[,] { { phiNorm, thetaNorm, output_phi, output_theta } });
+            //    stateAction = matBuilder.DenseOfArray(new double[,] { { phiNorm, thetaNorm, output_phi, output_theta } });
 
-            }
+            //}
 
 
 
@@ -7559,13 +7559,13 @@ namespace brachIOplexus
         //Function to convert degrees to encoder position ticks - db
         private int Deg_to_Ticks(double degrees)
         {
-            return (int)(degrees * 11.3611111111111111111111); //11.361111 degrees per encoder tick
+            return (int)(degrees * 11.3611111111111111111111); //11.361111 ticks per degree
         }
 
         //Function to convert encoder position ticks to degrees  - jg
         private double Ticks_to_Deg(int ticks)
         {
-            return (ticks/11.3611111111111111111111); //11.361111 degrees per encoder tick
+            return (ticks/11.3611111111111111111111); //11.361111 ticks per degree
         }
 
         private double taper_theta(double theta, double setpoint_value, double phi)
