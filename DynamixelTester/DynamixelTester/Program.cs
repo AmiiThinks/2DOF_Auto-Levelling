@@ -120,8 +120,10 @@ namespace DynamixelTester
                 Console.WriteLine("Dynamixel has been successfully connected");
             }
 
-            ushort downVal = ROT_MIN_POS + 500;
-            ushort upVal = ROT_MAX_POS - 500;
+            //ushort downVal = ROT_MIN_POS + 500;
+            //ushort upVal = ROT_MAX_POS - 500;
+            ushort downVal = (ROT_MIN_POS + ROT_MAX_POS) / 2 - 100;
+            ushort upVal = (ROT_MIN_POS + ROT_MAX_POS) / 2 + 100;
 
             rotLog.WriteLine("timestamp,freq,time,sig,pos");
 
@@ -197,8 +199,10 @@ namespace DynamixelTester
                 }
             }
 
-            downVal = FLEX_MIN_POS + 500;
-            upVal = FLEX_MAX_POS - 500;
+            //downVal = FLEX_MIN_POS + 500;
+            //upVal = FLEX_MAX_POS - 500;
+            downVal = (FLEX_MIN_POS + FLEX_MAX_POS) / 2 - 100;
+            upVal = (FLEX_MIN_POS + FLEX_MAX_POS) / 2 + 100;
 
             flexLog.WriteLine("timestamp,freq,time,sig,pos");
 
