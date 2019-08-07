@@ -274,10 +274,10 @@ namespace brachIOplexus
         double setpoint_theta = 180;    //target flexion angle of wrist
         double Kp_phi = 0.32;           //PID proportional constant for phi
         double Ki_phi = 0.06;              //PID integral constant for phi
-        double Kd_phi = 8.79;              //PID derivative constant for phi
+        double Kd_phi = 0.00879;              //PID derivative constant for phi
         double Kp_theta = 0.29;         //PID proportional constant for theta
         double Ki_theta = 0.42;            //PID integral constant for theta
-        double Kd_theta = 8.00;            //PID derivative constant for theta
+        double Kd_theta = 0.00800;            //PID derivative constant for theta
         double output_phi = 0;          //output from PID controller for phi
         double output_theta = 0;        //output from PID controller for phi
         int RotAdjustment = 0;          //initial adjustment for rotation
@@ -300,40 +300,9 @@ namespace brachIOplexus
         #endregion
 
         #region "NN PID Tuning Initialization"
-        //static int state_size = 4;// rot pos, flex pos, gx, gy, gyprime, gz
-
-        ////Input is current state and actions for rot and flex, output it next state
-        //NeuralNetwork dynamicModel = new NeuralNetwork(state_size + 2, state_size, new int[] { 7 }, new string[] { "relu", "linear" }, 0.0001);
-        //NeuralNetwork rotPIDModel = new NeuralNetwork(state_size + 1, 3, new int[] { 5 }, new string[] { "relu", "relu" }, 0.01);
-        //NeuralNetwork flexPIDModel = new NeuralNetwork(state_size + 1, 3, new int[] { 5 }, new string[] { "relu", "relu" }, 0.01);
-
-        //Matrix<double> stateAction;
-
-        //MatrixBuilder<double> matBuilder = Matrix<double>.Build;
-        //int num_trajectories = 10;
-        //int trajectory_steps = 20;
-        //bool firstNNPIDLoop = true;
-
-        #endregion
-
-        #region "RL Auto Level Initialization"
-        //static System.Threading.Timer timerALPython;
-        //static Int32 portALPythonTX = 30004;                                   // Set the UDP ports
-        //static Int32 portALPythonRX = 30005;                                   // Set the UDP ports
-        //static IPAddress localAddrALPython = IPAddress.Parse("127.0.0.2");     // address for localhost
-        //UdpClient udpClientALPythonTX;
-        //IPEndPoint ipEndPointALPythonTX;
-        //UdpClient udpClientALPythonRX;
-        //IPEndPoint ipEndPointALPythonRX;
-        //Stopwatch stopWatchALPython = new Stopwatch();
-        //long milliSecALPythonUDPLoop;     // the timestep of the UDP loop in milliseconds
-        //bool UDPFlagALPython = false;   // Flag used to used to track whether the demoSurpriseButton has been clicked and whether it is in the launch or close state
-        //bool newAction = false;
-        //int actionRotation = 0;
-        //int actionFlexion = 0;
-        //int prevRotationCommand = 0;
-        //int prevFlexionCommand = 0;
-
+        NeuralNetwork rotationTuner = new NeuralNetwork(4, 3, new int[] { 4 }, new string[] { "relu", "linear" }, 0, 1);
+        MatrixBuilder<double> M = Matrix<double>.Build;
+        
         #endregion
 
         #region "PID Logging Initialization"
@@ -344,7 +313,6 @@ namespace brachIOplexus
         string prevPIDState;
         string prevPIDAction;
 
-        bool resettingEnv = false;
         #endregion
 
         // Initialization for data logging - ja
@@ -641,6 +609,32 @@ namespace brachIOplexus
                 dof.channel2.MappingIndexChanged += filterMappingComboBox;
 
             }
+
+            //NN PID Initialization - jg
+            //Train with dt = 0.001
+            Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.6108842, 0.4381277, -0.009934843, -0.20509356, }, { 0.62604374, -1.0911554, -0.43919915, -0.26300138, }, { -1.5999312, 0.48941523, -0.0066390634, -0.63230693, }, { 0.7926015, -0.63531697, 0.23468846, 0.11496532, }, });
+            Matrix<double> b1 = M.DenseOfArray(new double[,] { { -1.8767351, 0.95540476, 0.0, 0.0, } });
+            Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.29737222, 0.34860826, 0.9210386, }, { -2.156398, 0.6993196, 0.82128257, }, { -0.55159867, -0.6031897, -0.761427, }, { 0.13563871, -0.0035178065, -0.5692942, }, });
+            Matrix<double> b2 = M.DenseOfArray(new double[,] { { -0.90064526, -0.7881303, -0.41691375, } });
+
+
+            //Trained with dt = 0.002
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.01921016, -0.0028879642, -0.8005872, -0.22789161, }, { 0.22038725, -0.35937446, 0.6110874, 0.584691, }, { -0.61984134, 0.38190645, -0.6744356, 0.46341473, }, { -0.34015274, -0.44157755, -0.017745944, 0.49962598, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.15303032, 0.0, -8.881655e-05, -0.016945068, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.7124208, -0.6213962, -0.87753373, }, { -0.27768308, -0.32644802, -0.62143123, }, { 0.8087735, 0.0960932, -0.47313946, }, { 0.5700083, 0.67294717, 0.6308695, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.0041840626, -0.015097742, -0.16710493, } });
+
+
+            //Trained with dt = 0.005
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.46913165, -0.35420346, 0.12766236, 0.52764505, }, { 0.7143056, 0.7889276, 0.32565337, 0.44582993, }, { 0.44773299, -0.2863869, 0.6054947, 0.15560512, }, { -0.17665333, 0.33406478, 0.6498851, 0.39080018, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.006911707, 0.0002995945, 0.0, -0.0034662795, } });
+
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.0005864919, -0.4438249, 0.48540914, }, { 0.25379896, -0.7287866, -0.20937704, }, { -0.72905433, 0.7343912, -0.81658787, }, { -0.814179, 0.86968863, 0.9081696, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.0, -0.00010902006, 0.014027984, } });
+
+
+            rotationTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
+            Console.WriteLine(rotationTuner.weights[0].ToString());
 
         }
 
@@ -6618,14 +6612,6 @@ namespace brachIOplexus
                 global_flip = -1;
             }
 
-            if (resettingEnv && robotObj.Motor[2].p_prev > (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2 - 100 &&
-                robotObj.Motor[2].p_prev < (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2 + 100 &&
-                robotObj.Motor[3].p_prev > (robotObj.Motor[3].pmax + robotObj.Motor[3].pmin) / 2 - 100 &&
-                 robotObj.Motor[3].p_prev < (robotObj.Motor[3].pmax + robotObj.Motor[3].pmin) / 2 + 100)
-            {
-                Console.WriteLine("Env Reset");
-                resettingEnv = false;
-            }
 
             // If full autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
             if (AL_Enabled.Checked == true)
@@ -7151,19 +7137,6 @@ namespace brachIOplexus
         private void AutoLevel()
         {
             Get_Grav();
-            //double rotPosNorm = minMaxNorm(robotObj.Motor[2].p_prev, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax);
-            //double flexPosNorm = minMaxNorm(robotObj.Motor[3].p_prev, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
-            //double rotVelNorm = minMaxNorm(BentoSense.ID[2].vel, 0, 2047);
-            //double flexVelNorm = minMaxNorm(BentoSense.ID[3].vel, 0, 2047);
-
-            //double gxNorm = minMaxNorm(x_component, -512, 512);
-            //double gyNorm = minMaxNorm(y_component, -512, 512);
-            //double gyPrimeNorm = minMaxNorm(gy_prime, -512, 512);
-            //double gzNorm = minMaxNorm(z_component, -512, 512);
-
-            //double phiNorm = minMaxNorm(phi, 0, 360);
-            //double thetaNorm = minMaxNorm(theta, 0, 360);
-
             //Get current position
             if (autoLevelWristFlex && reset_setpoint_theta == true)
             {
@@ -7180,38 +7153,14 @@ namespace brachIOplexus
                 errSum_phi = 0;
             }
 
+
+            if (NN_PID_Enabled.Checked)
+            {
+                Get_Gains();
+            }
+
             //Get goal position
             Get_GoalPos();
-            //if (NN_PID_Enabled.Checked)
-            //{
-            //    var state = matBuilder.DenseOfArray(new double[,] { { phiNorm, thetaNorm} });
-            //    Console.WriteLine(state.ToString());
-
-            //    if (!firstNNPIDLoop)
-            //    {
-            //        //var stateDiff = matBuilder.Dense(1, state_size);
-            //        //for (int j = 0; j < state.ColumnCount; j++)
-            //        //{
-            //        //    stateDiff[0, j] = state[0, j] - stateAction[0, j];
-            //        //}
-            //        //Console.WriteLine(stateDiff.ToString());
-            //        var nextState = matBuilder.Dense(1, 2);
-            //        for (int j = 0; j < state.ColumnCount; j++)
-            //        {
-            //            stateDiff[0, j] = state[0, j] - stateAction[0, j];
-            //        }
-            //        double loss = dynamicModel.train(stateAction, state);
-            //        Console.WriteLine("Dynamic Model Loss: " + loss);
-            //    }
-            //    else
-            //    {
-            //        firstNNPIDLoop = false;
-            //    }
-
-            //    stateAction = matBuilder.DenseOfArray(new double[,] { { phiNorm, thetaNorm, output_phi, output_theta } });
-
-            //}
-
 
 
             //Once setpoint is set, level both rotation and flexion. 
@@ -7263,64 +7212,6 @@ namespace brachIOplexus
         private double minMaxNorm(double input, double min, double max)
         {
             return (input - min) / (max - min);
-        }
-        private void RL_AutoLevel(bool learningMode)
-        {
-            ////Velocity command
-            //robotObj.Motor[2].wmax = Math.Abs(actionRotation);
-            //robotObj.Motor[2].w = Math.Abs(actionRotation);
-
-            //robotObj.Motor[3].wmax = Math.Abs(actionFlexion);
-            //robotObj.Motor[3].w = Math.Abs(actionFlexion);
-
-            //if (actionRotation > 0)
-            //{
-            //    robotObj.Motor[2].p = truncateAction(robotObj.Motor[2].p_prev + 10, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax); ;
-            //}
-            //else if (actionRotation < 0)
-            //{
-            //    robotObj.Motor[2].p = truncateAction(robotObj.Motor[2].p_prev - 10, robotObj.Motor[2].pmin, robotObj.Motor[2].pmax); ;
-            //}
-            //else
-            //{
-            //    robotObj.Motor[2].p = robotObj.Motor[2].p_prev;
-            //}
-
-            //if (actionFlexion > 0)
-            //{
-            //    robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev + 10, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax); ;
-            //}
-            //else if (actionFlexion < 0)
-            //{
-            //    robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev - 10, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax); ;
-            //}
-            //else
-            //{
-            //    robotObj.Motor[3].p = robotObj.Motor[3].p_prev;
-            //}
-            //int state = Convert.ToInt32(setpoint_phi - phi) + 360;
-            //double reward = -Math.Abs(setpoint_phi - phi);
-            //double tdError;
-
-            //if (learningMode)
-            //{
-            //    agent.SetAction(RotAdjustment);
-            //    tdError = agent.Update(state, reward);
-
-            //}
-            //else
-            //{
-            //    tdError = agent.Update(state, reward);
-            //    RotAdjustment = agent.SelectAction(state);
-            //    MoveLevelRot();
-            //}
-
-            //Console.WriteLine("State: " + state + "| Reward: " + reward + "| Action: " + RotAdjustment + "| TD Error: " + tdError);
-
-
-            //robotObj.Motor[3].wmax = maxSpeed;
-            //robotObj.Motor[3].w = maxSpeed;
-            //robotObj.Motor[3].p = truncateAction(prevFlexionCommand, robotObj.Motor[3].pmin, robotObj.Motor[3].pmax);
         }
 
         private int truncateAction(int action, int robotObjNum)
@@ -7420,8 +7311,10 @@ namespace brachIOplexus
         // PID Controller function for autolevelling phi - db
         private double PID_phi(double measured_value, double setpoint, double Kp, double Ki, double Kd)
         {
+
             //compute working variables:
             double error = setpoint - measured_value;
+
             //if (robotObj.Motor[3].p_prev < 2890 && robotObj.Motor[3].p_prev > 60) //Only increase integral if within joint limits to prevent windup
             //Only increase integral if within joint limits to prevent windup
             if (error > 0 && robotObj.Motor[2].p_prev < robotObj.Motor[2].pmax)
@@ -7433,13 +7326,13 @@ namespace brachIOplexus
                 errSum_phi += (error * milliSec1 / 1000);
             }
 
-            double dErr = (error - lastErr_phi) / (milliSec1);
+            double dErr = (error - lastErr_phi) / ((double)milliSec1 / 1000);
 
             //update variables for next loop
             lastErr_phi = error;
 
             //compute PID output
-            return Kp * error + Kd * dErr + Ki * errSum_phi;
+            return Kp * error + Ki * errSum_phi + Kd * dErr;
         }
 
         // PID Controller function for autolevelling theta - db
@@ -7458,13 +7351,13 @@ namespace brachIOplexus
                 errSum_theta += (error * milliSec1 / 1000);
             }
 
-            double dErr = (error - lastErr_theta) / (milliSec1);
+            double dErr = (error - lastErr_theta) / ((double)milliSec1 / 1000);
 
             //update variables for next loop
             lastErr_theta = error;
 
             //compute PID output
-            return Kp * error + Kd * dErr + Ki * errSum_theta;// + Kd * dErr;
+            return Kp * error + Ki * errSum_theta + Kd * dErr;// + Kd * dErr;
         }
 
         //Function to convert IMU values from 0-1023 to -512 to 512 - db
@@ -7492,20 +7385,36 @@ namespace brachIOplexus
             double alpha = Ticks_to_Deg(robotObj.Motor[3].p_prev);
             if(alpha <= 180)
             {
-                double beta = (alpha - 90) * 3.141592653589793 / 180;
+                double beta = (alpha - 90) * Math.PI / 180;
                 gy_prime = Convert.ToInt32(y_component * Math.Sin(beta) - z_component * Math.Cos(beta));
                 //gz_prime = Convert.ToInt32(z_component * Math.Sin(beta) + y_component * Math.Cos(beta));
 
             }
             else
             {
-                double beta = (270-alpha) * 3.141592653589793 / 180;
+                double beta = (270-alpha) * Math.PI / 180;
                 gy_prime = Convert.ToInt32(y_component * Math.Sin(beta) + z_component * Math.Cos(beta));
                 //gz_prime = Convert.ToInt32(z_component * Math.Sin(beta) - y_component * Math.Cos(beta));
 
             }
             phi = Get_phi(x_component, gy_prime, phi); // Only need adjusted y value for rotation (we're basically moving the accelerometer onto the rotation motor)
             theta = Get_theta(y_component, z_component, theta);
+        }
+
+        void Get_Gains()
+        {
+            Matrix<double> rotationTunerInput = Matrix<double>.Build.Dense(1, 4);
+            rotationTunerInput[0, 0] = (setpoint_phi - phi)/180; //Normalize the error input
+            double rotationRadians = Ticks_to_Deg(robotObj.Motor[2].p_prev - (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2) * Math.PI / 180; //Convert ticks to radians and set 0 to mid point
+            rotationTunerInput[0, 1] = (rotationRadians - (-Math.PI))/(Math.PI - (-Math.PI)); //Normalize between pi and -pi
+            rotationTunerInput[0, 2] = rotationTuner.intermediate_value[0, 0]; //Previous hidden layer value
+            rotationTunerInput[0, 3] = rotationTuner.intermediate_value[0, 3]; //Previous hidden layer value
+            Console.WriteLine(rotationTunerInput.ToString());
+            Matrix<double> newRotationGains = rotationTuner.predict(rotationTunerInput);
+            Kp_phi = Math.Abs(newRotationGains[0, 0]);
+            Ki_phi = Math.Abs(newRotationGains[0, 1]);
+            Kd_phi = Math.Abs(newRotationGains[0, 2]);
+            Console.WriteLine(string.Format("Kp_phi: {0}, Ki_phi: {1}, Kd_phi: {2}", Kp_phi, Ki_phi, Kd_phi));
         }
 
         //Function to call the PID controller, get the desired servo position - db
@@ -8912,198 +8821,6 @@ namespace brachIOplexus
                 MessageBox.Show(ex.Message);
             }
         }
-
-        private void Reset_Env_Btn_Click(object sender, EventArgs e)
-        {
-            robotObj.Motor[2].w = 500;
-            robotObj.Motor[2].wmax = 500;
-            robotObj.Motor[3].w = 500;
-            robotObj.Motor[3].wmax = 500;
-            robotObj.Motor[2].p = (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2;
-            robotObj.Motor[3].p = (robotObj.Motor[3].pmax + robotObj.Motor[3].pmin) / 2;
-            resettingEnv = true;
-            //firstRLStep = true;
-            setpoint_phi = 180;
-            setpoint_theta = 180;
-
-        }
-
-        private void RL_Control_Enabled_CheckedChanged(object sender, EventArgs e)
-        {
-            //if(!RL_Control_Enabled.Checked)
-            //{
-            //    agent.SaveQ("Q_Values.bin");
-            //}
-            //try
-            //{
-            //    if (UDPFlagALPython == false && dynaConnect.Enabled == false && RL_Control_Enabled.Checked)
-            //    {
-            //        TurnOffAutoLevelRot();
-            //        TurnOffAutoLevelFlex();
-
-            //        // Initialize Bento Arm feedback values to 0
-            //        for (int i = 0; i < BENTO_NUM; i++)
-            //        {
-            //            BentoSense.ID[i].pos = 0;
-            //            BentoSense.ID[i].vel = 0;
-            //            BentoSense.ID[i].load = 0;
-            //            BentoSense.ID[i].volt = 0;
-            //            BentoSense.ID[i].temp = 0;
-            //        }
-
-
-            //        // Initialize the UDP TX object
-            //        udpClientALPythonTX = new UdpClient();
-            //        ipEndPointALPythonTX = new IPEndPoint(localAddrALPython, portALPythonTX);
-
-            //        //// Initialize the UDP RX object
-            //        udpClientALPythonRX = new UdpClient(portALPythonRX);
-            //        ipEndPointALPythonRX = new IPEndPoint(localAddrALPython, portALPythonRX);
-
-            //        // Start the timer that will send the serial packets out to the arduino 
-            //        // NOTE: for some reason the actual timestep of the timer is a bit slower -> i.e. it is set to 45ms, but actually achieves more like 49-50ms
-            //        // This update rate is to match the 20Hz (50ms) that was used in the previous adaptive switching code from ROS
-            //        timerALPython = new System.Threading.Timer(new TimerCallback(DoWorkALPythonUDP), null, 0, 45);
-
-            //        // Reset the UDP flag
-            //        UDPFlagALPython = true;
-            //    }
-            //    else
-            //    {
-            //        udpClientALPythonTX.Close();
-            //        udpClientALPythonRX.Close();
-            //        timerALPython.Change(Timeout.Infinite, Timeout.Infinite);
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show(ex.Message);
-            //}
-        }
-
-        // This is a timer callback function that operates on a separate thread and that is used for communicating with an external program via UDP
-        public void DoWorkALPythonUDP(object state)
-        {
-            //try
-            //{
-            //    // Stop stopwatch and record how long everything in the main loop took to execute as well as how long it took to retrigger the main loop
-            //    stopWatchALPython.Stop();
-            //    milliSecALPythonUDPLoop = stopWatchALPython.ElapsedMilliseconds;
-
-            //    if (UDPPythonDelay.InvokeRequired)
-            //    {
-            //        UDPPythonDelay.Invoke(new MethodInvoker(delegate { UDPALPythonDelay.Text = "Delay: " + Convert.ToString(milliSecALPythonUDPLoop); }));
-            //    }
-
-            //    //Reset and start the stop watch
-            //    stopWatchALPython.Restart();
-
-            //    // Send the sensor stream from the Bento Arm if the 
-            //    if (dynaConnect.Enabled == false)
-            //    {
-            //        Get_Grav();
-
-
-            //        // Create a byte array for holding the packet values
-            //        // packet size is 
-            //        // 2 header bytes, 
-            //        // 1 byte for packet length
-            //        // 39 data values
-            //        // 1 byte for checksum at the end
-            //        int MSG_SIZE2 = 40;
-            //        byte[] packet = new byte[MSG_SIZE2];
-
-            //        // Construct the packet that will be transmitted to the external program
-            //        packet[0] = 255;    // First two bytes of the packet are the header section and set to 255
-            //        packet[1] = 255;
-            //        packet[2] = 36;     // The length of the packet
-            //        packet[3] = 0;
-            //        packet[4] = low_byte(BentoSense.ID[2].posf);
-            //        packet[5] = high_byte(BentoSense.ID[2].posf);
-            //        packet[6] = low_byte(BentoSense.ID[2].vel);
-            //        packet[7] = high_byte(BentoSense.ID[2].vel);
-            //        packet[8] = low_byte(BentoSense.ID[2].loadf);
-            //        packet[9] = high_byte(BentoSense.ID[2].loadf);
-            //        packet[10] = (byte)BentoSense.ID[2].tempf;
-            //        packet[11] = (byte)stateObj.motorState[2];
-            //        packet[12] = Convert.ToByte(autoLevelWristRot);
-            //        packet[13] = 1;
-            //        packet[14] = low_byte(BentoSense.ID[3].posf);
-            //        packet[15] = high_byte(BentoSense.ID[3].posf);
-            //        packet[16] = low_byte(BentoSense.ID[3].vel);
-            //        packet[17] = high_byte(BentoSense.ID[3].vel);
-            //        packet[18] = low_byte(BentoSense.ID[3].loadf);
-            //        packet[19] = high_byte(BentoSense.ID[3].loadf);
-            //        packet[20] = (byte)BentoSense.ID[3].tempf;
-            //        packet[21] = (byte)stateObj.motorState[3];
-            //        packet[22] = Convert.ToByte(autoLevelWristFlex);
-            //        packet[23] = 2;
-            //        packet[24] = low_byte((ushort)x_component);
-            //        packet[25] = high_byte((ushort)x_component);
-            //        packet[26] = low_byte((ushort)gy_prime);
-            //        packet[27] = high_byte((ushort)gy_prime);
-            //        packet[28] = low_byte((ushort)z_component);
-            //        packet[29] = high_byte((ushort)z_component);
-            //        packet[30] = low_byte((ushort)phi);
-            //        packet[31] = high_byte((ushort)phi);
-            //        packet[32] = low_byte((ushort)setpoint_phi);
-            //        packet[33] = high_byte((ushort)setpoint_phi);
-            //        packet[34] = low_byte((ushort)theta);
-            //        packet[35] = high_byte((ushort)theta);
-            //        packet[36] = low_byte((ushort)setpoint_theta);
-            //        packet[37] = high_byte((ushort)setpoint_theta);
-            //        packet[38] = (byte)(resettingEnv ? 1 : 0);
-
-            //        // Calculate the checksum for the packet
-            //        int checksum = 0;
-            //        for (int p = 2; p < packet.Length - 1; p++)
-            //        {
-            //            checksum = checksum + packet[p];     // Add up all the bytes in the DATA section of the packet. i.e. do not count the header bytes
-            //        }
-            //        checksum = (byte)~checksum;     // return the bitwise complement which is equivalent to the NOT operator
-            //        packet[packet.Length - 1] = (byte)checksum; // Tuck the checksum byte into the last slot in the byte array 
-            //        udpClientALPythonTX.Send(packet, packet.Length, ipEndPointALPythonTX);
-
-            //        // Process the return packet from the external program
-            //        byte[] bytes = udpClientALPythonRX.Receive(ref ipEndPointALPythonRX);
-
-            //        // Decode packets from the external program using packet structure from UDP_Comm_Protocol_ASD_python_to_brachIO_180619.xls
-            //        // Calculate the checksum for the packet
-            //        int checksumRX = 0;
-            //        for (int p = 2; p < bytes.Length - 1; p++)
-            //        {
-            //            checksumRX = checksumRX + bytes[p];     // Add up all the bytes in the LENGTH and DATA section of hte packet
-            //        }
-
-            //        checksumRX = (byte)~checksumRX;     // return the bitwise complement which is equivalent to the NOT operator
-            //                                            // Only update the input values if the packet is valid
-
-            //        if (RL_Control_Enabled.Checked == true && !resettingEnv)
-            //        {
-            //            int[] newPIDGains = new int[3];
-            //            if (checksumRX == bytes[bytes.Length - 1] && bytes[0] == 255 && bytes[1] == 255)
-            //            {
-            //                //Console.WriteLine("Received valid packet");
-            //                int idx = 0;
-            //                for (int m = 3; m < bytes.Length - 1; m = m + 2)
-            //                {
-            //                    newPIDGains[idx] = BitConverter.ToInt16(new byte[] { bytes[m], bytes[m + 1] }, 0);
-            //                    idx++;
-            //                }
-            //            }
-            //            //update gains   
-            //        }
-            //    }
-
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show(ex.Message);
-            //}
-        }
-   
-
         // Returns the lower byte of an integer number
         // https://stackoverflow.com/questions/5419453/getting-upper-and-lower-byte-of-an-integer-in-c-sharp-and-putting-it-as-a-char-a
         private byte low_byte(ushort number)

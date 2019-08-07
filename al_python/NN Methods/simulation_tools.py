@@ -85,13 +85,12 @@ class Servo:
         gripper_com = 0.03 #Centre of mass of gripper wrt where bracket connects
 
         if servo_type == "rotation":
-            J_l = 2 * m * (b**2 + h**2)/12
+            J_l = (2 * m * (b**2 + h**2)/12)
         elif servo_type == "flexion":
             J_l = m * (d**2/3 + d * bracket_L + bracket_L**2)
         else:
             print("No type specified")
             J_l = 0
-            
         #Simplified tf (eq 31)
         c1 = gear_ratio * gear_eff * K_t
         c2 = gear_ratio**2 * gear_eff
@@ -119,6 +118,11 @@ class Servo:
     def simulate_step(self, y0, cur_angle, t, r, d):
         e = r - cur_angle #calculate error from setpoint (degrees)
         u = self.PID.update(e, t[1]) #get control signal by setting error and current time (t = [t_prev, t_cur])
+        
+        #tick saturation limit is 130
+        #convert to deg 130/11.3611111111 = 11.4425
+        u = min(max(u, -11.4425), 11.4425)
+
         u = u * math.pi/180 + y0[1] #control signal is added to previous angle, rather than just setting the angle (convert to radians)
 
         _, state = odeint(self.ode, y0, t, args=(u,)) #simulate step using odeint
@@ -225,13 +229,13 @@ class PRBS:
         b, a = signal.butter(1, w, 'low')
         return signal.filtfilt(b, a, y)
             
-def simulation_init(time_step, length, aprbs_amp):
+def simulation_init(time_step, length, aprbs_hold, aprbs_amp):
     T = np.arange(0, length, time_step)
     r = np.array(T)
     r[:] = 180
     
     sig_gen = PRBS()
-    d = sig_gen.apply_butter(sig_gen.generate_APRBS(len(T), 100, aprbs_amp))
+    d = sig_gen.apply_butter(sig_gen.generate_APRBS(len(T), aprbs_hold, aprbs_amp))
     
     d_test = np.array(T)
     d_test[:] = 0

@@ -115,14 +115,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="brachIOplexus.exe" size="4104640">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="brachIOplexus.exe" size="4105152">
       <assemblyIdentity name="brachIOplexus" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>YDTcxDeGGruKpNBBgx4I1JzfBUE=</dsig:DigestValue>
+        <dsig:DigestValue>T4/nHl2T96dpwlGAPYsCUGDQBy4=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -151,14 +151,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MLCSharp.dll" size="15872">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MLCSharp.dll" size="16896">
       <assemblyIdentity name="MLCSharp" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>91AUQNp52BoM4dbdSi67RI3M5g0=</dsig:DigestValue>
+        <dsig:DigestValue>l+bqVguHUqZWttqO6NlzPnGYBnw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

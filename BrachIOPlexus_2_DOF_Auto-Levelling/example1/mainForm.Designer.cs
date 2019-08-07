@@ -664,10 +664,8 @@
             this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
             this.LogPID_Enabled = new System.Windows.Forms.CheckBox();
-            this.UDPALPythonDelay = new System.Windows.Forms.Label();
-            this.Reset_Env_Btn = new System.Windows.Forms.Button();
-            this.RL_Control_Enabled = new System.Windows.Forms.CheckBox();
             this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
+            this.NN_PID_Enabled = new System.Windows.Forms.CheckBox();
             this.UDPPythonDelay = new System.Windows.Forms.Label();
             this.label235 = new System.Windows.Forms.Label();
             this.ALAdaptive_Enabled = new System.Windows.Forms.CheckBox();
@@ -808,7 +806,6 @@
             this.BentoStatus = new System.Windows.Forms.Label();
             this.label149 = new System.Windows.Forms.Label();
             this.serialArduinoInput = new System.IO.Ports.SerialPort(this.components);
-            this.NN_PID_Enabled = new System.Windows.Forms.CheckBox();
             this.MenuStrip1.SuspendLayout();
             this.VoiceCoilCommBox.SuspendLayout();
             this.EMGParamBox.SuspendLayout();
@@ -952,7 +949,7 @@
             // 
             // tg
             // 
-            
+           
             // 
             // MenuStrip1
             // 
@@ -9147,9 +9144,6 @@
             // tabBento
             // 
             this.tabBento.Controls.Add(this.LogPID_Enabled);
-            this.tabBento.Controls.Add(this.UDPALPythonDelay);
-            this.tabBento.Controls.Add(this.Reset_Env_Btn);
-            this.tabBento.Controls.Add(this.RL_Control_Enabled);
             this.tabBento.Controls.Add(this.AutoLevellingBox);
             this.tabBento.Controls.Add(this.groupBox19);
             this.tabBento.Controls.Add(this.BentoEnvLimitsBox);
@@ -9187,38 +9181,6 @@
             this.LogPID_Enabled.UseVisualStyleBackColor = true;
             this.LogPID_Enabled.CheckedChanged += new System.EventHandler(this.LogPID_Enabled_CheckedChanged);
             // 
-            // UDPALPythonDelay
-            // 
-            this.UDPALPythonDelay.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.UDPALPythonDelay.Location = new System.Drawing.Point(376, 395);
-            this.UDPALPythonDelay.Name = "UDPALPythonDelay";
-            this.UDPALPythonDelay.Size = new System.Drawing.Size(93, 22);
-            this.UDPALPythonDelay.TabIndex = 216;
-            this.UDPALPythonDelay.Text = "Delay: --";
-            // 
-            // Reset_Env_Btn
-            // 
-            this.Reset_Env_Btn.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.Reset_Env_Btn.Location = new System.Drawing.Point(379, 424);
-            this.Reset_Env_Btn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Reset_Env_Btn.Name = "Reset_Env_Btn";
-            this.Reset_Env_Btn.Size = new System.Drawing.Size(59, 28);
-            this.Reset_Env_Btn.TabIndex = 213;
-            this.Reset_Env_Btn.Text = "Reset";
-            this.Reset_Env_Btn.Click += new System.EventHandler(this.Reset_Env_Btn_Click);
-            // 
-            // RL_Control_Enabled
-            // 
-            this.RL_Control_Enabled.AutoSize = true;
-            this.RL_Control_Enabled.Location = new System.Drawing.Point(377, 342);
-            this.RL_Control_Enabled.Margin = new System.Windows.Forms.Padding(4);
-            this.RL_Control_Enabled.Name = "RL_Control_Enabled";
-            this.RL_Control_Enabled.Size = new System.Drawing.Size(72, 21);
-            this.RL_Control_Enabled.TabIndex = 212;
-            this.RL_Control_Enabled.Text = "ML me";
-            this.RL_Control_Enabled.UseVisualStyleBackColor = true;
-            this.RL_Control_Enabled.CheckedChanged += new System.EventHandler(this.RL_Control_Enabled_CheckedChanged);
-            // 
             // AutoLevellingBox
             // 
             this.AutoLevellingBox.Controls.Add(this.NN_PID_Enabled);
@@ -9237,6 +9199,17 @@
             this.AutoLevellingBox.TabIndex = 211;
             this.AutoLevellingBox.TabStop = false;
             this.AutoLevellingBox.Text = "Auto-Levelling";
+            // 
+            // NN_PID_Enabled
+            // 
+            this.NN_PID_Enabled.AutoSize = true;
+            this.NN_PID_Enabled.Location = new System.Drawing.Point(11, 54);
+            this.NN_PID_Enabled.Margin = new System.Windows.Forms.Padding(4);
+            this.NN_PID_Enabled.Name = "NN_PID_Enabled";
+            this.NN_PID_Enabled.Size = new System.Drawing.Size(76, 21);
+            this.NN_PID_Enabled.TabIndex = 216;
+            this.NN_PID_Enabled.Text = "NN PID";
+            this.NN_PID_Enabled.UseVisualStyleBackColor = true;
             // 
             // UDPPythonDelay
             // 
@@ -9330,22 +9303,22 @@
             // 
             // Kd_theta_ctrl
             // 
-            this.Kd_theta_ctrl.DecimalPlaces = 2;
+            this.Kd_theta_ctrl.DecimalPlaces = 5;
             this.Kd_theta_ctrl.Increment = new decimal(new int[] {
             1,
             0,
             0,
-            131072});
+            196608});
             this.Kd_theta_ctrl.Location = new System.Drawing.Point(42, 73);
             this.Kd_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Kd_theta_ctrl.Name = "Kd_theta_ctrl";
             this.Kd_theta_ctrl.Size = new System.Drawing.Size(64, 22);
             this.Kd_theta_ctrl.TabIndex = 153;
             this.Kd_theta_ctrl.Value = new decimal(new int[] {
-            800,
+            8,
             0,
             0,
-            131072});
+            196608});
             this.Kd_theta_ctrl.ValueChanged += new System.EventHandler(this.Kd_theta_ctrl_ValueChanged);
             // 
             // label210
@@ -9467,12 +9440,12 @@
             // 
             // Kd_phi_ctrl
             // 
-            this.Kd_phi_ctrl.DecimalPlaces = 2;
+            this.Kd_phi_ctrl.DecimalPlaces = 5;
             this.Kd_phi_ctrl.Increment = new decimal(new int[] {
             1,
             0,
             0,
-            131072});
+            196608});
             this.Kd_phi_ctrl.Location = new System.Drawing.Point(42, 73);
             this.Kd_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Kd_phi_ctrl.Name = "Kd_phi_ctrl";
@@ -9482,7 +9455,7 @@
             879,
             0,
             0,
-            131072});
+            327680});
             this.Kd_phi_ctrl.ValueChanged += new System.EventHandler(this.Kd_phi_ctrl_ValueChanged);
             // 
             // SetpointRotation
@@ -10956,17 +10929,6 @@
             this.serialArduinoInput.RtsEnable = true;
             this.serialArduinoInput.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialArduinoInput_DataReceived);
             // 
-            // NN_PID_Enabled
-            // 
-            this.NN_PID_Enabled.AutoSize = true;
-            this.NN_PID_Enabled.Location = new System.Drawing.Point(11, 54);
-            this.NN_PID_Enabled.Margin = new System.Windows.Forms.Padding(4);
-            this.NN_PID_Enabled.Name = "NN_PID_Enabled";
-            this.NN_PID_Enabled.Size = new System.Drawing.Size(76, 21);
-            this.NN_PID_Enabled.TabIndex = 216;
-            this.NN_PID_Enabled.Text = "NN PID";
-            this.NN_PID_Enabled.UseVisualStyleBackColor = true;
-            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -11937,9 +11899,6 @@
         private System.Windows.Forms.CheckBox ALAdaptive_Enabled;
         internal System.Windows.Forms.Label UDPPythonDelay;
         internal System.Windows.Forms.Label label235;
-        private System.Windows.Forms.CheckBox RL_Control_Enabled;
-        internal System.Windows.Forms.Button Reset_Env_Btn;
-        internal System.Windows.Forms.Label UDPALPythonDelay;
         private System.Windows.Forms.CheckBox LogPID_Enabled;
         private System.Windows.Forms.CheckBox NN_PID_Enabled;
     }

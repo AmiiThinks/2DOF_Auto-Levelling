@@ -11,50 +11,72 @@ namespace MLCSharp
     {
         public static void Main()
         {
-            Console.WriteLine("Starting...");
-            NeuralNetwork network = new NeuralNetwork(2, 1, new int[] { 4 }, new string[] { "sigmoid", "sigmoid" }, 0.5);
-            //network.printWeights();
+            //Checking with python
+            //Output should be -6.16031   ,  4.860726  , -0.67678124
+            NeuralNetwork network = new NeuralNetwork(4, 3, new int[] { 4 }, new string[] { "relu", "linear" }, 0, 1);
             MatrixBuilder<double> M = Matrix<double>.Build;
-            double[][,] X_array = new double[4][,];
-            X_array[0] = new double[,] { { 0, 0 } };
-            X_array[1] = new double[,] { { 0, 1 } };
-            X_array[2] = new double[,] { { 1, 0 } };
-            X_array[3] = new double[,] { { 1, 1 } };
 
-            double[][,] y_array = new double[4][,];
-            y_array[0] = new double[,] { { 0 } };
-            y_array[1] = new double[,] { { 1 } };
-            y_array[2] = new double[,] { { 1 } };
-            y_array[3] = new double[,] { { 0 } };
+            Console.WriteLine("Starting...");
+            Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.46913165, -0.35420346, 0.12766236, 0.52764505, }, { 0.7143056, 0.7889276, 0.32565337, 0.44582993, }, { 0.44773299, -0.2863869, 0.6054947, 0.15560512, }, { -0.17665333, 0.33406478, 0.6498851, 0.39080018, }, });
+            Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.006911707, 0.0002995945, 0.0, -0.0034662795, } });
 
-            int epochs = 10000;
+            Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.0005864919, -0.4438249, 0.48540914, }, { 0.25379896, -0.7287866, -0.20937704, }, { -0.72905433, 0.7343912, -0.81658787, }, { -0.814179, 0.86968863, 0.9081696, }, });
+            Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.0, -0.00010902006, 0.014027984, } });
 
-            for (int i = 0; i < epochs; i++)
-            {
-                int index = i % 4;
-                double error = network.train(M.DenseOfArray(X_array[index]), M.DenseOfArray(y_array[index]));
-                //Console.WriteLine(error);
-                //network.printWeights();
 
-            }
-            Console.WriteLine("Predict 0 1");
-            Console.WriteLine(network.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0]);
+            network.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
 
-            Console.WriteLine("Check copy function");
-            NeuralNetwork newNetwork = new NeuralNetwork(network);
-            double o1 = network.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0];
-            double o2 = newNetwork.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0];
-            Console.WriteLine(o1);
-            Console.WriteLine(o2);
-            Console.WriteLine(o1 == o2 ? "Pass" : "Fail");
+            Matrix<double> input = Matrix<double>.Build.Dense(1, 4);
+            input[0, 0] = 1;
+            input[0, 1] = 2;
+            input[0, 2] = 3;
+            input[0, 3] = 4;
+            Console.WriteLine(network.predict(input).ToString());
 
-            network.train(M.DenseOfArray(X_array[0]), M.DenseOfArray(y_array[0]));
 
-            o1 = network.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0];
-            o2 = newNetwork.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0];
-            Console.WriteLine(o1);
-            Console.WriteLine(o2);
-            Console.WriteLine(o1 != o2 ? "Pass" : "Fail");
+            //NeuralNetwork network = new NeuralNetwork(2, 1, new int[] { 4 }, new string[] { "sigmoid", "sigmoid" }, 0.5, 1);
+            ////network.printWeights();
+            //MatrixBuilder<double> M = Matrix<double>.Build;
+            //double[][,] X_array = new double[4][,];
+            //X_array[0] = new double[,] { { 0, 0 } };
+            //X_array[1] = new double[,] { { 0, 1 } };
+            //X_array[2] = new double[,] { { 1, 0 } };
+            //X_array[3] = new double[,] { { 1, 1 } };
+
+            //double[][,] y_array = new double[4][,];
+            //y_array[0] = new double[,] { { 0 } };
+            //y_array[1] = new double[,] { { 1 } };
+            //y_array[2] = new double[,] { { 1 } };
+            //y_array[3] = new double[,] { { 0 } };
+
+            //int epochs = 10000;
+
+            //for (int i = 0; i < epochs; i++)
+            //{
+            //    int index = i % 4;
+            //    double error = network.train(M.DenseOfArray(X_array[index]), M.DenseOfArray(y_array[index]));
+            //    //Console.WriteLine(error);
+            //    //network.printWeights();
+
+            //}
+            //Console.WriteLine("Predict 0 1");
+            //Console.WriteLine(network.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0]);
+
+            //Console.WriteLine("Check copy function");
+            //NeuralNetwork newNetwork = new NeuralNetwork(network);
+            //double o1 = network.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0];
+            //double o2 = newNetwork.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0];
+            //Console.WriteLine(o1);
+            //Console.WriteLine(o2);
+            //Console.WriteLine(o1 == o2 ? "Pass" : "Fail");
+
+            //network.train(M.DenseOfArray(X_array[0]), M.DenseOfArray(y_array[0]));
+
+            //o1 = network.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0];
+            //o2 = newNetwork.predict(M.DenseOfArray(new double[,] { { 0, 1 } }))[0, 0];
+            //Console.WriteLine(o1);
+            //Console.WriteLine(o2);
+            //Console.WriteLine(o1 != o2 ? "Pass" : "Fail");
 
 
             Console.ReadKey();
@@ -70,14 +92,19 @@ namespace MLCSharp
         public double[][] activationVals { get; private set; }//a = relu(z)
         public string[] activationFunctions { get; private set; }
         public double learningRate { get; private set; }
+        public int intermediate_layer { get; private set; }
+
+        public Matrix<double> intermediate_value { get; private set; }
 
         private MatrixBuilder<double> M = Matrix<double>.Build;
 
 
-        public NeuralNetwork(int inputSize, int outputSize, int[] hiddenLayers, string[] activationFunctions, double learningRate)
+        public NeuralNetwork(int inputSize, int outputSize, int[] hiddenLayers, string[] activationFunctions, double learningRate, int intermediate_layer)
         {
             this.activationFunctions = activationFunctions; //list of activation functions used by each layer (including output layer). If you don't want activation on the output layer, specify 'linear'
             this.learningRate = learningRate;
+            this.intermediate_layer = intermediate_layer;
+            this.intermediate_value = M.DenseOfArray(new double[,] { { 0, 0, 0, 0 } });
 
             layers = new int[2 + hiddenLayers.Length];
             layers[0] = inputSize;
@@ -147,12 +174,25 @@ namespace MLCSharp
             }
         }
 
+        public void setWeights(Matrix<double>[] weights, Matrix<double>[] biases)
+        {
+            for (int i = 0; i < weights.Length; i++)
+            {
+                weights[i].CopyTo(this.weights[i]);//Set weights
+                biases[i].CopyTo(this.biases[i]);//Set biases
+            }
+        }
+
         public Matrix<double> predict(Matrix<double> input)
         {
             Matrix<double> a = input; //First layer, multiply input by weight
             Matrix<double> z;
             for (int i = 0; i < weights.Length; i++)
             {
+                if (i == intermediate_layer)
+                {
+                    intermediate_value = a;
+                }
                 //z = wX + b
                 z = a.Multiply(weights[i]);
                 z = z.Add(biases[i]);
