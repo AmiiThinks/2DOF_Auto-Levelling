@@ -1,0 +1,7 @@
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\PRBSExcitation\PRBSExcitation\bin\Debug\PRBSExcitation.exe
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\PRBSExcitation\PRBSExcitation\bin\Debug\PRBSExcitation.pdb
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\PRBSExcitation\PRBSExcitation\obj\Debug\PRBSExcitation.csprojAssemblyReference.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\PRBSExcitation\PRBSExcitation\obj\Debug\PRBSExcitation.csproj.CoreCompileInputs.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\PRBSExcitation\PRBSExcitation\obj\Debug\PRBSExcitation.exe
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\PRBSExcitation\PRBSExcitation\obj\Debug\PRBSExcitation.pdb
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\PRBSExcitation\PRBSExcitation\bin\Debug\DynamixelSDK\dxl_x86_c.dll

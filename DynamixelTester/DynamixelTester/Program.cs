@@ -63,12 +63,12 @@ namespace DynamixelTester
             double[] frequencies = new double[] { 0.5, 1.0, 5.0, 10, 50, 100 };
             int[][] signals = new int[frequencies.Length][];
 
-            for(int i = 0; i < frequencies.Length; i++)
+            for (int i = 0; i < frequencies.Length; i++)
             {
                 signals[i] = new int[signalDuration];
                 int val = 0;
-                double period = 1/ (frequencies[i] / 1000);
-                for(int j = 0; j < signalDuration; j++)
+                double period = 1 / (frequencies[i] / 1000);
+                for (int j = 0; j < signalDuration; j++)
                 {
                     signals[i][j] = val;
                     if (j % period == 0 && j != 0)
@@ -133,7 +133,7 @@ namespace DynamixelTester
                 resetPos(port_num, 2048, 2048);
                 stopWatch1.Reset();
                 stopWatch1.Start();
-                for (int j = 0; j < signalDuration-4; j+=5)
+                for (int j = 0; j < signalDuration - 4; j += 5)
                 {
                     ushort pos = 0;
                     if (signals[i][j] == 0)
@@ -155,7 +155,7 @@ namespace DynamixelTester
                         Thread.Sleep((int)(5 - milliSec1));
                     }
 
-                    rotLog.WriteLine(string.Format("{0}, {1}, {2}, {3}, {4}", DateTime.Now.ToString("HH:mm:ss.fff"), frequencies[i], j, pos, dxl_present_position ));
+                    rotLog.WriteLine(string.Format("{0}, {1}, {2}, {3}, {4}", DateTime.Now.ToString("HH:mm:ss.fff"), frequencies[i], j, pos, dxl_present_position));
 
                     stopWatch1.Reset();
                     stopWatch1.Start();

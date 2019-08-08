@@ -115,13 +115,14 @@ class Servo:
     def ode(self, y, t, u):
         return (self.A*y[0] + self.B*y[1] + self.C*u, y[0]) #return [ddy, dy]
     
-    def simulate_step(self, y0, cur_angle, t, r, d):
+    def simulate_step(self, y0, cur_angle, t, r, d, use_sat=True):
         e = r - cur_angle #calculate error from setpoint (degrees)
         u = self.PID.update(e, t[1]) #get control signal by setting error and current time (t = [t_prev, t_cur])
         
         #tick saturation limit is 130
         #convert to deg 130/11.3611111111 = 11.4425
-        u = min(max(u, -11.4425), 11.4425)
+        if use_sat:
+            u = min(max(u, -11.4425), 11.4425)
 
         u = u * math.pi/180 + y0[1] #control signal is added to previous angle, rather than just setting the angle (convert to radians)
 
