@@ -3,7 +3,6 @@ import numpy as np
 from scipy.integrate import odeint
 from scipy import signal
 
-
 class PID:
     def __init__(self, Kp, Ki, Kd):
         self.Kp = Kp
@@ -39,8 +38,7 @@ class PID:
         self.t_prev = t
         self.e_prev = e
         self.u = self.Kp * self.P + self.Ki * self.I + self.Kd * self.D
-
-
+        
         return self.u 
        
     def reset(self):
@@ -56,7 +54,9 @@ class PID:
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
+        
 
+        
 class Servo:
     def __init__(self, servo_type, Kp, Ki, Kd):
         R = 8.3 #Motor resistance (ohms)
@@ -131,6 +131,20 @@ class Servo:
         next_angle = state[1] * 180/math.pi + 180 + d #Convert back to degrees and add 180 degrees and disturbance to get phi/theta
 
         return state, next_angle #return the state of the servo (angular velocity and angular position) and the angle in degrees
+    
+    def set_neural_model(self, neural_model):
+        self.neural_model = neural_model
+        
+    def simulate_step_model_free(self, y0, cur_angle, t, r, d):
+        e = r - cur_angle
+        u = self.PID.update(e, t)
+        u = u * math.pi/180 + y0
+        model_input = np.array(u).reshape(1, 1, 1)
+        model_output = self.neural_model.predict(model_input, batch_size=1)
+        y = model_output[0][0]
+        next_angle = y * 180/math.pi + 180 + d
+
+        return y, next_angle
         
 class PRBS:
     def __init__(self):
