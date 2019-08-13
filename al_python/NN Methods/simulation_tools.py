@@ -119,10 +119,10 @@ class Servo:
         e = r - cur_angle #calculate error from setpoint (degrees)
         u = self.PID.update(e, t[1]) #get control signal by setting error and current time (t = [t_prev, t_cur])
         
-        #tick saturation limit is 130
-        #convert to deg 130/11.3611111111 = 11.4425
+        #tick saturation limit is 110
+        #convert to deg by multiplying by 360/4096
         if use_sat:
-            u = min(max(u, -11.4425), 11.4425)
+            u = min(max(u, -110 * 360/4096), 110 * 360/4096)
 
         u = u * math.pi/180 + y0[1] #control signal is added to previous angle, rather than just setting the angle (convert to radians)
 
@@ -250,14 +250,15 @@ def simulation_init(time_step, length, aprbs_hold, aprbs_amp):
     r[:] = 180
     
     sig_gen = PRBS()
-    d = sig_gen.apply_butter(sig_gen.generate_APRBS(len(T), aprbs_hold, aprbs_amp))
+    d = sig_gen.apply_butter(sig_gen.generate_APRBS(len(T), aprbs_hold/time_step, aprbs_amp))
     
     d_test = np.array(T)
     d_test[:] = 0
 
     up = len(T)//4
-    down = len(T)//4 * 2
+    down = len(T)//4 * 3
     d_test[up:down] = 45
+    d_test = sig_gen.apply_butter(d_test)
    
     y0 = [0, 0]
     

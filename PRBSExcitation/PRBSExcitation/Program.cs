@@ -55,17 +55,29 @@ namespace APRBSExcitation
 
             StreamWriter aprbsLog = new StreamWriter("aprbs_180ptp_log.txt", false);
 
-            List<ushort> command = new List<ushort>();
+            List<ushort> command_rot = new List<ushort>();
 
-            using (var reader = new StreamReader(@"C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\al_python\NN Methods\aprbs.csv"))
+            using (var reader = new StreamReader(@"C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\al_python\NN Methods\aprbs_rot.csv"))
             {
-                Console.WriteLine("Test");
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
                     double angle = Convert.ToDouble(line);
                     ushort ticks = (ushort)((angle + 180) * 4096 / 360);
-                    command.Add(ticks);
+                    command_rot.Add(ticks);
+                }
+            }
+
+            List<ushort> command_flex = new List<ushort>();
+
+            using (var reader = new StreamReader(@"C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\al_python\NN Methods\aprbs_flex.csv"))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    double angle = Convert.ToDouble(line);
+                    ushort ticks = (ushort)((angle + 180) * 4096 / 360);
+                    command_flex.Add(ticks);
                 }
             }
 
@@ -133,7 +145,7 @@ namespace APRBSExcitation
             stopWatch1.Reset();
             stopWatch1.Start();
 
-            for (int i = 0; i < command.Count; i++)
+            for (int i = 0; i < command_rot.Count; i++)
             {
 
                 rotNextPos = dynamixel.read2ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_MX_PRESENT_POSITION);
@@ -150,8 +162,8 @@ namespace APRBSExcitation
                 rotCurVel = rotNextVel;
                 flexCurVel = flexNextVel;
 
-                rotCommand = command[i];
-                flexCommand = command[i];
+                rotCommand = command_rot[i];
+                flexCommand = command_flex[i];
                 timeStamp = DateTime.Now.ToString("HH:mm:ss.fff");
 
                 dynamixel.write2ByteTxRx(port_num, PROTOCOL_VERSION, 3, ADDR_MX_GOAL_POSITION, rotCommand);
