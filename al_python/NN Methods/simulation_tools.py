@@ -232,7 +232,7 @@ class PRBS:
         y_amp_mod = np.empty(len(y))
         amp_index = 0
         for i in range(len(y)):
-            if i != 0 and y[i] != y[i-1]:
+            if i != 0 and y[i] != y[i-1] and amp_index + 1 < len(new_amplitudes)-1:
                 amp_index += 1
             y_amp_mod[i] = new_amplitudes[amp_index] - (y_max - y_min)/2 #re-centre the signal
         return y_amp_mod
