@@ -369,6 +369,8 @@ namespace MLCSharp
             {
                 case "relu":
                     return relu(z);
+                case "leakyRelu":
+                    return leakyRelu(z);
                 case "sigmoid":
                     return sigmoid(z);
                 case "linear":
@@ -384,6 +386,8 @@ namespace MLCSharp
             {
                 case "relu":
                     return reluPrime(z);
+                case "leakyRelu":
+                    return leakyReluPrime(z);
                 case "sigmoid":
                     return sigmoidPrime(z);
                 case "linear":
@@ -402,6 +406,29 @@ namespace MLCSharp
         {
             return sigmoid(z) * (1 - sigmoid(z));
         }
+        public double leakyRelu(double z)
+        {
+            if (z > 0)
+            {
+                return z;
+            }
+            else
+            {
+                return z * 0.3;
+            }
+        }
+        public double leakyReluPrime(double output)
+        {
+            if (output > 0)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0.3;
+            }
+        }
+
         public double relu(double z)
         {
             if (z > 0)

@@ -237,28 +237,34 @@ class PRBS:
             y_amp_mod[i] = new_amplitudes[amp_index] - (y_max - y_min)/2 #re-centre the signal
         return y_amp_mod
    
-    def apply_butter(self, y):
-        fc = 10# Cut-off frequency of the filter
-        fs = 1/0.005
+    def apply_butter(self, y, dt, cutoff):
+        fc = cutoff# Cut-off frequency of the filter
+        fs = 1/dt
         w = fc / (fs / 2) # Normalize the frequency
         b, a = signal.butter(1, w, 'low')
         return signal.filtfilt(b, a, y)
             
-def simulation_init(time_step, length, aprbs_hold, aprbs_amp):
+def simulation_init(time_step, length, aprbs_hold, aprbs_amp, butter_cutoff):
     T = np.arange(0, length, time_step)
     r = np.array(T)
     r[:] = 180
     
     sig_gen = PRBS()
-    d = sig_gen.apply_butter(sig_gen.generate_APRBS(len(T), aprbs_hold/time_step, aprbs_amp))
+    d = sig_gen.generate_APRBS(len(T), aprbs_hold/time_step, aprbs_amp)   
+    d[0:len(T)//20] = 0 #Make sure to start at 0 to stop weird things from happening at the beginning
+    d = sig_gen.apply_butter(d, time_step, butter_cutoff)
     
-    d_test = np.array(T)
-    d_test[:] = 0
+    d_test = sig_gen.generate_APRBS(len(T), aprbs_hold/time_step, aprbs_amp)
+    d_test[0:len(T)//20] = 0 #Make sure to start at 0 to stop weird things from happening at the beginning
+    d_test = sig_gen.apply_butter(d_test, time_step, butter_cutoff)
 
-    up = len(T)//4
-    down = len(T)//4 * 3
-    d_test[up:down] = 45
-    d_test = sig_gen.apply_butter(d_test)
+#     d_test = np.array(T)
+#     d_test[:] = 0
+
+#     up = len(T)//4
+#     down = len(T)//4 * 3
+#     d_test[up:down] = 45
+#     d_test = sig_gen.apply_butter(d_test, time_step, butter_cutoff)
    
     y0 = [0, 0]
     

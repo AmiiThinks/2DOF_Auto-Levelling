@@ -300,7 +300,14 @@ namespace brachIOplexus
         #endregion
 
         #region "NN PID Tuning Initialization"
-        NeuralNetwork rotationTuner = new NeuralNetwork(4, 3, new int[] { 4 }, new string[] { "relu", "linear" }, 0, 1);
+        NeuralNetwork rotationTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
+        NeuralNetwork flexionTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
+        double rot_pos_prev = 0;
+        double flex_pos_prev = 0;
+
+        double previous_sampled_phi = 0;
+        double previous_sampled_theta = 0;
+
         MatrixBuilder<double> M = Matrix<double>.Build;
         
         #endregion
@@ -670,12 +677,45 @@ namespace brachIOplexus
 
             //T, r, d, d_test, y0 = simulation_init(0.04, 5, aprbs_hold = 0.5, aprbs_amp = 10)
             //angle_delay = int(0.08 / 0.04) Delay 40ms
-            Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.1079672, 0.68571335, 0.4175449, -0.5546489, }, { -0.42141366, -0.33607632, 0.33399886, -0.78769994, }, { -0.62711823, -0.8365868, 0.6688083, 0.12550592, }, { 0.058261693, 0.37009805, 0.45933968, 0.16066223, }, });
-            Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.0, -0.17854315, 0.0, } });
-            Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.87401104, 0.11457038, 0.19099939, }, { 0.79335904, -0.21452904, 0.4801246, }, { -0.22267771, -0.13016078, 0.31868583, }, { -0.61669517, 0.6127986, -0.82881314, }, });
-            Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.28449082, 0.00032089723, 0.041493863, } });
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.1079672, 0.68571335, 0.4175449, -0.5546489, }, { -0.42141366, -0.33607632, 0.33399886, -0.78769994, }, { -0.62711823, -0.8365868, 0.6688083, 0.12550592, }, { 0.058261693, 0.37009805, 0.45933968, 0.16066223, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.0, -0.17854315, 0.0, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.87401104, 0.11457038, 0.19099939, }, { 0.79335904, -0.21452904, 0.4801246, }, { -0.22267771, -0.13016078, 0.31868583, }, { -0.61669517, 0.6127986, -0.82881314, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.28449082, 0.00032089723, 0.041493863, } });
 
+            //T, r, d, d_test, y0 = simulation_init(0.002, 5, aprbs_hold = 0.5, aprbs_amp = 10)
+            //angle_sample_rate = 0.04 / dt #Sample every 40 ms
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.7930111, -0.32483488, -0.054497004, 0.30999917, }, { -0.07653469, -0.57722396, 0.6456055, -0.25552732, }, { 0.035606682, 0.57331663, 0.66947025, 0.82631415, }, { 0.02638936, 0.43281883, -0.73980296, 0.7331678, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.0, 0.3022967, 0.0, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.30295897, -0.91676056, 0.48869014, }, { 0.095986724, 0.33047485, -0.17322487, }, { 0.6210878, 0.3377396, 0.18324506, }, { -0.26180536, 0.60386777, 0.13095391, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.25863254, -0.6678001, 0.0, } });
+
+            //aprbs_amp = 10
+            //dt = 0.01
+            //T, r, d, d_val, y0 = simulation_init(dt, 5, aprbs_hold = 1.0, aprbs_amp = aprbs_amp, butter_cutoff = 5)
+            //angle_sample_rate = 0.04 / dt #Sample every 40 ms
+            //Using new validation set
+            //Using angle instead of servo angle as nn input
+
+            //Trial 1
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.045534115, 0.048524354, -0.0800589, 0.17814623, }, { 0.06415104, -0.15304177, -0.0737941, 0.0141597465, }, { 0.16642351, -0.005963045, -0.11715184, -0.111185096, }, { -0.0104030995, 0.04073845, -0.03498443, -0.1996289, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.08817364, -0.048420675, 0.35174003, -0.004585502, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.0077077923, -0.16994673, 0.23636393, }, { -0.019814186, 0.12584066, 0.3738211, }, { -0.09207389, 0.039682165, -0.076776244, }, { -0.16372746, -0.13303347, 0.3588778, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.2157842, -0.0009540143, 0.013788593, } });
+
+
+
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.0019688362, -0.08693773, 0.04050429, 0.08153817, }, { 0.028865403, 0.033852633, 0.06475844, 0.028772913, }, { 0.20077217, 0.023188986, 0.0523222, -0.14241298, }, { -0.114191905, -0.07132384, -0.002188664, -0.08079327, }, { 0.29445106, 0.24586914, -0.014718964, -0.03657405, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.28880817, 0.05078443, -0.2913692, -0.1905946, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.00042700738, 0.047921292, -0.015736604, }, { 0.0023338986, -0.1607464, -0.13739271, }, { 0.26754397, 0.045932423, -0.3839422, }, { -0.15213802, -0.0870554, -0.15295589, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { -0.40320766, 0.030446198, -0.0543285, } });
+
+            Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.08754755, 0.14176854, 0.05455306, 0.0074732103, }, { -0.078556396, -0.14332572, -0.04071996, -0.039203256, }, { 0.09071743, 0.008024982, -0.029337863, 0.10552676, }, { -0.123371854, -0.16074547, -0.09532395, 0.13377167, }, { 0.060542107, 0.030372158, -0.16656385, 0.07578593, }, });
+            Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.047040906, 0.020153709, -0.109054975, 0.12929018, } });
+            Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.021236164, 0.05738907, 0.02441634, }, { 0.09918944, 0.10033997, -0.076779164, }, { 0.0064546573, 0.03549115, -0.011467573, }, { 0.05319499, 0.05654196, -0.18985431, }, });
+            Matrix<double> b2 = M.DenseOfArray(new double[,] { { -0.08731981, 0.087302305, 0.005675362, } });
             rotationTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
+            flexionTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
+
             Console.WriteLine(rotationTuner.weights[0].ToString());
 
         }
@@ -7185,7 +7225,7 @@ namespace brachIOplexus
             if (autoLevelWristRot && reset_setpoint_phi == true)
             {
                 // Reset setpoints if starting autolevelling from not autolevelling
-                setpoint_phi = phi;
+                //setpoint_phi = phi;
                 reset_setpoint_phi = false;
                 errSum_phi = 0;
             }
@@ -7425,30 +7465,47 @@ namespace brachIOplexus
                 //gz_prime = Convert.ToInt32(z_component * Math.Sin(beta) - y_component * Math.Cos(beta));
 
             }
+          
             phi = Get_phi(x_component, gy_prime, phi); // Only need adjusted y value for rotation (we're basically moving the accelerometer onto the rotation motor)
             theta = Get_theta(y_component, z_component, theta);
         }
 
         void Get_Gains()
         {
-            Matrix<double> rotationTunerInput = Matrix<double>.Build.Dense(1, 4);
-            rotationTunerInput[0, 0] = (setpoint_phi - phi) / 180; //Normalize the error input
-            //rotationTunerInput[0, 0] = Math.Abs((setpoint_phi - phi) / 180); //Normalize the error input
 
-            //double rotationRadians = Ticks_to_Deg(robotObj.Motor[2].p_prev - (robotObj.Motor[2].pmax + robotObj.Motor[2].pmin) / 2) * Math.PI / 180; //Convert ticks to radians and set 0 to mid point
-            double rotationRadians = Ticks_to_Deg(robotObj.Motor[2].p_prev - 2048) * Math.PI / 180; //Convert ticks to radians and set 0 to mid point
 
-            rotationTunerInput[0, 1] = (rotationRadians - (-Math.PI)) / (Math.PI - (-Math.PI)); //Normalize between pi and -pi
-            //rotationTunerInput[0, 1] = Math.Abs((rotationRadians - (-Math.PI)) / (Math.PI - (-Math.PI))); //Normalize between pi and -pi
+            Matrix<double> rotationTunerInput = Matrix<double>.Build.Dense(1, 5);
+            rotationTunerInput[0, 0] = minMaxNorm((setpoint_phi - phi), -90, 90); //Normalize the error input
+            rotationTunerInput[0, 1] = minMaxNorm(phi, 90, 270); //Normalize between -90 and 90
+            rotationTunerInput[0, 2] = minMaxNorm(((robotObj.Motor[2].p_prev - rot_pos_prev) * Math.PI / 2048)/(Convert.ToDouble(milliSec1)/1000), -10, 10); //velocity in rad/sec, normalized
+            rot_pos_prev = robotObj.Motor[2].p_prev;
+            rotationTunerInput[0, 3] = rotationTuner.intermediate_value[0, 0]; //Previous hidden layer value
+            rotationTunerInput[0, 4] = rotationTuner.intermediate_value[0, 3]; //Previous hidden layer value
 
-            rotationTunerInput[0, 2] = rotationTuner.intermediate_value[0, 0]; //Previous hidden layer value
-            rotationTunerInput[0, 3] = rotationTuner.intermediate_value[0, 3]; //Previous hidden layer value
             Console.WriteLine(rotationTunerInput.ToString());
             Matrix<double> newRotationGains = rotationTuner.predict(rotationTunerInput);
             Kp_phi = Math.Abs(newRotationGains[0, 0]);
             Ki_phi = Math.Abs(newRotationGains[0, 1]);
             Kd_phi = Math.Abs(newRotationGains[0, 2]);
             Console.WriteLine(string.Format("Kp_phi: {0}, Ki_phi: {1}, Kd_phi: {2}", Kp_phi, Ki_phi, Kd_phi));
+
+
+            Matrix<double> flexionTunerInput = Matrix<double>.Build.Dense(1, 5);
+            flexionTunerInput[0, 0] = minMaxNorm((setpoint_theta - theta), -90, 90); //Normalize the error input
+            flexionTunerInput[0, 1] = minMaxNorm(theta, 90, 270); //Normalize between -90 and 90
+            flexionTunerInput[0, 2] = minMaxNorm(((robotObj.Motor[3].p_prev - flex_pos_prev) * Math.PI / 2048) / (Convert.ToDouble(milliSec1) / 1000), -10, 10); //velocity in rad/sec, normalized
+            flex_pos_prev = robotObj.Motor[3].p_prev;
+            flexionTunerInput[0, 3] = flexionTuner.intermediate_value[0, 0]; //Previous hidden layer value
+            flexionTunerInput[0, 4] = flexionTuner.intermediate_value[0, 3]; //Previous hidden layer value
+
+            //Console.WriteLine(flexionTunerInput.ToString());
+            Matrix<double> newFlexionGains = flexionTuner.predict(flexionTunerInput);
+            Kp_theta = Math.Abs(newFlexionGains[0, 0]);
+            Ki_theta = Math.Abs(newFlexionGains[0, 1]);
+            Kd_theta = Math.Abs(newFlexionGains[0, 2]);
+            //Console.WriteLine(string.Format("Kp_theta: {0}, Ki_theta: {1}, Kd_theta: {2}", Kp_theta, Ki_theta, Kd_theta));
+
+
         }
 
         //Function to call the PID controller, get the desired servo position - db
@@ -7456,7 +7513,6 @@ namespace brachIOplexus
         {
             //get output from PID controller (amount servo needs to move in degrees)
             output_phi = PID_phi(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi);
-            //output_theta = PID_theta(taper_theta(theta, setpoint_theta, phi), setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
             output_theta = PID_theta(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
 
             //convert to encoder ticks
@@ -7467,13 +7523,10 @@ namespace brachIOplexus
         //Function to write the PID driven goal-positions to the rotation servo - db
         void MoveLevelRot()
         {
-
+            
             robotObj.Motor[2].wmax = 500;
             robotObj.Motor[2].w = 500;
-            //robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + taper(RotAdjustment, theta), 0);
             robotObj.Motor[2].p = truncateAction(robotObj.Motor[2].p_prev + RotAdjustment, 2);
-            //robotObj.Motor[2].p = Math.Max(RotAdjustment, 0);
-
         }
 
         //Function to write the PID driven goal-position to the flexion servo - db
@@ -7481,10 +7534,7 @@ namespace brachIOplexus
         {
             robotObj.Motor[3].wmax = 500;
             robotObj.Motor[3].w = 500;
-            //robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - taper_flexion(FlxAdjustment, phi), 0);
             robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev - FlxAdjustment, 3);
-
-            //robotObj.Motor[3].p = Math.Max(FlxAdjustment, 0);
         }
 
         private void TurnOffAutoLevelRot()
