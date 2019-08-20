@@ -427,6 +427,7 @@
             this.dynaStatus = new System.Windows.Forms.Label();
             this.cmbSerialRefresh = new System.Windows.Forms.Button();
             this.BentoGroupBox = new System.Windows.Forms.GroupBox();
+            this.LogPID_Enabled = new System.Windows.Forms.CheckBox();
             this.label160 = new System.Windows.Forms.Label();
             this.BentoRun = new System.Windows.Forms.Button();
             this.BentoSuspend = new System.Windows.Forms.Button();
@@ -663,12 +664,8 @@
             this.doF2 = new brachIOplexus.DoF();
             this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
-            this.LogPID_Enabled = new System.Windows.Forms.CheckBox();
             this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
             this.NN_PID_Enabled = new System.Windows.Forms.CheckBox();
-            this.UDPPythonDelay = new System.Windows.Forms.Label();
-            this.label235 = new System.Windows.Forms.Label();
-            this.ALAdaptive_Enabled = new System.Windows.Forms.CheckBox();
             this.FlexionPIDBox = new System.Windows.Forms.GroupBox();
             this.CurrentFlexion = new System.Windows.Forms.Label();
             this.label224 = new System.Windows.Forms.Label();
@@ -6043,7 +6040,6 @@
             // 
             // BentoGroupBox
             // 
-            this.BentoGroupBox.Controls.Add(this.LogPID_Enabled);
             this.BentoGroupBox.Controls.Add(this.label160);
             this.BentoGroupBox.Controls.Add(this.BentoRun);
             this.BentoGroupBox.Controls.Add(this.BentoSuspend);
@@ -6058,6 +6054,18 @@
             this.BentoGroupBox.TabIndex = 207;
             this.BentoGroupBox.TabStop = false;
             this.BentoGroupBox.Text = "Main Controls";
+            // 
+            // LogPID_Enabled
+            // 
+            this.LogPID_Enabled.AutoSize = true;
+            this.LogPID_Enabled.Location = new System.Drawing.Point(11, 85);
+            this.LogPID_Enabled.Margin = new System.Windows.Forms.Padding(4);
+            this.LogPID_Enabled.Name = "LogPID_Enabled";
+            this.LogPID_Enabled.Size = new System.Drawing.Size(80, 21);
+            this.LogPID_Enabled.TabIndex = 217;
+            this.LogPID_Enabled.Text = "Log PID";
+            this.LogPID_Enabled.UseVisualStyleBackColor = true;
+            this.LogPID_Enabled.CheckedChanged += new System.EventHandler(this.LogPID_Enabled_CheckedChanged);
             // 
             // label160
             // 
@@ -9176,24 +9184,10 @@
             this.tabBento.Text = "Bento Arm";
             this.tabBento.UseVisualStyleBackColor = true;
             // 
-            // LogPID_Enabled
-            // 
-            this.LogPID_Enabled.AutoSize = true;
-            this.LogPID_Enabled.Location = new System.Drawing.Point(11, 120);
-            this.LogPID_Enabled.Margin = new System.Windows.Forms.Padding(4);
-            this.LogPID_Enabled.Name = "LogPID_Enabled";
-            this.LogPID_Enabled.Size = new System.Drawing.Size(80, 21);
-            this.LogPID_Enabled.TabIndex = 217;
-            this.LogPID_Enabled.Text = "Log PID";
-            this.LogPID_Enabled.UseVisualStyleBackColor = true;
-            this.LogPID_Enabled.CheckedChanged += new System.EventHandler(this.LogPID_Enabled_CheckedChanged);
-            // 
             // AutoLevellingBox
             // 
+            this.AutoLevellingBox.Controls.Add(this.LogPID_Enabled);
             this.AutoLevellingBox.Controls.Add(this.NN_PID_Enabled);
-            this.AutoLevellingBox.Controls.Add(this.UDPPythonDelay);
-            this.AutoLevellingBox.Controls.Add(this.label235);
-            this.AutoLevellingBox.Controls.Add(this.ALAdaptive_Enabled);
             this.AutoLevellingBox.Controls.Add(this.FlexionPIDBox);
             this.AutoLevellingBox.Controls.Add(this.RotationPIDBox);
             this.AutoLevellingBox.Controls.Add(this.AL_Enabled);
@@ -9217,36 +9211,6 @@
             this.NN_PID_Enabled.TabIndex = 216;
             this.NN_PID_Enabled.Text = "NN PID";
             this.NN_PID_Enabled.UseVisualStyleBackColor = true;
-            // 
-            // UDPPythonDelay
-            // 
-            this.UDPPythonDelay.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.UDPPythonDelay.Location = new System.Drawing.Point(8, 147);
-            this.UDPPythonDelay.Name = "UDPPythonDelay";
-            this.UDPPythonDelay.Size = new System.Drawing.Size(93, 22);
-            this.UDPPythonDelay.TabIndex = 215;
-            this.UDPPythonDelay.Text = "Delay: --";
-            // 
-            // label235
-            // 
-            this.label235.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label235.Location = new System.Drawing.Point(8, 79);
-            this.label235.Name = "label235";
-            this.label235.Size = new System.Drawing.Size(99, 36);
-            this.label235.TabIndex = 214;
-            this.label235.Text = "Adaptive Switching";
-            // 
-            // ALAdaptive_Enabled
-            // 
-            this.ALAdaptive_Enabled.AutoSize = true;
-            this.ALAdaptive_Enabled.Location = new System.Drawing.Point(10, 119);
-            this.ALAdaptive_Enabled.Margin = new System.Windows.Forms.Padding(4);
-            this.ALAdaptive_Enabled.Name = "ALAdaptive_Enabled";
-            this.ALAdaptive_Enabled.Size = new System.Drawing.Size(82, 21);
-            this.ALAdaptive_Enabled.TabIndex = 213;
-            this.ALAdaptive_Enabled.Text = "Enabled";
-            this.ALAdaptive_Enabled.UseVisualStyleBackColor = true;
-            this.ALAdaptive_Enabled.CheckedChanged += new System.EventHandler(this.ALAdaptive_Enabled_CheckedChanged);
             // 
             // FlexionPIDBox
             // 
@@ -11047,7 +11011,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.wristFlex_w)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.wristFlex_p)).EndInit();
             this.BentoGroupBox.ResumeLayout(false);
-            this.BentoGroupBox.PerformLayout();
             this.xBoxGroupBox.ResumeLayout(false);
             this.xBoxGroupBox.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -11904,9 +11867,6 @@
         internal System.Windows.Forms.Label label232;
         internal System.Windows.Forms.Label label231;
         internal System.Windows.Forms.Label label230;
-        private System.Windows.Forms.CheckBox ALAdaptive_Enabled;
-        internal System.Windows.Forms.Label UDPPythonDelay;
-        internal System.Windows.Forms.Label label235;
         private System.Windows.Forms.CheckBox LogPID_Enabled;
         private System.Windows.Forms.CheckBox NN_PID_Enabled;
     }

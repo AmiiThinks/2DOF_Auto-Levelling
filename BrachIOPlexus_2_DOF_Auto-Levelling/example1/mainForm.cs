@@ -12,7 +12,6 @@
 
 */
 #endregion
-//New adaptive switching AL arm
 
 using System;
 using System.Collections.Generic;
@@ -126,25 +125,6 @@ namespace brachIOplexus
         char[] separatingChars = { 'A', 'B', 'C', 'D' };
         Stopwatch ArduinoStartTimer = new Stopwatch();
         long ArduinoStartDelay = 1000;     // the timestep of the main loop in milliseconds -> will vary depending on how many dynamixel servos are connected
-
-        // Adaptive Switching UPD Communication - Initialize Variables
-        //UdpClient udpClient2 = new UdpClient();
-        static System.Threading.Timer timerPython;
-        static Int32 portPythonTX = 30002;                                   // Set the UDP ports
-        static Int32 portPythonRX = 30003;                                   // Set the UDP ports
-        static IPAddress localAddrPython = IPAddress.Parse("127.0.0.1");     // address for localhost
-        UdpClient udpClientPythonTX;
-        IPEndPoint ipEndPointPythonTX;
-        UdpClient udpClientPythonRX;
-        IPEndPoint ipEndPointPythonRX;
-        Stopwatch stopWatchPython = new Stopwatch();
-        long milliSecPythonUDPLoop;     // the timestep of the UDP loop in milliseconds
-        bool UDPFlagPython = false;   // Flag used to used to track whether the demoSurpriseButton has been clicked and whether it is in the launch or close state
-        double[] AdaptivePred = new double[5];
-        int[] AdaptiveIndex = new int[] { 0, 1, 2, 3, 4 };
-        bool adaptiveFreeze = false;        // the state variable for controlling whether the switching list is frozen under certain conditions (i.e. adaptiveFreeze = true -> freeze the list, adaptiveFreeze = false -> allow the list to be re-ordered)
-        int numSwitchItems = 3; //number of items to switch through
-        bool autoLevellingAdaptive = false;
 
         #region "Dynamixel SDK Initilization"
         // DynamixelSDK
@@ -299,6 +279,7 @@ namespace brachIOplexus
 
         #endregion
 
+        //NN PID - jg
         #region "NN PID Tuning Initialization"
         NeuralNetwork rotationTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
         NeuralNetwork flexionTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
@@ -311,8 +292,9 @@ namespace brachIOplexus
         
         #endregion
 
+        //PID logging - jg
         #region "PID Logging Initialization"
-        string pidLogFilePath = @"C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\al_python\NN methods\NN PID Results/nn_pid_log.txt";
+        string pidLogFilePath = @"C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\Python\NN methods\NN PID Results/nn_pid_log.txt";
         System.IO.StreamWriter pidLog;
 
 
@@ -613,7 +595,7 @@ namespace brachIOplexus
 
             }
 
-            //NN PID Initialization - jg
+            //NN PID weights (from python) - jg
             //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -1.1729832, -0.3793284, -0.33712652, 0.03808058, }, { 0.5647097, 0.9665621, 0.28740016, -0.5159178, }, { -0.64801806, -0.5004146, 0.34949997, -0.78091466, }, { 0.06814517, -0.50102115, -1.1500685, 0.39819443, }, { -0.9096381, -1.6564244, -0.14806525, -0.5363272, }, });
             //Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.50780857, -0.30451038, 1.2207266, -1.9659667, } });
             //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.019267848, -0.012480075, -0.01680899, }, { -0.04175675, -0.09411897, -0.060279913, }, { -0.16050132, -0.08882636, -0.005739276, }, { -0.013052998, -0.119022585, 0.07919888, }, });
@@ -677,28 +659,12 @@ namespace brachIOplexus
 
                 // XInputDotNet - stop pollingWorker
                 pollingWorker.CancelAsync();
-
-                // Close the UDP communication for the adaptive switching demo		
-                // Clean up the client and server objects and close the python scripts		
-                if (UDPFlagPython == true)
-                {
-                    udpClientPythonTX.Close();
-                    udpClientPythonRX.Close();
-                    timerPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
-                }
-
-                //if (UDPFlagALPython == true)
-                //{
-                //    udpClientALPythonTX.Close();
-                //    udpClientALPythonRX.Close();
-                //    timerALPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
-                //}
+       
 
                 if (LogPID_Enabled.Checked)
                 {
                     pidLog.Dispose();
                 }
-                //agent.SaveQ("Q_Values.bin");
 
 
                 // Close port
@@ -6087,19 +6053,6 @@ namespace brachIOplexus
 
                                         stateObj.switchState = 1;
 
-                                        //temporary for adaptive auto levelling - jg
-                                        if (k == 1)
-                                        {
-                                            autoLevelWristFlex = true;
-                                            autoLevelWristRot = true;
-                                            autoLevellingAdaptive = true;
-                                        }
-                                        else if (autoLevellingAdaptive)
-                                        {
-                                            TurnOffAutoLevelRot();
-                                            TurnOffAutoLevelFlex();
-                                            autoLevellingAdaptive = false;
-                                        }
 
                                         // Update switch feedback with current item in switching list
                                         updateSwitchFeedback();
@@ -6269,27 +6222,21 @@ namespace brachIOplexus
                                             switch (k)
                                             {
                                                 case 2://Controlling rotation
-                                                    if (!ALAdaptive_Enabled.Checked)
-                                                    {
-                                                        TurnOffAutoLevelRot();
-                                                        autoLevelWristFlex = true;
-                                                    }
+                                                    
+                                                    TurnOffAutoLevelRot();
+                                                    autoLevelWristFlex = true;
 
                                                     break;
                                                 case 3://Controlling flexion
-                                                    if (!ALAdaptive_Enabled.Checked)
-                                                    {
-                                                        TurnOffAutoLevelFlex();
-                                                        autoLevelWristRot = true;
-                                                    }
+
+                                                    TurnOffAutoLevelFlex();
+                                                    autoLevelWristRot = true;
 
                                                     break;
                                                 case 4://Controlling hand
-                                                    if (!ALAdaptive_Enabled.Checked)
-                                                    {
-                                                        autoLevelWristRot = true;
-                                                        autoLevelWristFlex = true;
-                                                    }
+                                                    
+                                                    autoLevelWristRot = true;
+                                                    autoLevelWristFlex = true;
 
                                                     break;
 
@@ -7133,7 +7080,6 @@ namespace brachIOplexus
         #region "AutoLevelling Functions - db"
         //Main AutoLevelling Loop - db
         //Modified for turning on and off rotation autolevelling - jg
-        //Added RL option - jg
         private void AutoLevel()
         {
             Get_Grav();
@@ -8644,231 +8590,6 @@ namespace brachIOplexus
 
 
         #endregion
-
-        #region "Auto Levelling Adaptive Switching and RL Control"
-        private void ALAdaptive_Enabled_CheckedChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                if (UDPFlagPython == false && dynaConnect.Enabled == false && ALAdaptive_Enabled.Checked)
-                {
-                    TurnOffAutoLevelRot();
-                    TurnOffAutoLevelFlex();
-
-                    // Initialize Bento Arm feedback values to 0
-                    for (int i = 0; i < BENTO_NUM; i++)
-                    {
-                        BentoSense.ID[i].pos = 0;
-                        BentoSense.ID[i].vel = 0;
-                        BentoSense.ID[i].load = 0;
-                        BentoSense.ID[i].volt = 0;
-                        BentoSense.ID[i].temp = 0;
-                    }
-
-
-                    // Initialize the UDP TX object
-                    udpClientPythonTX = new UdpClient();
-                    ipEndPointPythonTX = new IPEndPoint(localAddrPython, portPythonTX);
-
-                    //// Initialize the UDP RX object
-                    udpClientPythonRX = new UdpClient(portPythonRX);
-                    ipEndPointPythonRX = new IPEndPoint(localAddrPython, portPythonRX);
-
-                    // Start the timer that will send the serial packets out to the arduino 
-                    // NOTE: for some reason the actual timestep of the timer is a bit slower -> i.e. it is set to 45ms, but actually achieves more like 49-50ms
-                    // This update rate is to match the 20Hz (50ms) that was used in the previous adaptive switching code from ROS
-                    timerPython = new System.Threading.Timer(new TimerCallback(DoWorkPythonUDP), null, 0, 45);
-
-                    // Reset the UDP flag
-                    UDPFlagPython = true;
-                }
-                else
-                {
-                    udpClientPythonTX.Close();
-                    udpClientPythonRX.Close();
-                    timerPython.Change(Timeout.Infinite, Timeout.Infinite);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        // This is a timer callback function that operates on a separate thread and that is used for communicating with an external program via UDP
-        public void DoWorkPythonUDP(object state)
-        {
-            try
-            {
-                // Stop stopwatch and record how long everything in the main loop took to execute as well as how long it took to retrigger the main loop
-                stopWatchPython.Stop();
-                milliSecPythonUDPLoop = stopWatchPython.ElapsedMilliseconds;
-
-                if (UDPPythonDelay.InvokeRequired)
-                {
-                    UDPPythonDelay.Invoke(new MethodInvoker(delegate { UDPPythonDelay.Text = "Delay: " + Convert.ToString(milliSecPythonUDPLoop); }));
-                }
-
-                // Reset and start the stop watch
-                stopWatchPython.Restart();
-
-                // Send the sensor stream from the Bento Arm if the 
-                if (dynaConnect.Enabled == false)
-                {
-                    // Create a byte array for holding the packet values
-                    // packet size is 
-                    // 3 + (number of servos in switching list) * 10 + 1
-                    // 2 header bytes, 1 byte for packet length
-                    // 10 values for each servo
-                    // 1 byte for checksum at the end
-                    int MSG_SIZE2 = 3 + numSwitchItems * 10 + 1;
-                    byte[] packet = new byte[MSG_SIZE2];
-
-                    // Construct the packet that will be transmitted to the external program
-                    packet[0] = 255;    // First two bytes of the packet are the header section and set to 255
-                    packet[1] = 255;
-                    packet[2] = (byte)(numSwitchItems * 9);      // The length of the packet
-                    packet[3] = 3;
-                    packet[4] = low_byte(BentoSense.ID[2].posf);
-                    packet[5] = high_byte(BentoSense.ID[2].posf);
-                    packet[6] = low_byte(BentoSense.ID[2].vel);
-                    packet[7] = high_byte(BentoSense.ID[2].vel);
-                    packet[8] = low_byte(BentoSense.ID[2].loadf);
-                    packet[9] = high_byte(BentoSense.ID[2].loadf);
-                    packet[10] = (byte)BentoSense.ID[2].tempf;
-                    packet[11] = (byte)stateObj.motorState[2];
-                    packet[12] = Convert.ToByte(autoLevelWristRot);
-                    packet[13] = 4;
-                    packet[14] = low_byte(BentoSense.ID[3].posf);
-                    packet[15] = high_byte(BentoSense.ID[3].posf);
-                    packet[16] = low_byte(BentoSense.ID[3].vel);
-                    packet[17] = high_byte(BentoSense.ID[3].vel);
-                    packet[18] = low_byte(BentoSense.ID[3].loadf);
-                    packet[19] = high_byte(BentoSense.ID[3].loadf);
-                    packet[20] = (byte)BentoSense.ID[3].tempf;
-                    packet[21] = (byte)stateObj.motorState[3];
-                    packet[22] = Convert.ToByte(autoLevelWristFlex);
-                    packet[23] = 5;
-                    packet[24] = low_byte(BentoSense.ID[4].posf);
-                    packet[25] = high_byte(BentoSense.ID[4].posf);
-                    packet[26] = low_byte(BentoSense.ID[4].vel);
-                    packet[27] = high_byte(BentoSense.ID[4].vel);
-                    packet[28] = low_byte(BentoSense.ID[4].loadf);
-                    packet[29] = high_byte(BentoSense.ID[4].loadf);
-                    packet[30] = (byte)BentoSense.ID[4].tempf;
-                    packet[31] = (byte)stateObj.motorState[4];
-                    packet[32] = 0; //no autolevelling for hand
-
-
-
-                    // Calculate the checksum for the packet
-                    int checksum = 0;
-                    for (int p = 2; p < packet.Length - 1; p++)
-                    {
-                        checksum = checksum + packet[p];     // Add up all the bytes in the DATA section of the packet. i.e. do not count the header bytes
-                    }
-                    checksum = (byte)~checksum;     // return the bitwise complement which is equivalent to the NOT operator
-                    packet[packet.Length - 1] = (byte)checksum; // Tuck the checksum byte into the last slot in the byte array 
-                    udpClientPythonTX.Send(packet, packet.Length, ipEndPointPythonTX);
-
-                    // Process the return packet from the external program
-                    byte[] bytes = udpClientPythonRX.Receive(ref ipEndPointPythonRX);
-
-                    // Decode packets from the external program using packet structure from UDP_Comm_Protocol_ASD_python_to_brachIO_180619.xls
-                    // Calculate the checksum for the packet
-                    int checksumRX = 0;
-                    for (int p = 2; p < bytes.Length - 1; p++)
-                    {
-                        checksumRX = checksumRX + bytes[p];     // Add up all the bytes in the LENGTH and DATA section of hte packet
-                    }
-
-                    checksumRX = (byte)~checksumRX;     // return the bitwise complement which is equivalent to the NOT operator
-                    //foreach(byte b in bytes)
-                    //{
-                    //    Console.WriteLine(b);
-                    //}
-                    //Console.WriteLine("~~~~");
-                    // Only update the input values if the packet is valid
-                    if (checksumRX == bytes[bytes.Length - 1] && bytes[0] == 255 && bytes[1] == 255)
-                    {
-                        //Console.WriteLine("Received valid packet");
-
-                        for (int m = 3; m < bytes.Length - 1; m = m + 2)
-                        {
-                            AdaptivePred[bytes[m] - 1] = bytes[m + 1];
-                        }
-                    }
-
-                    if (ALAdaptive_Enabled.Checked == true)
-                    {
-                        //AdaptivePred = new double[5] { 0.0, 0.0, 0.8, 0.2, 0.9};
-                        //For just rot, flex, and hand use last 3 entries in array
-                        AdaptivePred[0] = -1;
- 
-                        // Sort the adaptive switching predictions into a sorted array that can be used for updating the list
-                        // Reference: https://stackoverflow.com/questions/8866414/how-to-sort-2d-array-in-c-sharp
-                        int[] newIndex = new int[] { -1, 2, 3, 4, 5};
-                        AdaptivePred[switchObj.List[stateObj.listPos].output - 1] = -1;        // Set the prediction for the active item in the switching list to -1 so that it goes to the bottom of the list
-
-                        AdaptiveIndex = newIndex;       // Reset the index array
-                        Array.Sort(AdaptivePred, AdaptiveIndex);    // sort the arrays (default is ascending order)
-                        Array.Reverse(AdaptivePred);                // reverse the order of the array
-                        Array.Reverse(AdaptiveIndex);               // reverse the order of the array
-
-                        //If motors are moving then update list. If not moving do not update list so user can choose the what they want.
-                        //Moving using autolevelling does not count since it doesn't update the motor state
-                        if (motorsMoving())
-                        {
-                            // Update the switching list
-                            int[] listPos_new = new int[5];
-
-                            listPos_new[0] = updateList(stateObj.listPos);
-                            listPos_new[1] = updateList(listPos_new[0]);
-                            listPos_new[2] = updateList(listPos_new[1]);
-                            listPos_new[3] = updateList(listPos_new[2]);
-                            listPos_new[4] = updateList(listPos_new[3]);
-
-
-                            switchObj.List[listPos_new[0]].output = AdaptiveIndex[0];
-                            switchObj.List[listPos_new[1]].output = AdaptiveIndex[1];
-                            switchObj.List[listPos_new[2]].output = AdaptiveIndex[2];
-                            switchObj.List[listPos_new[3]].output = AdaptiveIndex[3];
-                            switchObj.List[listPos_new[4]].output = AdaptiveIndex[4];
-                        }
-                        
-                    }
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-        // Returns the lower byte of an integer number
-        // https://stackoverflow.com/questions/5419453/getting-upper-and-lower-byte-of-an-integer-in-c-sharp-and-putting-it-as-a-char-a
-        private byte low_byte(ushort number)
-        {
-            return (byte)(number & 0xff);
-        }
-
-        // Returns the lower byte of an integer number
-        private byte high_byte(ushort number)
-        {
-            return (byte)(number >> 8);
-        }
-        #endregion
-
-        //Returns true if a motor is moving (while not being autolevelled)
-        private bool motorsMoving()
-        {
-            if (Math.Abs(BentoSense.ID[2].vel - 1023) > 10 || Math.Abs(BentoSense.ID[3].vel - 1023) > 10)
-                return true;
-            else if (stateObj.motorState[4] == 1 || stateObj.motorState[4] == 2)
-                return true;
-            return false;
-        }
 
         // synchronization sequence for use with mo-cap - db
         private void synchronize()

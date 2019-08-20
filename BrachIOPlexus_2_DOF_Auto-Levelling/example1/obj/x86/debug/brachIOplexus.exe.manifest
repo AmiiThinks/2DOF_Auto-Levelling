@@ -115,14 +115,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="brachIOplexus.exe" size="4106688">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="brachIOplexus.exe" size="4102592">
       <assemblyIdentity name="brachIOplexus" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>BE8gr2t+4JtdgPdLPtWH0zWKJyM=</dsig:DigestValue>
+        <dsig:DigestValue>rVO5tNfiEuhUfAYZPVKPnw33MYk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -210,13 +210,13 @@
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="Accord.dll.config" size="213">
+  <file name="Accord.dll.config" size="220">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>WtPzGOnlRw2zPjCA6GT4hwY/zF8=</dsig:DigestValue>
+      <dsig:DigestValue>xJTF7Lt0H2bDX3GbOmdu6Ak7BuI=</dsig:DigestValue>
     </hash>
   </file>
   <file name="DynamixelSDK\dxl_x86_c.dll" size="44544">
