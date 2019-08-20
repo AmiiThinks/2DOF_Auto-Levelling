@@ -39,6 +39,8 @@ using MyoSharp.Exceptions;              // for MyoSharp
 using Clifton.Collections.Generic;      // For simple moving average
 using Clifton.Tools.Data;               // For simple moving average
 using System.Windows.Input;
+using MLCSharp;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace brachIOplexus
 {
@@ -142,7 +144,6 @@ namespace brachIOplexus
         int[] AdaptiveIndex = new int[] { 0, 1, 2, 3, 4 };
         bool adaptiveFreeze = false;        // the state variable for controlling whether the switching list is frozen under certain conditions (i.e. adaptiveFreeze = true -> freeze the list, adaptiveFreeze = false -> allow the list to be re-ordered)
         int numSwitchItems = 3; //number of items to switch through
-        bool autoLevellingOn = false;
         bool autoLevellingAdaptive = false;
 
         #region "Dynamixel SDK Initilization"
@@ -265,16 +266,18 @@ namespace brachIOplexus
         int x_component = 0;            //x component of IMU reading of gravity acceleration 
         int y_component = 0;            //y component of IMU reading of gravity acceleration 
         int z_component = 0;            //x component of IMU reading of gravity acceleration 
+        int gy_prime = 0;
+        int gz_prime = 0;
         double phi = 180;               //roll angle of wrist
         double theta = 180;             //flexion angle of wrist
         double setpoint_phi = 180;      //target roll angle of wrist
         double setpoint_theta = 180;    //target flexion angle of wrist
         double Kp_phi = 0.32;           //PID proportional constant for phi
         double Ki_phi = 0.06;              //PID integral constant for phi
-        double Kd_phi = 8.79;              //PID derivative constant for phi
+        double Kd_phi = 0.00879;              //PID derivative constant for phi
         double Kp_theta = 0.29;         //PID proportional constant for theta
         double Ki_theta = 0.42;            //PID integral constant for theta
-        double Kd_theta = 8.00;            //PID derivative constant for theta
+        double Kd_theta = 0.00800;            //PID derivative constant for theta
         double output_phi = 0;          //output from PID controller for phi
         double output_theta = 0;        //output from PID controller for phi
         int RotAdjustment = 0;          //initial adjustment for rotation
@@ -293,8 +296,27 @@ namespace brachIOplexus
         bool done = true;               //true if this is the first time through the loop doing synchro (and between sequences); false if in mid-sequence.
         int button_timer = 0;           //time that the button to turn on AL was last pressed
 
+
         #endregion
 
+        #region "NN PID Tuning Initialization"
+        NeuralNetwork rotationTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
+        NeuralNetwork flexionTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
+        double rot_pos_prev = 0;
+        double flex_pos_prev = 0;
+        int intermediate_index_1;
+        int intermediate_index_2;
+
+        MatrixBuilder<double> M = Matrix<double>.Build;
+        
+        #endregion
+
+        #region "PID Logging Initialization"
+        string pidLogFilePath = @"C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\al_python\NN methods\NN PID Results/nn_pid_log.txt";
+        System.IO.StreamWriter pidLog;
+
+
+        #endregion
 
         // Initialization for data logging - ja
         // Logging parameters and variables
@@ -503,7 +525,7 @@ namespace brachIOplexus
 
         private void mainForm_Load(object sender, EventArgs e)
         {
-
+            
             // How to find com ports and populate combobox: http://stackoverflow.com/questions/13794376/combo-box-for-serial-port
             string[] ports = SerialPort.GetPortNames();
             cmbSerialPorts.DataSource = ports;
@@ -591,6 +613,34 @@ namespace brachIOplexus
 
             }
 
+            //NN PID Initialization - jg
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -1.1729832, -0.3793284, -0.33712652, 0.03808058, }, { 0.5647097, 0.9665621, 0.28740016, -0.5159178, }, { -0.64801806, -0.5004146, 0.34949997, -0.78091466, }, { 0.06814517, -0.50102115, -1.1500685, 0.39819443, }, { -0.9096381, -1.6564244, -0.14806525, -0.5363272, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.50780857, -0.30451038, 1.2207266, -1.9659667, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.019267848, -0.012480075, -0.01680899, }, { -0.04175675, -0.09411897, -0.060279913, }, { -0.16050132, -0.08882636, -0.005739276, }, { -0.013052998, -0.119022585, 0.07919888, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.09574542, -0.07796113, 0.040218733, } });
+            //intermediate_index_1 = 1;
+            //intermediate_index_2 = 2;
+
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.27330548, -1.0421622, -1.2615308, -0.06972929, }, { 1.7225811, 0.0501885, -0.108041346, -1.3204477, }, { 0.21240659, 0.2132961, -0.8277527, 0.29566523, }, { 0.9374504, 0.9402596, -0.5234828, -0.06541468, }, { 0.42449054, 0.07782964, 1.4459049, 0.84270155, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.4091516, -0.32932594, 0.10910083, -0.673583, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.058055427, 0.099546194, 0.08566268, }, { 0.07965486, 0.00012375692, 0.1344134, }, { -0.04209916, 0.112429075, 0.08752663, }, { 0.018632662, -0.037860002, 0.1400344, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { -0.27096385, 0.019926187, 0.07313371, } });
+            //intermediate_index_1 = 1;
+            //intermediate_index_2 = 3;
+
+
+            Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.3307729, 1.8110133, 1.1213136, -0.072563276, }, { 0.5261499, -0.662291, -1.144703, 1.712379, }, { 0.28138128, 0.053365517, 1.9274986, -0.599831, }, { -0.3581448, -1.6825196, 0.0033206493, 0.6985645, }, { -0.2682502, -0.072796375, 0.84237343, -1.378411, }, });
+            Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.14616306, -1.5273558, 0.35982278, -0.56100595, } });
+            Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.06499804, -0.030165646, -0.39896873, }, { -0.28864387, -0.021510046, -0.27441448, }, { -0.05190554, -0.19550289, 0.049142517, }, { -0.0063355123, -0.20068333, -0.28261405, }, });
+            Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.17481682, -0.018585686, -0.04084195, } });
+            intermediate_index_1 = 3;
+            intermediate_index_2 = 3;
+
+            rotationTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
+            flexionTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
+
+            Console.WriteLine(rotationTuner.weights[0].ToString());
+
         }
 
         private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -636,6 +686,19 @@ namespace brachIOplexus
                     udpClientPythonRX.Close();
                     timerPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
                 }
+
+                //if (UDPFlagALPython == true)
+                //{
+                //    udpClientALPythonTX.Close();
+                //    udpClientALPythonRX.Close();
+                //    timerALPython.Change(Timeout.Infinite, Timeout.Infinite);   // Stop the timer object		
+                //}
+
+                if (LogPID_Enabled.Checked)
+                {
+                    pidLog.Dispose();
+                }
+                //agent.SaveQ("Q_Values.bin");
 
 
                 // Close port
@@ -4930,6 +4993,7 @@ namespace brachIOplexus
                 BentoRun.Enabled = false;
                 BentoSuspend.Enabled = true;
                 BentoStatus.Text = "Torque On / Running";
+                BentoStatus.Text = "Torque On / Running";
                 BentoRunStatus.Text = "Suspend";
             }
         }
@@ -5553,7 +5617,7 @@ namespace brachIOplexus
         {
             try
             {
-                // Stop stopwatch and record how long everything in the main loop took to execute as well as how long it took to retrigger the main loop
+
                 stopWatch1.Stop();
                 milliSec1 = stopWatch1.ElapsedMilliseconds;
                 delay.Text = Convert.ToString(milliSec1);
@@ -6548,17 +6612,19 @@ namespace brachIOplexus
                 global_flip = -1;
             }
 
+
             // If full autolevelling is enabled, call the auto-levelling function. If not, set the reset setpoints flag - db
             if (AL_Enabled.Checked == true)
             {
                 AutoLevel();
-
             }
             else
             {
                 reset_setpoint_theta = true;
                 reset_setpoint_phi = true;
             }
+
+
 
             // Apply the first past the post algorithm 
 
@@ -7067,50 +7133,84 @@ namespace brachIOplexus
         #region "AutoLevelling Functions - db"
         //Main AutoLevelling Loop - db
         //Modified for turning on and off rotation autolevelling - jg
+        //Added RL option - jg
         private void AutoLevel()
         {
-
-            //Get current position
             Get_Grav();
+            //Get current position
+            if (autoLevelWristFlex && reset_setpoint_theta == true)
+            {
+                // Reset setpoints if starting autolevelling from not autolevelling
+                setpoint_theta = theta;
+                reset_setpoint_theta = false;
+                errSum_theta = 0;
+            }
+            if (autoLevelWristRot && reset_setpoint_phi == true)
+            {
+                // Reset setpoints if starting autolevelling from not autolevelling
+                //setpoint_phi = phi;
+                reset_setpoint_phi = false;
+                errSum_phi = 0;
+            }
+
+
+            if (NN_PID_Enabled.Checked)
+            {
+                Get_Gains();
+            }
+            else
+            {
+                //Reset original gains
+                Kp_phi = 0.32;           //PID proportional constant for phi
+                Ki_phi = 0.06;              //PID integral constant for phi
+                Kd_phi = 0.00879;              //PID derivative constant for phi
+                Kp_theta = 0.29;         //PID proportional constant for theta
+                Ki_theta = 0.42;            //PID integral constant for theta
+                Kd_theta = 0.00800;            //PID derivative constant for theta
+                Set_GainsDisplay();
+            }
+            Console.WriteLine(string.Format("Kp_phi: {0}, Ki_phi: {1}, Kd_phi: {2}, Kp_theta: {3}, Ki_theta: {4}, Kd_theta: {5}", Kp_phi, Ki_phi, Kd_phi, Kp_theta, Ki_theta, Kd_theta));
+
             //Get goal position
             Get_GoalPos();
+
+
             //Once setpoint is set, level both rotation and flexion. 
-
-
             if (autoLevelWristFlex)
             {
-                //Reset setpoints if starting autolevelling from not autolevelling
-                if (reset_setpoint_theta == true)
-                {
-                    setpoint_theta = theta;
-                    reset_setpoint_theta = false;
-                    errSum_theta = 0;
-                }
-                else
-                {
-                    //Autolevel flexion
-                    MoveLevelFlx();
-                
-                }
+                //Autolevel flexion
+                MoveLevelFlx();
             }
             if (autoLevelWristRot)
             {
-                // Reset setpoints if starting autolevelling from not autolevelling
-                if (reset_setpoint_phi == true)
-                {
-                    setpoint_phi = phi;
-                    reset_setpoint_phi = false;
-                    errSum_phi = 0;
-                }
-                else
-                {
-                    //Autolevel rotation
-                    MoveLevelRot();
-
-                }
+                //Autolevel rotation
+                MoveLevelRot();
             }
+            
+            if (LogPID_Enabled.Checked)
+            {
+                string newLogLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16}",
+                    DateTime.Now.ToString("HH:mm:ss.fff"),
+                    setpoint_phi, output_phi, phi, Kp_phi, Ki_phi, Kd_phi, 
+                    setpoint_theta, theta, output_theta, Kp_theta, Ki_theta, Kd_theta,
+                    robotObj.Motor[2].p_prev, robotObj.Motor[2].w_prev, robotObj.Motor[3].p_prev, robotObj.Motor[3].w_prev);
+          
+                Console.WriteLine(newLogLine);
+                pidLog.WriteLine(newLogLine);   
+            }
+
+
         }
 
+        private double minMaxNorm(double input, double min, double max)
+        {
+            return (input - min) / (max - min);
+        }
+
+        private int truncateAction(int action, int robotObjNum)
+        {
+            return Math.Min(Math.Max(action, robotObj.Motor[robotObjNum].pmin), robotObj.Motor[robotObjNum].pmax);
+        }
         // Helper function to find the magnitude of a three component vector - db
         private double magnitude(int x, int y, int z)
         {
@@ -7204,20 +7304,28 @@ namespace brachIOplexus
         // PID Controller function for autolevelling phi - db
         private double PID_phi(double measured_value, double setpoint, double Kp, double Ki, double Kd)
         {
+
             //compute working variables:
             double error = setpoint - measured_value;
+
             //if (robotObj.Motor[3].p_prev < 2890 && robotObj.Motor[3].p_prev > 60) //Only increase integral if within joint limits to prevent windup
-            if (robotObj.Motor[2].p_prev < robotObj.Motor[2].pmax && robotObj.Motor[2].p_prev > robotObj.Motor[2].pmin)
+            //Only increase integral if within joint limits to prevent windup
+            if (error > 0 && robotObj.Motor[2].p_prev < robotObj.Motor[2].pmax)
             {
                 errSum_phi += (error * milliSec1 / 1000);
             }
-            double dErr = (error - lastErr_phi) / (milliSec1);
+            else if (error < 0 && robotObj.Motor[2].p_prev > robotObj.Motor[2].pmin)
+            {
+                errSum_phi += (error * milliSec1 / 1000);
+            }
+
+            double dErr = (error - lastErr_phi) / ((double)milliSec1 / 1000);
 
             //update variables for next loop
             lastErr_phi = error;
 
             //compute PID output
-            return Kp * error + Kd * dErr + Ki * errSum_phi;
+            return Kp * error + Ki * errSum_phi + Kd * dErr;
         }
 
         // PID Controller function for autolevelling theta - db
@@ -7225,18 +7333,24 @@ namespace brachIOplexus
         {
             //compute working variables:
             double error = setpoint - measured_value;
-            //if (robotObj.Motor[4].p_prev < 3320 && robotObj.Motor[4].p_prev > 780) //Only increase integral if within joint limits to prevent windup
-            if (robotObj.Motor[3].p_prev < robotObj.Motor[3].pmax && robotObj.Motor[3].p_prev > robotObj.Motor[3].pmin)
+           
+            //Only increase integral if within joint limits to prevent windup
+            if (error > 0 && robotObj.Motor[3].p_prev < robotObj.Motor[3].pmax)
             {
-                errSum_phi += (error * milliSec1 / 1000);
+                errSum_theta += (error * milliSec1 / 1000);
+            } 
+            else if(error < 0 && robotObj.Motor[3].p_prev > robotObj.Motor[3].pmin)
+            {
+                errSum_theta += (error * milliSec1 / 1000);
             }
-            double dErr = (error - lastErr_theta) / (milliSec1);
+
+            double dErr = (error - lastErr_theta) / ((double)milliSec1 / 1000);
 
             //update variables for next loop
             lastErr_theta = error;
 
             //compute PID output
-            return Kp * error + Kd * dErr + Ki * errSum_theta;// + Kd * dErr;
+            return Kp * error + Ki * errSum_theta + Kd * dErr;// + Kd * dErr;
         }
 
         //Function to convert IMU values from 0-1023 to -512 to 512 - db
@@ -7262,24 +7376,76 @@ namespace brachIOplexus
             //double c = z_component;//normalize(z_component, g_mag);
 
             double alpha = Ticks_to_Deg(robotObj.Motor[3].p_prev);
-            double gy_prime = 0;
-            //double gz_prime = 0;
             if(alpha <= 180)
             {
-                double beta = (alpha - 90) * 3.141592653589793 / 180;
-                gy_prime = y_component * Math.Sin(beta) - z_component * Math.Cos(beta);
-                //gz_prime = z_component * Math.Sin(beta) + y_component * Math.Cos(beta);
+                double beta = (alpha - 90) * Math.PI / 180;
+                gy_prime = Convert.ToInt32(y_component * Math.Sin(beta) - z_component * Math.Cos(beta));
+                //gz_prime = Convert.ToInt32(z_component * Math.Sin(beta) + y_component * Math.Cos(beta));
 
             }
             else
             {
-                double beta = (270-alpha) * 3.141592653589793 / 180;
-                gy_prime = y_component * Math.Sin(beta) + z_component * Math.Cos(beta);
-                //gz_prime = z_component * Math.Sin(beta) - y_component * Math.Cos(beta);
+                double beta = (270-alpha) * Math.PI / 180;
+                gy_prime = Convert.ToInt32(y_component * Math.Sin(beta) + z_component * Math.Cos(beta));
+                //gz_prime = Convert.ToInt32(z_component * Math.Sin(beta) - y_component * Math.Cos(beta));
 
             }
-            phi = Get_phi(x_component, gy_prime, phi);
+          
+            phi = Get_phi(x_component, gy_prime, phi); // Only need adjusted y value for rotation (we're basically moving the accelerometer onto the rotation motor)
             theta = Get_theta(y_component, z_component, theta);
+        }
+
+        void Get_Gains()
+        {
+
+
+            Matrix<double> rotationTunerInput = Matrix<double>.Build.Dense(1, 5);
+            //rotationTunerInput[0, 0] = minMaxNorm((setpoint_phi - phi), -90, 90); //Normalize the error input
+            //rotationTunerInput[0, 1] = minMaxNorm(phi, 90, 270); //Normalize between -90 and 90
+            //rotationTunerInput[0, 2] = minMaxNorm(((robotObj.Motor[2].p_prev - rot_pos_prev) * Math.PI / 2048)/(Convert.ToDouble(milliSec1)/1000), -10, 10); //velocity in rad/sec, normalized
+            rotationTunerInput[0, 0] = minMaxNorm(Math.Abs(setpoint_phi - phi), 0, 90); //Normalize the error input
+            rotationTunerInput[0, 1] = minMaxNorm(Math.Abs(phi - 180), 0, 90); //Normalize between -90 and 90
+            rotationTunerInput[0, 2] = minMaxNorm(Math.Abs((robotObj.Motor[2].p_prev - rot_pos_prev) * Math.PI / 2048) / (Convert.ToDouble(milliSec1) / 1000), 0, 10); //velocity in rad/sec, normalized
+            rot_pos_prev = robotObj.Motor[2].p_prev;
+            rotationTunerInput[0, 3] = rotationTuner.intermediate_value[0, intermediate_index_1]; //Previous hidden layer value
+            rotationTunerInput[0, 4] = rotationTuner.intermediate_value[0, intermediate_index_2]; //Previous hidden layer value
+
+            Console.WriteLine(rotationTunerInput.ToString());
+            Matrix<double> newRotationGains = rotationTuner.predict(rotationTunerInput);
+            Kp_phi = Math.Abs(newRotationGains[0, 0]);
+            Ki_phi = Math.Abs(newRotationGains[0, 1]);
+            Kd_phi = Math.Abs(newRotationGains[0, 2]);
+
+
+            Matrix<double> flexionTunerInput = Matrix<double>.Build.Dense(1, 5);
+            //flexionTunerInput[0, 0] = minMaxNorm((setpoint_theta - theta), -90, 90); //Normalize the error input
+            //flexionTunerInput[0, 1] = minMaxNorm(theta, 90, 270); //Normalize between -90 and 90
+            //flexionTunerInput[0, 2] = minMaxNorm(((robotObj.Motor[3].p_prev - flex_pos_prev) * Math.PI / 2048) / (Convert.ToDouble(milliSec1) / 1000), -10, 10); //velocity in rad/sec, normalized
+            flexionTunerInput[0, 0] = minMaxNorm(Math.Abs(setpoint_theta - theta), 0, 90); //Normalize the error input
+            flexionTunerInput[0, 1] = minMaxNorm(Math.Abs(theta - 180), 0, 90); //Normalize between -90 and 90
+            flexionTunerInput[0, 2] = minMaxNorm(Math.Abs((robotObj.Motor[3].p_prev - flex_pos_prev) * Math.PI / 2048) / (Convert.ToDouble(milliSec1) / 1000), 0, 10); //velocity in rad/sec, normalized
+            flex_pos_prev = robotObj.Motor[3].p_prev;
+            flexionTunerInput[0, 3] = flexionTuner.intermediate_value[0, intermediate_index_1]; //Previous hidden layer value
+            flexionTunerInput[0, 4] = flexionTuner.intermediate_value[0, intermediate_index_2]; //Previous hidden layer value
+
+            //Console.WriteLine(flexionTunerInput.ToString());
+            Matrix<double> newFlexionGains = flexionTuner.predict(flexionTunerInput);
+            Kp_theta = Math.Abs(newFlexionGains[0, 0]);
+            Ki_theta = Math.Abs(newFlexionGains[0, 1]);
+            Kd_theta = Math.Abs(newFlexionGains[0, 2]);
+            Set_GainsDisplay();
+
+        }
+
+        void Set_GainsDisplay()
+        {
+            Kp_phi_ctrl.Value = (decimal)Kp_phi;
+            Ki_phi_ctrl.Value = (decimal)Ki_phi;
+            Kd_phi_ctrl.Value = (decimal)Kd_phi;
+
+            Kp_theta_ctrl.Value = (decimal)Kp_theta;
+            Ki_theta_ctrl.Value = (decimal)Ki_theta;
+            Kd_theta_ctrl.Value = (decimal)Kd_theta;
 
         }
 
@@ -7289,6 +7455,7 @@ namespace brachIOplexus
             //get output from PID controller (amount servo needs to move in degrees)
             output_phi = PID_phi(phi, setpoint_phi, Kp_phi, Ki_phi, Kd_phi);
             output_theta = PID_theta(theta, setpoint_theta, Kp_theta, Ki_theta, Kd_theta);
+
             //convert to encoder ticks
             RotAdjustment = Deg_to_Ticks(output_phi);
             FlxAdjustment = Deg_to_Ticks(output_theta);
@@ -7297,13 +7464,10 @@ namespace brachIOplexus
         //Function to write the PID driven goal-positions to the rotation servo - db
         void MoveLevelRot()
         {
-
+            
             robotObj.Motor[2].wmax = 500;
             robotObj.Motor[2].w = 500;
-            robotObj.Motor[2].p = Math.Max(robotObj.Motor[2].p_prev + taper(RotAdjustment, theta), 0);
-            //robotObj.Motor[2].p = robotObj.Motor[2].p_prev + RotAdjustment;
-
-
+            robotObj.Motor[2].p = truncateAction(robotObj.Motor[2].p_prev + RotAdjustment, 2);
         }
 
         //Function to write the PID driven goal-position to the flexion servo - db
@@ -7311,7 +7475,7 @@ namespace brachIOplexus
         {
             robotObj.Motor[3].wmax = 500;
             robotObj.Motor[3].w = 500;
-            robotObj.Motor[3].p = Math.Max(robotObj.Motor[3].p_prev - FlxAdjustment, 0);
+            robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev - FlxAdjustment, 3);
         }
 
         private void TurnOffAutoLevelRot()
@@ -7329,13 +7493,34 @@ namespace brachIOplexus
         //Function to convert degrees to encoder position ticks - db
         private int Deg_to_Ticks(double degrees)
         {
-            return (int)(degrees * 11.3611111111111111111111); //11.361111 degrees per encoder tick
+            return (int)(degrees * 11.3611111111111111111111); //11.361111 ticks per degree
         }
 
         //Function to convert encoder position ticks to degrees  - jg
         private double Ticks_to_Deg(int ticks)
         {
-            return (ticks/11.3611111111111111111111); //11.361111 degrees per encoder tick
+            return (ticks/11.3611111111111111111111); //11.361111 ticks per degree
+        }
+
+        private double taper_theta(double theta, double setpoint_value, double phi)
+        {
+            int buffer = 20;
+            int slope_den = 180 - (90 + buffer);
+            double taper_amount = Math.Max((slope_den - Math.Abs(180 - phi)) / slope_den, 0);
+
+            return taper_amount * theta + (1 - taper_amount) * setpoint_value;
+     
+        }
+
+        private int taper_flexion(int flexion, double phi)
+        {
+            int buffer = 20;
+            if (phi > (90 + buffer) && phi < (270 - buffer))
+            {
+                return flexion;
+            }
+            return 0;
+
         }
 
         //Function to taper off the rotation adjustments near the vertical positions - db
@@ -8460,7 +8645,7 @@ namespace brachIOplexus
 
         #endregion
 
-        #region "Auto Levelling Adaptive Switching"
+        #region "Auto Levelling Adaptive Switching and RL Control"
         private void ALAdaptive_Enabled_CheckedChanged(object sender, EventArgs e)
         {
             try
@@ -8661,7 +8846,6 @@ namespace brachIOplexus
                 MessageBox.Show(ex.Message);
             }
         }
-
         // Returns the lower byte of an integer number
         // https://stackoverflow.com/questions/5419453/getting-upper-and-lower-byte-of-an-integer-in-c-sharp-and-putting-it-as-a-char-a
         private byte low_byte(ushort number)
@@ -8679,9 +8863,7 @@ namespace brachIOplexus
         //Returns true if a motor is moving (while not being autolevelled)
         private bool motorsMoving()
         {
-            if ((stateObj.motorState[2] == 1 || stateObj.motorState[2] == 2))
-                return true;
-            else if ((stateObj.motorState[3] == 1 || stateObj.motorState[3] == 2))
+            if (Math.Abs(BentoSense.ID[2].vel - 1023) > 10 || Math.Abs(BentoSense.ID[3].vel - 1023) > 10)
                 return true;
             else if (stateObj.motorState[4] == 1 || stateObj.motorState[4] == 2)
                 return true;
@@ -8742,6 +8924,23 @@ namespace brachIOplexus
             loggingtrigger = true;
             StartLogging.Enabled = true;
             StopLogging.Enabled = false;
+        }
+
+        private void LogPID_Enabled_CheckedChanged(object sender, EventArgs e)
+        {
+            if (LogPID_Enabled.Checked)
+            {
+                pidLog = new System.IO.StreamWriter(pidLogFilePath, false);
+                string newLogLine = string.Format("timestamp," +
+                                                    "setpoint_phi,output_phi,phi,Kp_phi,Ki_phi,Kd_phi," +
+                                                    "setpoint_theta,theta,output_theta,Kp_theta,Ki_theta,Kd_theta," +
+                                                    "rot_pos,rot_vel,flex_pos,flex_vel");
+                pidLog.WriteLine(newLogLine);
+            }
+            else
+            {
+                pidLog.Dispose();
+            }
         }
     }
 }

@@ -1643,3 +1643,21 @@ C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DO
 C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\x86\Debug\brachIOplexus.application
 C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\obj\x86\Debug\MTT GUI.csproj.CopyComplete
 C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\XInputDotNetPure.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.dll.config
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Genetic.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Math.Core.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Math.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Neuro.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\MathNet.Numerics.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.xml
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Genetic.xml
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Math.xml
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Math.Core.xml
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Neuro.xml
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\MathNet.Numerics.xml
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Statistics.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\Accord.Statistics.xml
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\NeuralNetwork.pdb
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\MLCSharp.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\Example1\bin\x86\Debug\MLCSharp.pdb

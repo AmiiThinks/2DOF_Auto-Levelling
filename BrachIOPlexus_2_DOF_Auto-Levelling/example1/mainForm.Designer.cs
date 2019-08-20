@@ -663,7 +663,9 @@
             this.doF2 = new brachIOplexus.DoF();
             this.doF1 = new brachIOplexus.DoF();
             this.tabBento = new System.Windows.Forms.TabPage();
+            this.LogPID_Enabled = new System.Windows.Forms.CheckBox();
             this.AutoLevellingBox = new System.Windows.Forms.GroupBox();
+            this.NN_PID_Enabled = new System.Windows.Forms.CheckBox();
             this.UDPPythonDelay = new System.Windows.Forms.Label();
             this.label235 = new System.Windows.Forms.Label();
             this.ALAdaptive_Enabled = new System.Windows.Forms.CheckBox();
@@ -947,7 +949,14 @@
             // 
             // tg
             // 
-
+            //this.tg.ContainerControl = this;
+            //this.tg.DLMFileName = null;
+            //this.tg.HostTargetComm = MathWorks.xPCTarget.FrameWork.XPCProtocol.TCPIP;
+            //this.tg.RS232Baudrate = MathWorks.xPCTarget.FrameWork.XPCRS232BaudRate.BAUD115200;
+            //this.tg.RS232HostPort = MathWorks.xPCTarget.FrameWork.XPCRS232CommPort.COM1;
+            //this.tg.TargetPCName = null;
+            //this.tg.TcpIpTargetAddress = "10.10.10.15";
+            //this.tg.TcpIpTargetPort = "22222";
             // 
             // MenuStrip1
             // 
@@ -4759,7 +4768,7 @@
             this.SimBox.Controls.Add(this.SIMconnectBTN);
             this.SimBox.Controls.Add(this.openSim);
             this.SimBox.Controls.Add(this.sim_flag);
-            this.SimBox.Location = new System.Drawing.Point(376, 456);
+            this.SimBox.Location = new System.Drawing.Point(501, 456);
             this.SimBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.SimBox.Name = "SimBox";
             this.SimBox.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -6034,6 +6043,7 @@
             // 
             // BentoGroupBox
             // 
+            this.BentoGroupBox.Controls.Add(this.LogPID_Enabled);
             this.BentoGroupBox.Controls.Add(this.label160);
             this.BentoGroupBox.Controls.Add(this.BentoRun);
             this.BentoGroupBox.Controls.Add(this.BentoSuspend);
@@ -9166,8 +9176,21 @@
             this.tabBento.Text = "Bento Arm";
             this.tabBento.UseVisualStyleBackColor = true;
             // 
+            // LogPID_Enabled
+            // 
+            this.LogPID_Enabled.AutoSize = true;
+            this.LogPID_Enabled.Location = new System.Drawing.Point(11, 120);
+            this.LogPID_Enabled.Margin = new System.Windows.Forms.Padding(4);
+            this.LogPID_Enabled.Name = "LogPID_Enabled";
+            this.LogPID_Enabled.Size = new System.Drawing.Size(80, 21);
+            this.LogPID_Enabled.TabIndex = 217;
+            this.LogPID_Enabled.Text = "Log PID";
+            this.LogPID_Enabled.UseVisualStyleBackColor = true;
+            this.LogPID_Enabled.CheckedChanged += new System.EventHandler(this.LogPID_Enabled_CheckedChanged);
+            // 
             // AutoLevellingBox
             // 
+            this.AutoLevellingBox.Controls.Add(this.NN_PID_Enabled);
             this.AutoLevellingBox.Controls.Add(this.UDPPythonDelay);
             this.AutoLevellingBox.Controls.Add(this.label235);
             this.AutoLevellingBox.Controls.Add(this.ALAdaptive_Enabled);
@@ -9179,15 +9202,26 @@
             this.AutoLevellingBox.Margin = new System.Windows.Forms.Padding(4);
             this.AutoLevellingBox.Name = "AutoLevellingBox";
             this.AutoLevellingBox.Padding = new System.Windows.Forms.Padding(4);
-            this.AutoLevellingBox.Size = new System.Drawing.Size(365, 181);
+            this.AutoLevellingBox.Size = new System.Drawing.Size(489, 181);
             this.AutoLevellingBox.TabIndex = 211;
             this.AutoLevellingBox.TabStop = false;
             this.AutoLevellingBox.Text = "Auto-Levelling";
             // 
+            // NN_PID_Enabled
+            // 
+            this.NN_PID_Enabled.AutoSize = true;
+            this.NN_PID_Enabled.Location = new System.Drawing.Point(11, 54);
+            this.NN_PID_Enabled.Margin = new System.Windows.Forms.Padding(4);
+            this.NN_PID_Enabled.Name = "NN_PID_Enabled";
+            this.NN_PID_Enabled.Size = new System.Drawing.Size(76, 21);
+            this.NN_PID_Enabled.TabIndex = 216;
+            this.NN_PID_Enabled.Text = "NN PID";
+            this.NN_PID_Enabled.UseVisualStyleBackColor = true;
+            // 
             // UDPPythonDelay
             // 
             this.UDPPythonDelay.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.UDPPythonDelay.Location = new System.Drawing.Point(8, 132);
+            this.UDPPythonDelay.Location = new System.Drawing.Point(8, 147);
             this.UDPPythonDelay.Name = "UDPPythonDelay";
             this.UDPPythonDelay.Size = new System.Drawing.Size(93, 22);
             this.UDPPythonDelay.TabIndex = 215;
@@ -9196,7 +9230,7 @@
             // label235
             // 
             this.label235.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label235.Location = new System.Drawing.Point(8, 60);
+            this.label235.Location = new System.Drawing.Point(8, 79);
             this.label235.Name = "label235";
             this.label235.Size = new System.Drawing.Size(99, 36);
             this.label235.TabIndex = 214;
@@ -9205,7 +9239,7 @@
             // ALAdaptive_Enabled
             // 
             this.ALAdaptive_Enabled.AutoSize = true;
-            this.ALAdaptive_Enabled.Location = new System.Drawing.Point(11, 102);
+            this.ALAdaptive_Enabled.Location = new System.Drawing.Point(10, 119);
             this.ALAdaptive_Enabled.Margin = new System.Windows.Forms.Padding(4);
             this.ALAdaptive_Enabled.Name = "ALAdaptive_Enabled";
             this.ALAdaptive_Enabled.Size = new System.Drawing.Size(82, 21);
@@ -9227,11 +9261,11 @@
             this.FlexionPIDBox.Controls.Add(this.Kp_theta_ctrl);
             this.FlexionPIDBox.Controls.Add(this.label212);
             this.FlexionPIDBox.Enabled = false;
-            this.FlexionPIDBox.Location = new System.Drawing.Point(235, 13);
+            this.FlexionPIDBox.Location = new System.Drawing.Point(299, 13);
             this.FlexionPIDBox.Margin = new System.Windows.Forms.Padding(4);
             this.FlexionPIDBox.Name = "FlexionPIDBox";
             this.FlexionPIDBox.Padding = new System.Windows.Forms.Padding(4);
-            this.FlexionPIDBox.Size = new System.Drawing.Size(119, 156);
+            this.FlexionPIDBox.Size = new System.Drawing.Size(182, 156);
             this.FlexionPIDBox.TabIndex = 212;
             this.FlexionPIDBox.TabStop = false;
             this.FlexionPIDBox.Text = "Flexion PID";
@@ -9276,22 +9310,22 @@
             // 
             // Kd_theta_ctrl
             // 
-            this.Kd_theta_ctrl.DecimalPlaces = 2;
+            this.Kd_theta_ctrl.DecimalPlaces = 5;
             this.Kd_theta_ctrl.Increment = new decimal(new int[] {
             1,
             0,
             0,
-            131072});
+            196608});
             this.Kd_theta_ctrl.Location = new System.Drawing.Point(42, 73);
             this.Kd_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Kd_theta_ctrl.Name = "Kd_theta_ctrl";
-            this.Kd_theta_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Kd_theta_ctrl.Size = new System.Drawing.Size(97, 22);
             this.Kd_theta_ctrl.TabIndex = 153;
             this.Kd_theta_ctrl.Value = new decimal(new int[] {
-            800,
+            8,
             0,
             0,
-            131072});
+            196608});
             this.Kd_theta_ctrl.ValueChanged += new System.EventHandler(this.Kd_theta_ctrl_ValueChanged);
             // 
             // label210
@@ -9305,16 +9339,16 @@
             // 
             // Ki_theta_ctrl
             // 
-            this.Ki_theta_ctrl.DecimalPlaces = 2;
+            this.Ki_theta_ctrl.DecimalPlaces = 5;
             this.Ki_theta_ctrl.Increment = new decimal(new int[] {
             1,
             0,
             0,
-            131072});
+            196608});
             this.Ki_theta_ctrl.Location = new System.Drawing.Point(42, 47);
             this.Ki_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Ki_theta_ctrl.Name = "Ki_theta_ctrl";
-            this.Ki_theta_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Ki_theta_ctrl.Size = new System.Drawing.Size(97, 22);
             this.Ki_theta_ctrl.TabIndex = 151;
             this.Ki_theta_ctrl.Value = new decimal(new int[] {
             42,
@@ -9334,7 +9368,7 @@
             // 
             // Kp_theta_ctrl
             // 
-            this.Kp_theta_ctrl.DecimalPlaces = 2;
+            this.Kp_theta_ctrl.DecimalPlaces = 5;
             this.Kp_theta_ctrl.Increment = new decimal(new int[] {
             1,
             0,
@@ -9343,7 +9377,7 @@
             this.Kp_theta_ctrl.Location = new System.Drawing.Point(42, 21);
             this.Kp_theta_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Kp_theta_ctrl.Name = "Kp_theta_ctrl";
-            this.Kp_theta_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Kp_theta_ctrl.Size = new System.Drawing.Size(97, 22);
             this.Kp_theta_ctrl.TabIndex = 150;
             this.Kp_theta_ctrl.Value = new decimal(new int[] {
             29,
@@ -9378,7 +9412,7 @@
             this.RotationPIDBox.Margin = new System.Windows.Forms.Padding(4);
             this.RotationPIDBox.Name = "RotationPIDBox";
             this.RotationPIDBox.Padding = new System.Windows.Forms.Padding(4);
-            this.RotationPIDBox.Size = new System.Drawing.Size(119, 156);
+            this.RotationPIDBox.Size = new System.Drawing.Size(183, 156);
             this.RotationPIDBox.TabIndex = 211;
             this.RotationPIDBox.TabStop = false;
             this.RotationPIDBox.Text = "Rotation PID";
@@ -9413,22 +9447,22 @@
             // 
             // Kd_phi_ctrl
             // 
-            this.Kd_phi_ctrl.DecimalPlaces = 2;
+            this.Kd_phi_ctrl.DecimalPlaces = 5;
             this.Kd_phi_ctrl.Increment = new decimal(new int[] {
             1,
             0,
             0,
-            131072});
+            196608});
             this.Kd_phi_ctrl.Location = new System.Drawing.Point(42, 73);
             this.Kd_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Kd_phi_ctrl.Name = "Kd_phi_ctrl";
-            this.Kd_phi_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Kd_phi_ctrl.Size = new System.Drawing.Size(102, 22);
             this.Kd_phi_ctrl.TabIndex = 153;
             this.Kd_phi_ctrl.Value = new decimal(new int[] {
             879,
             0,
             0,
-            131072});
+            327680});
             this.Kd_phi_ctrl.ValueChanged += new System.EventHandler(this.Kd_phi_ctrl_ValueChanged);
             // 
             // SetpointRotation
@@ -9452,16 +9486,16 @@
             // 
             // Ki_phi_ctrl
             // 
-            this.Ki_phi_ctrl.DecimalPlaces = 2;
+            this.Ki_phi_ctrl.DecimalPlaces = 5;
             this.Ki_phi_ctrl.Increment = new decimal(new int[] {
             1,
             0,
             0,
-            131072});
+            196608});
             this.Ki_phi_ctrl.Location = new System.Drawing.Point(42, 47);
             this.Ki_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Ki_phi_ctrl.Name = "Ki_phi_ctrl";
-            this.Ki_phi_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Ki_phi_ctrl.Size = new System.Drawing.Size(102, 22);
             this.Ki_phi_ctrl.TabIndex = 151;
             this.Ki_phi_ctrl.Value = new decimal(new int[] {
             6,
@@ -9481,7 +9515,7 @@
             // 
             // Kp_phi_ctrl
             // 
-            this.Kp_phi_ctrl.DecimalPlaces = 2;
+            this.Kp_phi_ctrl.DecimalPlaces = 5;
             this.Kp_phi_ctrl.Increment = new decimal(new int[] {
             1,
             0,
@@ -9490,7 +9524,7 @@
             this.Kp_phi_ctrl.Location = new System.Drawing.Point(42, 21);
             this.Kp_phi_ctrl.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Kp_phi_ctrl.Name = "Kp_phi_ctrl";
-            this.Kp_phi_ctrl.Size = new System.Drawing.Size(64, 22);
+            this.Kp_phi_ctrl.Size = new System.Drawing.Size(102, 22);
             this.Kp_phi_ctrl.TabIndex = 150;
             this.Kp_phi_ctrl.Value = new decimal(new int[] {
             32,
@@ -11013,6 +11047,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.wristFlex_w)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.wristFlex_p)).EndInit();
             this.BentoGroupBox.ResumeLayout(false);
+            this.BentoGroupBox.PerformLayout();
             this.xBoxGroupBox.ResumeLayout(false);
             this.xBoxGroupBox.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -11872,6 +11907,8 @@
         private System.Windows.Forms.CheckBox ALAdaptive_Enabled;
         internal System.Windows.Forms.Label UDPPythonDelay;
         internal System.Windows.Forms.Label label235;
+        private System.Windows.Forms.CheckBox LogPID_Enabled;
+        private System.Windows.Forms.CheckBox NN_PID_Enabled;
     }
 }
 
