@@ -608,6 +608,8 @@ namespace brachIOplexus
 
 
 
+
+
             rotationTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
             flexionTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
 
