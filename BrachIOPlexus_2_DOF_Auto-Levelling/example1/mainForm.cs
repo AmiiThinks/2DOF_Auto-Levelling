@@ -304,9 +304,8 @@ namespace brachIOplexus
         NeuralNetwork flexionTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
         double rot_pos_prev = 0;
         double flex_pos_prev = 0;
-
-        double previous_sampled_phi = 0;
-        double previous_sampled_theta = 0;
+        int intermediate_index_1;
+        int intermediate_index_2;
 
         MatrixBuilder<double> M = Matrix<double>.Build;
         
@@ -615,98 +614,27 @@ namespace brachIOplexus
             }
 
             //NN PID Initialization - jg
-            //T, r, d, d_test, y0 = simulation_init(0.005, 5, aprbs_hold=0.5, aprbs_amp=10)
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.5646396, 0.44472283, -0.026545165, -0.25345182, }, { -0.54326975, -0.032849174, 0.4668321, -0.077445626, }, { 0.18383211, -0.27721208, -0.3923651, -0.61373603, }, { 0.24815589, -0.0017763376, 0.4608162, 0.7054073, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, -0.1182873, 0.097476155, 0.0, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.6142632, 0.85605514, 0.9089217, }, { -0.37518448, -0.4846233, 0.74188817, }, { 0.39573407, -0.5526355, -0.38935906, }, { -0.44491923, 0.82674575, 0.6981932, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.36576772, 0.13366668, -0.005643283, } });
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -1.1729832, -0.3793284, -0.33712652, 0.03808058, }, { 0.5647097, 0.9665621, 0.28740016, -0.5159178, }, { -0.64801806, -0.5004146, 0.34949997, -0.78091466, }, { 0.06814517, -0.50102115, -1.1500685, 0.39819443, }, { -0.9096381, -1.6564244, -0.14806525, -0.5363272, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.50780857, -0.30451038, 1.2207266, -1.9659667, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.019267848, -0.012480075, -0.01680899, }, { -0.04175675, -0.09411897, -0.060279913, }, { -0.16050132, -0.08882636, -0.005739276, }, { -0.013052998, -0.119022585, 0.07919888, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.09574542, -0.07796113, 0.040218733, } });
+            //intermediate_index_1 = 1;
+            //intermediate_index_2 = 2;
 
-            //T, r, d, d_test, y0 = simulation_init(0.04, 5, aprbs_hold=0.5, aprbs_amp=10)
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.8335516, -0.05580336, -0.14555788, 0.6245373, }, { 0.4172817, -0.34153926, -0.74945056, 0.6861009, }, { -0.38177162, 0.8559181, 0.5467544, -0.54483044, }, { 0.004999201, -0.10159308, 0.7385728, 0.23344739, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.0007860001, 0.0, 0.0, -0.0007792554, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.7303231, -0.69034576, -0.54290646, }, { 0.32643938, 0.33908868, 0.08315241, }, { -0.13974541, 0.36085033, -0.52406204, }, { 0.57062876, -0.43871015, -0.09015036, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { -0.013727854, 0.061397653, 0.06330181, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.04, 5, aprbs_hold=0.5, aprbs_amp=10)
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.34809595, 0.0030682038, 0.6284811, 0.31366366, }, { -0.36074013, -0.46587336, -0.47878772, 0.562736, }, { -0.53100896, -0.6350909, -0.85481805, 0.37875313, }, { 0.069449425, 0.7836738, -0.5283656, 0.26794982, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.2530033, 0.0, 0.28138578, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.5505401, -0.1792447, 0.8683852, }, { -0.6616048, -0.47672063, -0.055951413, }, { -0.7025596, 0.5084857, -0.66555417, }, { -0.631011, 0.24193211, 0.2412083, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { -0.3242982, 0.10810775, -0.1635418, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.04, 10, aprbs_hold=1.0, aprbs_amp=10)
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.12196344, 0.8402088, -0.2897634, -0.24094956, }, { -0.1403231, -0.017659307, -0.27335453, 0.18841453, }, { -0.59960806, 0.21286243, 0.019652247, -0.86470413, }, { -0.79872435, -0.42018512, -0.14333355, -0.11113793, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.0, 0.0, 0.051634807, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.79670715, 0.017108977, -0.041811407, }, { -0.8774172, 0.19759858, 0.4858874, }, { 0.7717004, -0.66171277, 0.8643429, }, { 0.32570875, 0.6685426, 0.49996996, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.39220017, -0.110968925, -0.015416015, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.005, 5, aprbs_hold = 0.5, aprbs_amp = 10)
-            //angle_delay = int(0.04 / 0.005) Delay 40ms
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.23019868, 0.26847976, 0.13058257, -0.51526594, }, { -0.09431893, -0.27962148, -0.51630735, -0.6593223, }, { -0.335531, -0.4282086, -0.2510342, -0.10934603, }, { 0.40728408, -0.23173773, 0.6467568, -0.45093033, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.0, 0.0, 0.0, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.38521105, 0.05398661, 0.71859336, }, { 0.6657332, 0.71716917, -0.58974195, }, { 0.23869026, -0.73912793, -0.040159464, }, { 0.56692684, -0.54634655, -0.33230537, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.3355282, -0.11902373, 0.028824365, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.005, 5, aprbs_hold = 0.5, aprbs_amp = 2)
-            //angle_delay = int(0.04 / 0.005) Delay 40ms
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.469091, 0.5837495, 0.6161855, -0.29176664, }, { -0.42145002, -0.41133037, -0.32293344, -0.695214, }, { -0.19336319, 0.1708265, -0.12716109, 0.2591582, }, { 0.69261855, -0.21050137, 0.1078912, 0.70040435, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.0, 0.0, 0.0, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.85541344, 0.24272895, -0.29184705, }, { -0.2601527, -0.3024608, -0.19099867, }, { 0.72617686, -0.5074632, 0.18926573, }, { -0.78899497, -0.29553682, -0.7940162, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.1627041, 0.0003552406, 0.02614274, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.005, 5, aprbs_hold = 0.5, aprbs_amp = 5)
-            //angle_delay = int(0.04 / 0.005) Delay 40ms
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.5200818, 0.13729434, 0.22273165, -0.35682225, }, { 0.17074423, 0.76282114, -0.8432114, -0.8223139, }, { -0.28515702, -0.55565476, -0.0014420152, 0.79661435, }, { -0.66686594, -0.6096158, -0.44322914, -0.5020566, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.084821686, -0.004685226, 0.0, 0.0, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.48697764, 0.38355792, 0.62264967, }, { 0.5801897, 0.6731061, -0.191926, }, { -0.8172258, -0.11317873, -0.12847704, }, { -0.6764654, 0.073265135, 0.75450397, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.18355048, -0.24811202, 0.04763204, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.04, 5, aprbs_hold = 0.5, aprbs_amp = 10)
-            //angle_delay = int(0.04 / 0.04) Delay 40ms
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.24043745, -0.37898853, 0.40406054, -0.3145858, }, { -0.5016217, 0.13074751, -0.3197698, 0.25452358, }, { 0.16118282, 0.58525425, 0.72444254, 0.82727486, }, { -0.023576736, 0.29478806, -0.5787521, 0.511653, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.22536948, 0.0, 0.0058112107, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.6934625, -0.6452534, -0.13090181, }, { -0.10205495, 0.54358566, -0.16841395, }, { -0.43876168, 0.47591543, 0.10363555, }, { 0.25104272, 0.74543357, 0.34738517, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.421242, 0.027251836, 0.0143605, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.04, 5, aprbs_hold = 0.5, aprbs_amp = 10)
-            //angle_delay = int(0.04 / 0.04) Delay 40ms
-            //Absolute value nn input
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.5378669, 0.06037902, 0.16276695, -0.14720744, }, { -0.5745697, 0.10340727, 0.8508242, -0.6509132, }, { -0.026235342, 0.07204217, -0.062018096, -0.22028154, }, { 0.68987817, -0.48725966, 0.86523336, -0.02177459, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, -0.053961407, 0.0028707676, 0.0, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.44328642, 0.5580933, 0.1592139, }, { -0.78366077, -0.5004203, -0.15251482, }, { 0.92094815, -0.3013361, -0.002211115, }, { -0.21917987, -0.3739786, -0.10942316, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.032032274, 0.13956484, -0.03771347, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.04, 5, aprbs_hold = 0.5, aprbs_amp = 10)
-            //angle_delay = int(0.08 / 0.04) Delay 40ms
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.1079672, 0.68571335, 0.4175449, -0.5546489, }, { -0.42141366, -0.33607632, 0.33399886, -0.78769994, }, { -0.62711823, -0.8365868, 0.6688083, 0.12550592, }, { 0.058261693, 0.37009805, 0.45933968, 0.16066223, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.0, -0.17854315, 0.0, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.87401104, 0.11457038, 0.19099939, }, { 0.79335904, -0.21452904, 0.4801246, }, { -0.22267771, -0.13016078, 0.31868583, }, { -0.61669517, 0.6127986, -0.82881314, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.28449082, 0.00032089723, 0.041493863, } });
-
-            //T, r, d, d_test, y0 = simulation_init(0.002, 5, aprbs_hold = 0.5, aprbs_amp = 10)
-            //angle_sample_rate = 0.04 / dt #Sample every 40 ms
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.7930111, -0.32483488, -0.054497004, 0.30999917, }, { -0.07653469, -0.57722396, 0.6456055, -0.25552732, }, { 0.035606682, 0.57331663, 0.66947025, 0.82631415, }, { 0.02638936, 0.43281883, -0.73980296, 0.7331678, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.0, 0.0, 0.3022967, 0.0, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.30295897, -0.91676056, 0.48869014, }, { 0.095986724, 0.33047485, -0.17322487, }, { 0.6210878, 0.3377396, 0.18324506, }, { -0.26180536, 0.60386777, 0.13095391, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.25863254, -0.6678001, 0.0, } });
-
-            //aprbs_amp = 10
-            //dt = 0.01
-            //T, r, d, d_val, y0 = simulation_init(dt, 5, aprbs_hold = 1.0, aprbs_amp = aprbs_amp, butter_cutoff = 5)
-            //angle_sample_rate = 0.04 / dt #Sample every 40 ms
-            //Using new validation set
-            //Using angle instead of servo angle as nn input
-
-            //Trial 1
-            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.045534115, 0.048524354, -0.0800589, 0.17814623, }, { 0.06415104, -0.15304177, -0.0737941, 0.0141597465, }, { 0.16642351, -0.005963045, -0.11715184, -0.111185096, }, { -0.0104030995, 0.04073845, -0.03498443, -0.1996289, }, });
-            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { -0.08817364, -0.048420675, 0.35174003, -0.004585502, } });
-            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { -0.0077077923, -0.16994673, 0.23636393, }, { -0.019814186, 0.12584066, 0.3738211, }, { -0.09207389, 0.039682165, -0.076776244, }, { -0.16372746, -0.13303347, 0.3588778, }, });
-            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.2157842, -0.0009540143, 0.013788593, } });
+            //Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.27330548, -1.0421622, -1.2615308, -0.06972929, }, { 1.7225811, 0.0501885, -0.108041346, -1.3204477, }, { 0.21240659, 0.2132961, -0.8277527, 0.29566523, }, { 0.9374504, 0.9402596, -0.5234828, -0.06541468, }, { 0.42449054, 0.07782964, 1.4459049, 0.84270155, }, });
+            //Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.4091516, -0.32932594, 0.10910083, -0.673583, } });
+            //Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.058055427, 0.099546194, 0.08566268, }, { 0.07965486, 0.00012375692, 0.1344134, }, { -0.04209916, 0.112429075, 0.08752663, }, { 0.018632662, -0.037860002, 0.1400344, }, });
+            //Matrix<double> b2 = M.DenseOfArray(new double[,] { { -0.27096385, 0.019926187, 0.07313371, } });
+            //intermediate_index_1 = 1;
+            //intermediate_index_2 = 3;
 
 
-            Matrix<double> w1 = M.DenseOfArray(new double[,] { { 0.039339006, 0.026103651, 0.04451056, -0.022756921, }, { -0.004847153, -0.010996023, -0.05849669, 0.07124004, }, { -0.040327802, 0.19097331, 0.10276768, -0.07850672, }, { 0.0081061255, 0.029124763, 0.047192235, 0.03410933, }, { 0.17162801, 0.12224348, -0.15544032, 0.0977269, }, });
-            Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.072319634, 0.09154561, 0.061162263, 0.052541345, } });
-            Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.042928077, 0.06656887, -0.08351116, }, { 0.11558755, -0.14220764, -0.05194859, }, { 0.09328026, 0.027212929, -0.13495544, }, { 0.12906073, 0.15204132, 0.09040803, }, });
-            Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.24610433, 0.01404574, 0.003426763, } });
+            Matrix<double> w1 = M.DenseOfArray(new double[,] { { -0.3307729, 1.8110133, 1.1213136, -0.072563276, }, { 0.5261499, -0.662291, -1.144703, 1.712379, }, { 0.28138128, 0.053365517, 1.9274986, -0.599831, }, { -0.3581448, -1.6825196, 0.0033206493, 0.6985645, }, { -0.2682502, -0.072796375, 0.84237343, -1.378411, }, });
+            Matrix<double> b1 = M.DenseOfArray(new double[,] { { 0.14616306, -1.5273558, 0.35982278, -0.56100595, } });
+            Matrix<double> w2 = M.DenseOfArray(new double[,] { { 0.06499804, -0.030165646, -0.39896873, }, { -0.28864387, -0.021510046, -0.27441448, }, { -0.05190554, -0.19550289, 0.049142517, }, { -0.0063355123, -0.20068333, -0.28261405, }, });
+            Matrix<double> b2 = M.DenseOfArray(new double[,] { { 0.17481682, -0.018585686, -0.04084195, } });
+            intermediate_index_1 = 3;
+            intermediate_index_2 = 3;
 
             rotationTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
             flexionTuner.setWeights(new Matrix<double>[] { w1, w2 }, new Matrix<double>[] { b1, b2 });
@@ -7239,7 +7167,9 @@ namespace brachIOplexus
                 Kp_theta = 0.29;         //PID proportional constant for theta
                 Ki_theta = 0.42;            //PID integral constant for theta
                 Kd_theta = 0.00800;            //PID derivative constant for theta
+                Set_GainsDisplay();
             }
+            Console.WriteLine(string.Format("Kp_phi: {0}, Ki_phi: {1}, Kd_phi: {2}, Kp_theta: {3}, Ki_theta: {4}, Kd_theta: {5}", Kp_phi, Ki_phi, Kd_phi, Kp_theta, Ki_theta, Kd_theta));
 
             //Get goal position
             Get_GoalPos();
@@ -7470,36 +7400,52 @@ namespace brachIOplexus
 
 
             Matrix<double> rotationTunerInput = Matrix<double>.Build.Dense(1, 5);
-            rotationTunerInput[0, 0] = minMaxNorm((setpoint_phi - phi), -90, 90); //Normalize the error input
-            rotationTunerInput[0, 1] = minMaxNorm(phi, 90, 270); //Normalize between -90 and 90
-            rotationTunerInput[0, 2] = minMaxNorm(((robotObj.Motor[2].p_prev - rot_pos_prev) * Math.PI / 2048)/(Convert.ToDouble(milliSec1)/1000), -10, 10); //velocity in rad/sec, normalized
+            //rotationTunerInput[0, 0] = minMaxNorm((setpoint_phi - phi), -90, 90); //Normalize the error input
+            //rotationTunerInput[0, 1] = minMaxNorm(phi, 90, 270); //Normalize between -90 and 90
+            //rotationTunerInput[0, 2] = minMaxNorm(((robotObj.Motor[2].p_prev - rot_pos_prev) * Math.PI / 2048)/(Convert.ToDouble(milliSec1)/1000), -10, 10); //velocity in rad/sec, normalized
+            rotationTunerInput[0, 0] = minMaxNorm(Math.Abs(setpoint_phi - phi), 0, 90); //Normalize the error input
+            rotationTunerInput[0, 1] = minMaxNorm(Math.Abs(phi - 180), 0, 90); //Normalize between -90 and 90
+            rotationTunerInput[0, 2] = minMaxNorm(Math.Abs((robotObj.Motor[2].p_prev - rot_pos_prev) * Math.PI / 2048) / (Convert.ToDouble(milliSec1) / 1000), 0, 10); //velocity in rad/sec, normalized
             rot_pos_prev = robotObj.Motor[2].p_prev;
-            rotationTunerInput[0, 3] = rotationTuner.intermediate_value[0, 0]; //Previous hidden layer value
-            rotationTunerInput[0, 4] = rotationTuner.intermediate_value[0, 3]; //Previous hidden layer value
+            rotationTunerInput[0, 3] = rotationTuner.intermediate_value[0, intermediate_index_1]; //Previous hidden layer value
+            rotationTunerInput[0, 4] = rotationTuner.intermediate_value[0, intermediate_index_2]; //Previous hidden layer value
 
             Console.WriteLine(rotationTunerInput.ToString());
             Matrix<double> newRotationGains = rotationTuner.predict(rotationTunerInput);
             Kp_phi = Math.Abs(newRotationGains[0, 0]);
             Ki_phi = Math.Abs(newRotationGains[0, 1]);
             Kd_phi = Math.Abs(newRotationGains[0, 2]);
-            Console.WriteLine(string.Format("Kp_phi: {0}, Ki_phi: {1}, Kd_phi: {2}", Kp_phi, Ki_phi, Kd_phi));
 
 
             Matrix<double> flexionTunerInput = Matrix<double>.Build.Dense(1, 5);
-            flexionTunerInput[0, 0] = minMaxNorm((setpoint_theta - theta), -90, 90); //Normalize the error input
-            flexionTunerInput[0, 1] = minMaxNorm(theta, 90, 270); //Normalize between -90 and 90
-            flexionTunerInput[0, 2] = minMaxNorm(((robotObj.Motor[3].p_prev - flex_pos_prev) * Math.PI / 2048) / (Convert.ToDouble(milliSec1) / 1000), -10, 10); //velocity in rad/sec, normalized
+            //flexionTunerInput[0, 0] = minMaxNorm((setpoint_theta - theta), -90, 90); //Normalize the error input
+            //flexionTunerInput[0, 1] = minMaxNorm(theta, 90, 270); //Normalize between -90 and 90
+            //flexionTunerInput[0, 2] = minMaxNorm(((robotObj.Motor[3].p_prev - flex_pos_prev) * Math.PI / 2048) / (Convert.ToDouble(milliSec1) / 1000), -10, 10); //velocity in rad/sec, normalized
+            flexionTunerInput[0, 0] = minMaxNorm(Math.Abs(setpoint_theta - theta), 0, 90); //Normalize the error input
+            flexionTunerInput[0, 1] = minMaxNorm(Math.Abs(theta - 180), 0, 90); //Normalize between -90 and 90
+            flexionTunerInput[0, 2] = minMaxNorm(Math.Abs((robotObj.Motor[3].p_prev - flex_pos_prev) * Math.PI / 2048) / (Convert.ToDouble(milliSec1) / 1000), 0, 10); //velocity in rad/sec, normalized
             flex_pos_prev = robotObj.Motor[3].p_prev;
-            flexionTunerInput[0, 3] = flexionTuner.intermediate_value[0, 0]; //Previous hidden layer value
-            flexionTunerInput[0, 4] = flexionTuner.intermediate_value[0, 3]; //Previous hidden layer value
+            flexionTunerInput[0, 3] = flexionTuner.intermediate_value[0, intermediate_index_1]; //Previous hidden layer value
+            flexionTunerInput[0, 4] = flexionTuner.intermediate_value[0, intermediate_index_2]; //Previous hidden layer value
 
             //Console.WriteLine(flexionTunerInput.ToString());
             Matrix<double> newFlexionGains = flexionTuner.predict(flexionTunerInput);
             Kp_theta = Math.Abs(newFlexionGains[0, 0]);
             Ki_theta = Math.Abs(newFlexionGains[0, 1]);
             Kd_theta = Math.Abs(newFlexionGains[0, 2]);
-            //Console.WriteLine(string.Format("Kp_theta: {0}, Ki_theta: {1}, Kd_theta: {2}", Kp_theta, Ki_theta, Kd_theta));
+            Set_GainsDisplay();
 
+        }
+
+        void Set_GainsDisplay()
+        {
+            Kp_phi_ctrl.Value = (decimal)Kp_phi;
+            Ki_phi_ctrl.Value = (decimal)Ki_phi;
+            Kd_phi_ctrl.Value = (decimal)Kd_phi;
+
+            Kp_theta_ctrl.Value = (decimal)Kp_theta;
+            Ki_theta_ctrl.Value = (decimal)Ki_theta;
+            Kd_theta_ctrl.Value = (decimal)Kd_theta;
 
         }
 
