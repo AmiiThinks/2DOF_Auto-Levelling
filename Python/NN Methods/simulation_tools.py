@@ -8,7 +8,7 @@ class PID:
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
-#         self.I_max = 5
+        self.I_max = 100
         self.e_prev = 0
         self.t_prev = 0
         self.P = 0
@@ -25,10 +25,10 @@ class PID:
     
         self.I += e * delta_time
 
-#         if (self.I < -self.I_max):
-#             self.I = -self.I_max
-#         elif (self.I > self.I_max):
-#             self.I = self.I_max
+        if (self.I < -self.I_max):
+            self.I = -self.I_max
+        elif (self.I > self.I_max):
+            self.I = self.I_max
 
         if delta_time > 0:
             self.D = delta_error / delta_time
@@ -234,7 +234,9 @@ class PRBS:
         for i in range(len(y)):
             if i != 0 and y[i] != y[i-1] and amp_index + 1 < len(new_amplitudes)-1:
                 amp_index += 1
+#             y_amp_mod[i] = new_amplitudes[amp_index]
             y_amp_mod[i] = new_amplitudes[amp_index] - (y_max - y_min)/2 #re-centre the signal
+
         return y_amp_mod
    
     def apply_butter(self, y, dt, cutoff):
