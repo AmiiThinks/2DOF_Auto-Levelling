@@ -1,0 +1,9 @@
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\bin\Release\MLCSharp.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\bin\Release\MLCSharp.pdb
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\bin\Release\MathNet.Numerics.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\bin\Release\MathNet.Numerics.xml
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\obj\Release\MLCSharp.csprojAssemblyReference.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\obj\Release\MLCSharp.csproj.CoreCompileInputs.cache
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\obj\Release\MLCSharp.csproj.CopyComplete
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\obj\Release\MLCSharp.dll
+C:\Users\James\Documents\Bypass_Prothesis\2DOF_Auto-Levelling\BrachIOPlexus_2_DOF_Auto-Levelling\MLCSharp\MLCSharp\obj\Release\MLCSharp.pdb

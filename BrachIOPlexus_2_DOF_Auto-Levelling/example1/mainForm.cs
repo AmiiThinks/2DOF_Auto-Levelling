@@ -280,6 +280,7 @@ namespace brachIOplexus
         #endregion
 
         //NN PID - jg
+        //put taper in for flexion
         #region "NN PID Tuning Initialization"
         NeuralNetwork rotationTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
         NeuralNetwork flexionTuner = new NeuralNetwork(5, 3, new int[] { 4 }, new string[] { "leakyRelu", "linear" }, 0, 1);
@@ -604,8 +605,6 @@ namespace brachIOplexus
             Matrix<double> b2 = M.DenseOfArray(new double[,] { { -0.18708958, -0.022314338, 0.02494787, } });
             intermediate_index_1 = 2;
             intermediate_index_2 = 3;
-
-
 
 
 
@@ -7413,7 +7412,7 @@ namespace brachIOplexus
         {
             robotObj.Motor[3].wmax = 500;
             robotObj.Motor[3].w = 500;
-            robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev - FlxAdjustment, 3);
+            robotObj.Motor[3].p = truncateAction(robotObj.Motor[3].p_prev - taper(FlxAdjustment, phi), 3);
         }
 
         private void TurnOffAutoLevelRot()
